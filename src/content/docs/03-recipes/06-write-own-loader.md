@@ -1,6 +1,7 @@
 ---
 title: Write & use your own loader
 description: some description
+slug: recipes/write-own-loader
 ---
 
 

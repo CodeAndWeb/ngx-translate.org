@@ -1,6 +1,7 @@
 ---
 title: How to handle missing translations
 description: blahn
+slug: recipes/handle-missing-translations
 ---
 
 You can set up a provider for the `MissingTranslationHandler` in the bootstrap of your application (recommended), or in the `providers` property of a component. It will be called when the requested translation is not available. The only required method is `handle` where you can do whatever you want. If this method returns a value or an observable (that should return a string), then this will be used. Just don't forget that it will be called synchronously from the `instant` method.

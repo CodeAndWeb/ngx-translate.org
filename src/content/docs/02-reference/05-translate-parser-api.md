@@ -1,6 +1,7 @@
 ---
 title: Translate Parser API
 description: A reference page in my new Starlight docs site.
+slug: reference/translate-parser-api
 ---
 
 ## TranslateParser API

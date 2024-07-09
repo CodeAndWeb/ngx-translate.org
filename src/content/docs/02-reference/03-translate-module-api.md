@@ -1,6 +1,7 @@
 ---
 title: Translate Module API
 description: A reference page in my new Starlight docs site.
+slug: reference/translate-module-api
 ---
 
 ### forRoot(config: TranslateModuleConfig)

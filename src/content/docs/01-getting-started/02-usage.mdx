@@ -1,9 +1,10 @@
 ---
 title: Usage
 description: usage
+slug: getting-started/usage
 ---
 
-import { Aside } from '@astrojs/starlight/components';
+import { Aside, Tabs, TabItem} from "@astrojs/starlight/components";
 
 
 ## Importing the `TranslateModule`
@@ -19,23 +20,19 @@ This method lets you configure the `TranslateModule` by specifying a loader,
 a parser, and/or a missing translations handler. Additionally, you can set the
 default language using `defaultLanguage`.
 
-See the section [Translate Module API](#translate-module-api) for details.
+See the section [Translate Module API](/reference/translate-module-api) for details.
 
-```ts
+```ts {3,8-10}
 import {BrowserModule} from '@angular/platform-browser';
 import {NgModule} from '@angular/core';
-// highlight-start
 import {TranslateModule} from '@ngx-translate/core';
-// highlight-end
 
 @NgModule({
     imports: [
         BrowserModule,
-// highlight-start
         TranslateModule.forRoot({
             defaultLanguage: 'en'
         })
-// highlight-end
     ],
     bootstrap: [AppComponent]
 })
@@ -100,9 +97,20 @@ You can write your own loader, or import an existing one.
 Ngx-translate comes with `TranslateHttpLoader` which loads translation files using `HttpClient`.
 To use it, you need to install the http-loader package from @ngx-translate:
 
-```sh
+<Tabs syncKey="packetmanager">
+    <TabItem label="npm">
+```bash
 npm install @ngx-translate/http-loader --save
 ```
+    </TabItem>
+    <TabItem label="yarn">
+```bash
+yarn add @ngx-translate/http-loader
+```
+    </TabItem>
+</Tabs>
+
+
 
 Once you've decided which loader to use, you have to set up the `TranslateModule` to use it.
 
@@ -110,36 +118,30 @@ Here is how you would use the `TranslateHttpLoader` to load
 translations from `"/assets/i18n/[lang].json"`. `[lang]` is the lang that you're using, for english it could be `en`.
 
 You have to create the translate loader inside a factory method if you want to
-use [AoT compilation](https://angular.io/docs/ts/latest/cookbook/aot-compiler.html) or [Ionic](http://ionic.io/).
+use [AoT compilation](https://angular.dev/tools/cli/aot-compiler) or [Ionic](http://ionic.io/).
 
-```ts
+```ts {3-5,8-10,16-23}
 import {NgModule} from '@angular/core';
 import {BrowserModule} from '@angular/platform-browser';
-// highlight-start
 import {HttpClientModule, HttpClient} from '@angular/common/http';
 import {TranslateModule, TranslateLoader} from '@ngx-translate/core';
 import {TranslateHttpLoader} from '@ngx-translate/http-loader';
-// highlight-end
 import {AppComponent} from './app';
 
-// highlight-start
 export function HttpLoaderFactory(http: HttpClient) {
     return new TranslateHttpLoader(http, './assets/i18n/', '.json');
 }
-// highlight-end
 
 @NgModule({
     imports: [
         BrowserModule,
         HttpClientModule,
         TranslateModule.forRoot({
-// highlight-start
             loader: {
                 provide: TranslateLoader,
                 useFactory: HttpLoaderFactory,
                 deps: [HttpClient]
             },
-// highlight-end
             defaultLanguage: 'en'
         })
     ],
@@ -152,39 +154,31 @@ export class AppModule { }
 ## Initialize the `TranslateService` for your application
 
 
-```ts
+```ts {2,7,11-16}
 import {Component} from '@angular/core';
-// highlight-start
 import {TranslateService} from '@ngx-translate/core';
-// highlight-end
 
 @Component({
     selector: 'app',
     template: `
-// highlight-start
         <div>{{ 'app.hello' | translate:param }}</div>
-// highlight-end
     `
 })
 export class AppComponent {
-// highlight-start
     param = {value: 'world'};
-// highlight-end
 
-// highlight-start
     constructor(translate: TranslateService) {
         translate.setDefaultLang('en');
         translate.use('en');
     }
-// highlight-end
 }
 ```
 
-[`setDefaultLang()`](#set-default-lang) sets the default language. The default language is used
+[`setDefaultLang()`](/reference/translate-service-api/#setdefaultlang) sets the default language. The default language is used
 as a fall-back if no translation is found in the currently selected language.
 You can also do this at application startup using the `TranslateModule.forRoot({defaultLanguage:'en'})`.
 
-[`use()`](#use) sets the current language for the application. If the selected language is not yet
+[`use()`](/reference/translate-service-api/#use) sets the current language for the application. If the selected language is not yet
 loaded, the loader is invoked to retrieve the file.
 
 
@@ -200,7 +194,7 @@ The following translations should be stored in `./assets/i18n/en.json`.
 }
 ```
 
-You can also define your translations manually with [`setTranslation()`](#set-translation).
+You can also define your translations manually with [`setTranslation()`](/reference/translate-service-api/#settranslation).
 
 ```ts
 translate.setTranslation('en', {
@@ -221,7 +215,7 @@ provide some more context for the translators.
 
 You can then access the value by using the dot notation, in this case `app.hello`.
 
-We highly recommend using [BabelEdit](/babeledit) to manage your translations. It allows you to
+We highly recommend using [BabelEdit](https://www.codeandweb.com/babeledit) to manage your translations. It allows you to
 edit all JSON files at once, keeping them consistent. Features like PreTranslate allow you a
 fast preview of your application in other languages.
 
@@ -241,15 +235,15 @@ translate.get('app.hello', {value: 'world'}).subscribe((res: string) => {
 });
 ```
 
-You might ask yourself, why [`get()`](#get) is using a subscription to receive the translation.
-This is because your language file might not be loaded when the [get()](#get) function is called.
+You might ask yourself, why [`get()`](/reference/translate-service-api/#get) is using a subscription to receive the translation.
+This is because your language file might not be loaded when the [get()](/reference/translate-service-api/#get) function is called.
 The update is triggered when the loading is complete.
 
-You can also use [`stream()`](#stream) which is similar to `get()` but also fires when the language is changed.
+You can also use [`stream()`](/reference/translate-service-api/#stream) which is similar to `get()` but also fires when the language is changed.
 
-There is also [`instant()`](#instant) &mdash; a synchronous method that returns the translation value
+There is also [`instant()`](/reference/translate-service-api/#instant) &mdash; a synchronous method that returns the translation value
 immediately. This only works if the translation file is already loaded &mdash; or the translations
-are set using  [`setTranslation()`](#set-translation).
+are set using  [`setTranslation()`]/reference/translate-service-api/#settranslation).
 
 ## Using translations in templates (TranslatePipe, TranslateDirective)
 

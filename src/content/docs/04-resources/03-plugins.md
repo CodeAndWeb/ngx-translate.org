@@ -1,6 +1,7 @@
 ---
 title: Plugins
 description: Editors
+slug: resources/plugins
 ---
 
 

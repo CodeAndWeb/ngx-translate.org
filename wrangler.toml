@@ -1,5 +1,5 @@
 #:schema node_modules/wrangler/config-schema.json
-name = "my-astro-app"
+name = "ngx-translate"
 compatibility_date = "2024-07-01"
 pages_build_output_dir = "./dist"
 
@@ -48,6 +48,7 @@ pages_build_output_dir = "./dist"
 # Docs: https://developers.cloudflare.com/pages/functions/bindings/#queue-producers
 # [[queues.producers]]
 # binding = "MY_QUEUE"
+# queue = "my-queue"
 # queue = "my-queue"
 
 # Bind an R2 Bucket. Use R2 to store arbitrarily large blobs of data, such as files.

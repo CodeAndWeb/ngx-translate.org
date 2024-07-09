@@ -1,6 +1,7 @@
 ---
 title: Translate Service API
 description: A reference page in my new Starlight docs site.
+slug: reference/translate-service-api
 ---
 
 import { Aside } from '@astrojs/starlight/components';
@@ -80,7 +81,7 @@ A translation is used from the default language, if no translation is found
 in the current language.
 
 Calling `setDefaultLang` uses the loader to retrieve the language and
-updates the list of available languages which can be retrieved using [`getLangs`](#get-langs).
+updates the list of available languages which can be retrieved using [`getLangs`](#getlangs).
 
 ## getDefaultLang
 
@@ -100,7 +101,7 @@ Changes the currently active language. This invokes the current loader to retrie
 if the language is not yet loaded.
 
 Calling `use` uses the loader to retrieve the language and
-updates the list of available languages which can be retrieved using [`getLangs`](#get-langs).
+updates the list of available languages which can be retrieved using [`getLangs`](#getlangs).
 
 ## getTranslation
 
@@ -119,7 +120,7 @@ setTranslation(lang: string, translations: Object, shouldMerge: boolean = false)
 Manually sets an object of translations for a given language,
 set `shouldMerge` to true if you want to append the translations instead of replacing them.
 
-Using `setTranslation` updates the list of available languages which can be retrieved using [`getLangs`](#get-langs).
+Using `setTranslation` updates the list of available languages which can be retrieved using [`getLangs`](#getlangs).
 
 
 ## addLangs
@@ -138,8 +139,8 @@ getLangs(): string
 ~~~
 
 Returns an array of currently available languages. The list can be extended
-calling  [`setDefaultLang`](#set-default-lang), [`use`](#use), [`setTranslation`](#set-translation)
-or[`addLangs`](#add-langs).
+calling  [`setDefaultLang`](#setdefaultlang), [`use`](#use), [`setTranslation`](#settranslation)
+or[`addLangs`](#addlangs).
 
 
 ## get
@@ -159,7 +160,7 @@ getStreamOnTranslationChange(key: string|Array<string>, interpolateParams?: Obje
 ~~~
 
 Returns a stream of translated values of a key (or an array of keys) or the key if
-the value was not found. Without any [`onTranslationChange`](#on-translation-change)`` events this returns the same
+the value was not found. Without any [`onTranslationChange`](#ontranslationchange-event-emitter)`` events this returns the same
 value as [`get`](#get) but it will also emit new values whenever the translation changes.
 
 ## stream
@@ -169,7 +170,7 @@ stream(key: string|Array<string>, interpolateParams?: Object): Observable<string
 ~~~
 
 Returns a stream of translated values of a key (or an array of keys) or the key if
-the value was not found. Without any [`onLangChange`](#on-lang-change) events this returns the same
+the value was not found. Without any [`onLangChange`](#onlangchange-event-emitter) events this returns the same
 value as [`get`](#get) but it will also emit new values whenever the used language changes.
 
 ## instant
@@ -201,7 +202,7 @@ Sets the translated value of a key.
 reloadLang(lang: string): Observable<string|Object>
 ~~~
 
-Calls [`resetLang`](#reset-lang) and retrieves the translations object for the current loader
+Calls [`resetLang`](#resetlang) and retrieves the translations object for the current loader
 
 ## resetLang
 
@@ -213,7 +214,7 @@ Removes the current translations for this lang.
 
 <Aside type="caution">
 
-You will have to call [`use`](#use), [`reloadLang`](#reload-lang) or [`getTranslation`](#get-translation) again
+You will have to call [`use`](#use), [`reloadLang`](#reloadlang) or [`getTranslation`](#gettranslation) again
 to be able to get translations
 
 </Aside>

@@ -1,6 +1,7 @@
 ---
 title: FAQ
 description: Editors
+slug: resources/faq
 ---
 
 
@@ -8,4 +9,5 @@ description: Editors
 
 If you want to reload the translations and see the update on all your components
 without reloading the page, you have to load the translations manually and
-call [`setTranslation`](#set-translation) function which triggers [`onTranslationChange`](#on-translation-change).
+call [`setTranslation`](/reference/translate-service-api#settranslation) function 
+which triggers [`onTranslationChange`](/reference/translate-service-api#ontranslationchange-event-emitter).
