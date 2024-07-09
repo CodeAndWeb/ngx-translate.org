@@ -1,0 +1,46 @@
+---
+title: Translation files
+description: usage
+slug: getting-started/translation-files
+---
+
+import { Aside, Tabs, TabItem} from "@astrojs/starlight/components";
+
+
+## Define the translations
+
+Once you've imported the `TranslateModule`, you can put your translations
+in a JSON file that will be imported with the `TranslateHttpLoader`.
+The following translations should be stored in `./assets/i18n/en.json`.
+
+```json title="./assets/i18n/en.json"
+{
+    "app.hello": "hello {{value}}"
+}
+```
+
+You can also define your translations manually with [`setTranslation()`](/reference/translate-service-api/#settranslation).
+
+```ts
+translate.setTranslation('en', {
+    "app.hello": 'hello {{value}}'
+});
+```
+
+You can also use nested JSON objects &mdash; this allows you to create more structured translation files and
+provide some more context for the translators.
+
+```json
+{
+    "app": {
+        "hello": "hello {{value}}"
+    }
+}
+```
+
+You can then access the value by using the dot notation, in this case `app.hello`.
+
+We highly recommend using [BabelEdit](https://www.codeandweb.com/babeledit) to manage your translations. It allows you to
+edit all JSON files at once, keeping them consistent. Features like PreTranslate allow you a
+fast preview of your application in other languages.
+

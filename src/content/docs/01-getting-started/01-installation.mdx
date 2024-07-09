@@ -5,22 +5,17 @@ slug: getting-started/installation
 ---
 
 import {Tabs, TabItem} from "@astrojs/starlight/components";
+import { PackageManagers } from 'starlight-package-managers'
+
+
+## Installation
 
 Start by adding the npm module:
 
-<Tabs syncKey="packetmanager">
-    <TabItem label="npm">
-```bash
-npm install @ngx-translate/core --save
-```
-    </TabItem>
-    <TabItem label="yarn">
-```bash
-yarn add @ngx-translate/core
-```
-    </TabItem>
-</Tabs>
+<PackageManagers pkg="@ngx-translate/core" />
 
+
+## Compatibility with Angular versions
 
 Choose the version corresponding to your Angular version:
 
@@ -37,4 +32,165 @@ Choose the version corresponding to your Angular version:
 | 5             | 8.x to 9.x          | 1.x to 2.x | &mdash; |
 | 4.3           | 7.x or less         | 1.x to 2.x  | &mdash; |
 | 2 to 4.2.x    | 7.x or less         | 0.x  | &mdash; |
+
+
+
+## Importing the `TranslateModule`
+
+To use ngx-translate in your project, import `TranslateModule.forRoot()` in the
+root NgModule of your application.
+
+The `forRoot()` static method provides and configures services simultaneously.
+Ensure it's only called within the root module of your application, commonly
+referred to as `AppModule`.
+
+This method lets you configure the `TranslateModule` by specifying a loader,
+a parser, and/or a `MissingTranslationHandler`. Additionally, you can set the
+default language using `defaultLanguage`.
+
+See the section [Translate Module API](/reference/translate-module-api) for details.
+
+```ts {3,8-10}  title="app.module.ts"
+import {BrowserModule} from '@angular/platform-browser';
+import {NgModule} from '@angular/core';
+import {TranslateModule} from '@ngx-translate/core';
+
+@NgModule({
+    imports: [
+        BrowserModule,
+        TranslateModule.forRoot({
+            defaultLanguage: 'en'
+        })
+    ],
+    bootstrap: [AppComponent]
+})
+export class AppModule { }
+```
+
+
+
+## Usage with SharedModules
+
+If you use a [`SharedModule`](https://angular.dev/guide/ngmodules/sharing) that you import in multiple other feature modules,
+you can export the `TranslateModule` to make sure you don't have to import it in every module.
+
+```ts
+@NgModule({
+    exports: [
+        CommonModule,
+        TranslateModule
+    ]
+})
+export class SharedModule { }
+```
+
+:::caution
+Note: Never call a `forRoot` static method in the `SharedModule`. You might end up with different instances of the service in your injector tree. But you can use `forChild` if necessary.
+:::
+
+## Lazy loaded modules
+
+When you lazy load a module, you should use the `forChild` static method to import the `TranslateModule`.
+
+Since lazy loaded modules use a different injector from the rest of your application, you can configure them separately with a different loader/compiler/parser/missing translations handler.
+
+To make a child module extend translations from parent modules use `extend: true`. This will cause the service to also
+use translations from its parent module.
+
+You can also isolate the service by using `isolate: true`. In which case the service is a completely isolated instance (for translations, current lang, events, ...).
+Otherwise, by default, it will share its data with other instances of the service (but you can still use a different loader/compiler/parser/handler even if you don't isolate the service).
+
+```ts
+@NgModule({
+    imports: [
+        TranslateModule.forChild({
+            loader: {provide: TranslateLoader, useClass: CustomLoader},
+            compiler: {provide: TranslateCompiler, useClass: CustomCompiler},
+            parser: {provide: TranslateParser, useClass: CustomParser},
+            missingTranslationHandler: {provide: MissingTranslationHandler, useClass: CustomHandler},
+            isolate: true
+        })
+    ]
+})
+export class LazyLoadedModule { }
+```
+
+## Loading language files dynamically
+
+By default, there is no loader available. You can add translations manually using `setTranslation` but it is better to use a loader.
+You can write your own loader, or import an existing one.
+
+Ngx-translate comes with `TranslateHttpLoader` which loads translation files using `HttpClient`.
+To use it, you need to install the http-loader package from @ngx-translate:
+
+<PackageManagers pkg={"@ngx-translate/http-loader"}/>
+
+Once you've decided which loader to use, you have to set up the `TranslateModule` to use it.
+
+Here is how you would use the `TranslateHttpLoader` to load
+translations from `"/assets/i18n/[lang].json"`. `[lang]` is the lang that you're using, for english it could be `en`.
+
+You have to create the `TranslateLoader` inside a factory method if you want to
+use [AoT compilation](https://angular.dev/tools/cli/aot-compiler) or [Ionic](http://ionic.io/).
+
+```ts {3-5,8-10,16-23} title="app.module.ts"
+import {NgModule} from '@angular/core';
+import {BrowserModule} from '@angular/platform-browser';
+import {HttpClientModule, HttpClient} from '@angular/common/http';
+import {TranslateModule, TranslateLoader} from '@ngx-translate/core';
+import {TranslateHttpLoader} from '@ngx-translate/http-loader';
+import {AppComponent} from './app';
+
+export function HttpLoaderFactory(http: HttpClient) {
+    return new TranslateHttpLoader(http, './assets/i18n/', '.json');
+}
+
+@NgModule({
+    imports: [
+        BrowserModule,
+        HttpClientModule,
+        TranslateModule.forRoot({
+            loader: {
+                provide: TranslateLoader,
+                useFactory: HttpLoaderFactory,
+                deps: [HttpClient]
+            },
+            defaultLanguage: 'en'
+        })
+    ],
+    bootstrap: [AppComponent]
+})
+export class AppModule { }
+```
+
+
+## Initialize the `TranslateService` for your application
+
+
+```ts {2,7,11-16} title="app.component.ts"
+import {Component} from '@angular/core';
+import {TranslateService} from '@ngx-translate/core';
+
+@Component({
+    selector: 'app',
+    template: `
+        <div>{{ 'app.hello' | translate:param }}</div>
+    `
+})
+export class AppComponent {
+    param = {value: 'world'};
+
+    constructor(translate: TranslateService) {
+        translate.setDefaultLang('en');
+        translate.use('en');
+    }
+}
+```
+
+[`setDefaultLang()`](/reference/translate-service-api/#setdefaultlang) sets the default language. The default language is used
+as a fall-back if no translation is found in the currently selected language.
+You can also do this at application startup using the `TranslateModule.forRoot({defaultLanguage:'en'})`.
+
+[`use()`](/reference/translate-service-api/#use) sets the current language for the application. If the selected language is not yet
+loaded, the loader is invoked to retrieve the file.
 

@@ -1,0 +1,130 @@
+---
+title: Using translations in your components
+description: usage
+slug: getting-started/using-translations-in-components
+---
+
+import { Aside, Tabs, TabItem} from "@astrojs/starlight/components";
+
+You can either use the `TranslateService`, the `TranslatePipe` or the `TranslateDirective` to get your translation values.
+
+## Using the TranslateService in your code
+
+With the **service**, it looks like this:
+
+```ts
+translate.get('app.hello', {value: 'world'}).subscribe((res: string) => {
+    console.log(res);
+    //=> 'hello world'
+});
+```
+
+You might ask yourself, why [`get()`](/reference/translate-service-api/#get) is using a subscription to receive the translation.
+This is because your language file might not be loaded when the [get()](/reference/translate-service-api/#get) function is called.
+The update is triggered when the loading is complete.
+
+You can also use [`stream()`](/reference/translate-service-api/#stream) which is similar to `get()` but also fires when the language is changed.
+
+There is also [`instant()`](/reference/translate-service-api/#instant) &mdash; a synchronous method that returns the translation value
+immediately. This only works if the translation file is already loaded &mdash; or the translations
+are set using  [`setTranslation()`]/reference/translate-service-api/#settranslation).
+
+## Using translations in templates (TranslatePipe, TranslateDirective)
+
+This is how you do it with the **pipe**:
+
+```html
+<div>{{ 'app.hello' | translate:param }}</div>
+```
+
+And in your component define `param` like this:
+```ts
+param = {value: 'world'};
+```
+
+You can construct the translation keys dynamically by using simple string concatenation inside the template:
+
+```html
+<ul *ngFor="let language of languages">
+  <li>{{ 'languages.' + language | translate }}</li>
+</ul>
+```
+
+Where `languages` is an array member of your component:
+
+```ts
+languages = ['en', 'fr', 'de'];
+```
+
+You language file would look like this;
+```json
+{
+    'languages': {
+        'en': 'English',
+        'fr': 'French',
+        'de': 'German'
+    }
+}
+```
+
+You can also use the output of the built-in pipes `uppercase` and `lowercase` in order to guarantee
+that your dynamically generated translation keys are either all uppercase or all lowercase. For example:
+
+```html
+<p>{{ 'roles.' + role | lowercase | translate }}</p>
+```
+
+```ts
+role = 'ADMIN';
+```
+
+will match the following translation:
+```json
+{
+  "roles": {
+    "admin": "Administrator"
+  }
+}
+```
+
+<Aside type="tip">
+
+A plugin called **ngx-translate-extract** can help you keeping your source code and translation files in
+sync: It extracts the translation IDs from your source code. This does of course not work with
+dynamically created IDs like the one above.
+
+</Aside>
+
+This is how you use the **directive**:
+
+```html
+<div [translate]="'app.hello'" [translateParams]="{value: 'world'}"></div>
+```
+
+Or even simpler using the content of your element as a key:
+```html
+<div translate [translateParams]="{value: 'world'}">HELLO</div>
+```
+
+I recommend not use the **pipe** instead of the directive because both variants of the directive have issues.
+The one without a value causes warnings in some IDEs, the first one does currently not properly work
+with the message compiler plugin.
+
+## Using HTML tags in your translations
+
+You can easily use raw HTML tags within your translations.
+
+```json
+{
+    "app.hello": "Welcome to my Angular application!<br><strong>This is an amazing app which uses the latest technologies!</strong>"
+}
+```
+
+To render them, simply use the `innerHTML` attribute with the pipe on any element.
+
+```html
+<div [innerHTML]="'app.hello' | translate"></div>
+```
+
+`[innerHTML]` should be safe to use because it uses Angular's `DomSanitizer` to filter potentially harmful tags like
+`<script>` or `<style>`.

@@ -6,6 +6,7 @@ import tailwind from "@astrojs/tailwind";
 
 // https://astro.build/config
 export default defineConfig({
+    site: 'https://ngx-translate.org',
     integrations: [starlight({
         title: 'ngx-translate',
         plugins: [starlightLinksValidator()],
@@ -13,7 +14,7 @@ export default defineConfig({
             src: "./src/assets/ngx-translate.svg"
         },
         social: {
-            github: 'https://github.com/withastro/starlight'
+            github: 'https://github.com/ngx-translate/core'
         },
         customCss: [
             // Path to your Tailwind base styles:

@@ -8,14 +8,20 @@ import { Aside } from '@astrojs/starlight/components';
 
 ## Properties
 
-- `currentLang`: The lang currently used
-- `defaultLang`: The default (fall-back) language
-- `currentLoader`: An instance of the loader currently used (static loader by default)
-- `onLangChange`: Event emitter that fires when a language changes
-- `onTranslationChange`: Event emitter that fires when the translations change
-- `onDefaultLangChange`: Event emitter that fires when the default language changes
+The TranslateService exposes the following properties:
 
-## onLangChange (Event Emitter)
+| Property | Description |
+|---|---|
+| `currentLang` | The lang currently used |
+| `defaultLang` |The default (fall-back) language |
+| `currentLoader` | An instance of the loader currently used (static loader by default) |
+| `onLangChange` | Event emitter that fires when a language changes |
+| `onTranslationChange` | Event emitter that fires when the translations change |
+| `onDefaultLangChange` | Event emitter that fires when the default language changes |
+
+## Event Emitters
+
+### onLangChange (Event Emitter)
 
 An EventEmitter to listen to lang change events. A `LangChangeEvent` is an object
 with the properties:
@@ -32,7 +38,7 @@ onLangChange.subscribe((event: LangChangeEvent) => {
 );
 ```
 
-## onTranslationChange (Event Emitter)
+### onTranslationChange (Event Emitter)
 
 An EventEmitter to listen to translation change events.
 
@@ -52,7 +58,7 @@ onTranslationChange.subscribe((event: TranslationChangeEvent) => {
 ```
 
 
-## onDefaultLangChange (Event Emitter)
+### onDefaultLangChange (Event Emitter)
 
 An EventEmitter to listen to default lang change events.
 A `DefaultLangChangeEvent` is an object with the following properties:
@@ -70,7 +76,9 @@ onDefaultLangChange.subscribe((event: DefaultLangChangeEvent) => {
 );
 ```
 
-## setDefaultLang
+## Functions
+
+### setDefaultLang
 
 ~~~ ts
 setDefaultLang(lang: string)
@@ -83,7 +91,7 @@ in the current language.
 Calling `setDefaultLang` uses the loader to retrieve the language and
 updates the list of available languages which can be retrieved using [`getLangs`](#getlangs).
 
-## getDefaultLang
+### getDefaultLang
 
 ~~~ts
 getDefaultLang(): string
@@ -91,7 +99,7 @@ getDefaultLang(): string
 
 Returns the default language.
 
-## use
+### use
 
 ~~~ts
 use(lang: string): Observable<any>
@@ -103,7 +111,7 @@ if the language is not yet loaded.
 Calling `use` uses the loader to retrieve the language and
 updates the list of available languages which can be retrieved using [`getLangs`](#getlangs).
 
-## getTranslation
+### getTranslation
 
 ~~~ts
 getTranslation(lang: string): Observable<any>
@@ -111,7 +119,7 @@ getTranslation(lang: string): Observable<any>
 
 Gets an object of translations for a given language with the current loader.
 
-## setTranslation
+### setTranslation
 
 ~~~ts
 setTranslation(lang: string, translations: Object, shouldMerge: boolean = false)
@@ -123,7 +131,7 @@ set `shouldMerge` to true if you want to append the translations instead of repl
 Using `setTranslation` updates the list of available languages which can be retrieved using [`getLangs`](#getlangs).
 
 
-## addLangs
+### addLangs
 
 ~~~ts
 addLangs(langs: Array<string>)
@@ -132,7 +140,7 @@ addLangs(langs: Array<string>)
 Add new languages to the list. This does **not** invoke the loader to retrieve the languages.
 
 
-## getLangs
+### getLangs
 
 ~~~ts
 getLangs(): string
@@ -143,7 +151,7 @@ calling  [`setDefaultLang`](#setdefaultlang), [`use`](#use), [`setTranslation`](
 or[`addLangs`](#addlangs).
 
 
-## get
+### get
 
 ~~~ts
 get(key: string|Array<string>, interpolateParams?: Object): Observable<string|Object>
@@ -153,7 +161,7 @@ Gets the translated value of a key (or an array of keys) or the key if the value
 The `Observable` fires after the language file is loaded. Use [`stream`](#stream) if you
 want to get updates to language changes, too.
 
-## getStreamOnTranslationChange
+### getStreamOnTranslationChange
 
 ~~~ts
 getStreamOnTranslationChange(key: string|Array<string>, interpolateParams?: Object): Observable<string|Object>
@@ -163,7 +171,7 @@ Returns a stream of translated values of a key (or an array of keys) or the key 
 the value was not found. Without any [`onTranslationChange`](#ontranslationchange-event-emitter)`` events this returns the same
 value as [`get`](#get) but it will also emit new values whenever the translation changes.
 
-## stream
+### stream
 
 ~~~ts
 stream(key: string|Array<string>, interpolateParams?: Object): Observable<string|Object>
@@ -173,7 +181,7 @@ Returns a stream of translated values of a key (or an array of keys) or the key 
 the value was not found. Without any [`onLangChange`](#onlangchange-event-emitter) events this returns the same
 value as [`get`](#get) but it will also emit new values whenever the used language changes.
 
-## instant
+### instant
 
 ~~~ts
 instant(key: string|Array<string>, interpolateParams?: Object): string|Object
@@ -188,7 +196,7 @@ have been loaded and it is safe to use this method. If you are not sure then you
 
 </Aside>
 
-## set
+### set
 
 ~~~ts
 set(key: string, value: string, lang?: string)
@@ -196,7 +204,7 @@ set(key: string, value: string, lang?: string)
 
 Sets the translated value of a key.
 
-## reloadLang
+### reloadLang
 
 ~~~ts
 reloadLang(lang: string): Observable<string|Object>
@@ -204,7 +212,7 @@ reloadLang(lang: string): Observable<string|Object>
 
 Calls [`resetLang`](#resetlang) and retrieves the translations object for the current loader
 
-## resetLang
+### resetLang
 
 ~~~ts
 resetLang(lang: string)
@@ -219,7 +227,7 @@ to be able to get translations
 
 </Aside>
 
-## getBrowserLang
+### getBrowserLang
 
 ~~~ts
 getBrowserLang(): string | undefined
@@ -227,7 +235,7 @@ getBrowserLang(): string | undefined
 
 Returns the current browser lang if available, or undefined otherwise.
 
-## getBrowserCultureLang 
+### getBrowserCultureLang
 
 ~~~ts
 getBrowserCultureLang(): string | undefined
