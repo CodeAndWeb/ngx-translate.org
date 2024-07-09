@@ -1,3 +1,13 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+.sl-markdown-content :is(h1, h2, h3, h4, h5, h6) > a {
+    color: var(--sl-color-white);
+    text-decoration: none;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}

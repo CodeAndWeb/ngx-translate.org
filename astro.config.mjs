@@ -1,17 +1,33 @@
 import {defineConfig} from 'astro/config';
 import starlight from '@astrojs/starlight';
 import starlightLinksValidator from 'starlight-links-validator';
+import { rehypeHeadingIds } from '@astrojs/markdown-remark'
+import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 
 import tailwind from "@astrojs/tailwind";
 
 // https://astro.build/config
 export default defineConfig({
     site: 'https://ngx-translate.org',
+    markdown: {
+        rehypePlugins: [
+            rehypeHeadingIds, [
+                rehypeAutolinkHeadings,
+                {
+                    // Wrap the heading text in a link.
+                    behavior: 'wrap',
+                },
+            ],
+        ]
+    },
     integrations: [starlight({
         title: 'ngx-translate',
         plugins: [starlightLinksValidator()],
         logo: {
             src: "./src/assets/ngx-translate.svg"
+        },
+        components: {
+
         },
         social: {
             github: 'https://github.com/ngx-translate/core'
