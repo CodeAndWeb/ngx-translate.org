@@ -1,6 +1,6 @@
 ---
 title: Translate Parser API
-description: A reference page in my new Starlight docs site.
+description: Reference documentation of the TranslateParser API for ngx-translate.
 slug: reference/translate-parser-api
 ---
 

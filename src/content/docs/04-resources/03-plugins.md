@@ -1,9 +1,10 @@
 ---
 title: Plugins
-description: Editors
+description: Plugins for ngx-translate
 slug: resources/plugins
 ---
 
+Use these plugins to enhance ngx-translate with additional functionality:
 
 - [Localize Router](https://github.com/Greentube/localize-router) by @meeroslav: An implementation of routes localization for Angular. If you need localized urls (for example /fr/page and /en/page).
 - [browser.i18n Loader](https://github.com/pearnaly/ngx-translate-browser-i18n-loader) by @pearnaly: loader for native translation files of browser extensions.

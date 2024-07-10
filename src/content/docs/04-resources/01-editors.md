@@ -1,6 +1,6 @@
 ---
 title: Editors
-description: Editors
+description: Editors that help you edit translation files for ngx-translate.
 slug: resources/editors
 ---
 

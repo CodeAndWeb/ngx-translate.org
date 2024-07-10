@@ -11,3 +11,7 @@
         text-decoration: underline;
     }
 }
+
+table code {
+    @apply text-nowrap
+}

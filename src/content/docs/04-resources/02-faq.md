@@ -1,6 +1,6 @@
 ---
 title: FAQ
-description: Editors
+description: Frequently asked questions.
 slug: resources/faq
 ---
 

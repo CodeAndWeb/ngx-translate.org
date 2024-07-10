@@ -1,6 +1,6 @@
 ---
 title: Translate Module API
-description: A reference page in my new Starlight docs site.
+description: Reference documentation of the TranslateModule API for ngx-translate.
 slug: reference/translate-module-api
 ---
 

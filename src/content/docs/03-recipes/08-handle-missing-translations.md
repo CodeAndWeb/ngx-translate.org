@@ -1,6 +1,6 @@
 ---
 title: How to handle missing translations
-description: blahn
+description: "Handle missing translations in ngx-translate using a MissingTranslationHandler."
 slug: recipes/handle-missing-translations
 ---
 

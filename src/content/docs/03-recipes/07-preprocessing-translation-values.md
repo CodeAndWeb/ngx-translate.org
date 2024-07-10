@@ -1,6 +1,6 @@
 ---
 title: How to use a compiler to preprocess translation values
-description: some description
+description: "Use a TranslationCompiler to pre-process translation files after loading for ngx-translate"
 slug: recipes/preprocess-translations
 ---
 

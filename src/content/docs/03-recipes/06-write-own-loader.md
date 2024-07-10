@@ -1,6 +1,6 @@
 ---
 title: Write & use your own loader
-description: some description
+description: "Create our own loader for translation files for ngx-translate."
 slug: recipes/write-own-loader
 ---
 
