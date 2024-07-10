@@ -1,0 +1,41 @@
+---
+const { href, className } = Astro.props;
+
+// Function to encode a string to hex
+function toHex(str:string):string {
+    return [...str].map(char => char.charCodeAt(0).toString(16).padStart(2, '0')).join('');
+}
+
+const hexHref = toHex(href);
+---
+
+<no-crawl-link data-href={hexHref}>
+    <a href="#"  class={className}>
+        <slot/>
+    </a>
+</no-crawl-link>
+
+<script>
+    // Function to decode a hex string
+    function hexToStr(hex: string): string {
+        let str = '';
+        for (let i = 0; i < hex.length; i += 2) {
+            str += String.fromCharCode(parseInt(hex.slice(i, i + 2), 16));
+        }
+        return str;
+    }
+
+
+    class NoCrawlLink extends HTMLElement {
+        constructor() {
+            super();
+            const a = this.querySelector('a');
+            if(this.dataset.href && a)
+            {
+                a.href = hexToStr(this.dataset.href);
+            }
+        }
+    }
+
+    customElements.define('no-crawl-link', NoCrawlLink);
+</script>

@@ -1,0 +1,16 @@
+---
+import type { Props } from '@astrojs/starlight/props';
+import NoCrawlLink from './no-crawl-link.astro';
+import PageFrame from '@astrojs/starlight/components/PageFrame.astro';
+---
+
+<PageFrame {...Astro.props}>
+    <Fragment slot="header"><slot name="header"/></Fragment>
+    <Fragment slot="sidebar"><slot name="sidebar"/></Fragment>
+    <slot/>
+</PageFrame>
+<div class="w-full text-sm text-right px-16 py-4 flex space-x-16 justify-center">
+    <NoCrawlLink className="text-gray-400 no-underline hover:underline" href="/imprint">Imprint</NoCrawlLink>
+    <NoCrawlLink className="text-gray-400 no-underline hover:underline" href="/privacy-notice">Privacy</NoCrawlLink>
+</div>
+

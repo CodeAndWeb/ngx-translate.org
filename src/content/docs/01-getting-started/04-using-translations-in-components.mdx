@@ -19,15 +19,15 @@ translate.get('app.hello', {value: 'world'}).subscribe((res: string) => {
 });
 ```
 
-You might ask yourself, why [`get()`](/reference/translate-service-api/#get) is using a subscription to receive the translation.
-This is because your language file might not be loaded when the [get()](/reference/translate-service-api/#get) function is called.
+You might ask yourself, why [`get()`](/reference/translate-service-api#get) is using a subscription to receive the translation.
+This is because your language file might not be loaded when the [get()](/reference/translate-service-api#get) function is called.
 The update is triggered when the loading is complete.
 
-You can also use [`stream()`](/reference/translate-service-api/#stream) which is similar to `get()` but also fires when the language is changed.
+You can also use [`stream()`](/reference/translate-service-api#stream) which is similar to `get()` but also fires when the language is changed.
 
-There is also [`instant()`](/reference/translate-service-api/#instant) &mdash; a synchronous method that returns the translation value
+There is also [`instant()`](/reference/translate-service-api#instant) &mdash; a synchronous method that returns the translation value
 immediately. This only works if the translation file is already loaded &mdash; or the translations
-are set using  [`setTranslation()`]/reference/translate-service-api/#settranslation).
+are set using  [`setTranslation()`]/reference/translate-service-api#settranslation).
 
 ## Using translations in templates (TranslatePipe, TranslateDirective)
 
