@@ -1,0 +1,221 @@
+---
+title: Translating your components
+description: Learn how to use translations with ngx-translate in your Angular components and source code.
+slug: getting-started/translating-your-components
+---
+
+import { Aside, Tabs, TabItem} from "@astrojs/starlight/components";
+
+ngx-translate allows you to easily integrate translations into both your templates
+and code.
+
+
+## Using Translations in Templates
+
+Using translations in the templates is straight forward. You just have to make sure, that the
+`TranslateModule` is available in the component.
+
+If you are using NgModules, there's nothing to do inside the component itself. The import is either
+in the `app.module.ts` or the module itself.
+
+When using standalone components, import the `TranslateModule` like this:
+
+
+```ts {2,7} title="your-component.ts"
+import {Component} from '@angular/core';
+import {TranslateModule} from "@ngx-translate/core";
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [TranslateModule],
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.scss']
+})
+export class YourComponent {
+  ...
+}
+```
+
+<Aside type="caution" title="Watch out!">
+If you see one of the following messages, the `TranslateModule` is not imported properly:
+- NG8002: Can't bind to 'translateParams' since it isn't a known property of '...'.
+- NG8004: No pipe found with name 'translate'.
+</Aside>
+
+
+
+### TranslatePipe
+
+#### Basic usage
+
+The easiest way to translate text is using the `TranslatePipe`
+
+```html title=app.template.html
+<div>{{ 'app.hello' | translate }}</div>
+```
+
+#### With parameters
+
+It's also possible to add parameters like this:
+
+```html title=app.template.html
+<div>{{ 'app.hello' | translate:{name} }}</div>
+```
+
+And in your component define `name` like this:
+
+```ts title=app.component.ts
+name = "Andreas"
+```
+
+In the language file, use `{{name}}` as placeholder:
+
+```json  title=assets/i18n/en.json
+{
+    'app.hello': "Hello {{name}}!"
+}
+```
+
+### TranslateDirective
+
+This is how you use the **directive**:
+
+```html
+<div [translate]="'app.hello'" [translateParams]="{name: 'John'}"></div>
+```
+
+Or even simpler using the content of your element as a key:
+```html
+<div translate [translateParams]="{name: 'John'}">HELLO</div>
+```
+
+
+### Using HTML Tags in Translations
+
+You can easily use raw HTML tags within your translations.
+
+```json
+{
+    "app.hello": "Welcome to my Angular application!<br><strong>This is an amazing app which uses the latest technologies!</strong>"
+}
+```
+
+To render them, simply use the `innerHTML` attribute with the pipe on any element.
+
+```html
+<div [innerHTML]="'app.hello' | translate"></div>
+```
+
+`[innerHTML]` should be safe to use because it uses Angular's `DomSanitizer` to filter potentially harmful tags like
+`<script>` or `<style>`.
+
+
+
+
+## Using Translations in Code
+
+To use translations in your code, you need to utilize Dependency Injection in
+the constructor to access the [TranslateService](/reference/translate-service-api).
+This service allows you to load translations, switch languages, and retrieve
+translated messages directly within your application logic.
+
+```ts {2,3,8,14-19} title="your-component.ts"
+import {Component} from '@angular/core';
+import {TranslateModule} from "@ngx-translate/core"; // standalone comp. only
+import {TranslateService} from "@ngx-translate/core";
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [TranslateModule],                        // standalone comp. only
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.scss']
+})
+export class YourComponent {
+
+  constructor(private translate: TranslateService) {
+    translate.get('app.hello', {value: 'world'}).subscribe((res: string) => {
+      console.log(res);
+      //=> 'hello world'
+    });
+  }
+}
+```
+
+You might wonder why the [`get()`](/reference/translate-service-api#get) method
+uses a subscription to retrieve translations. The reason is that your language
+file might not be loaded at the time the `get()` function is called, so the
+update is triggered once the file finishes loading.
+
+Alternatively, you can use [`stream()`](/reference/translate-service-api#stream),
+which works similarly to `get()` but has the added benefit of firing again
+whenever the language changes. This ensures the translation stays up to date
+even if the user switches languages.
+
+For cases where you need an immediate, synchronous translation result, you can
+use [`instant()`](/reference/translate-service-api#instant). This method returns
+the translation instantly but only works if the translation file is already
+loaded or if translations have been manually set using
+[`setTranslation()`](/reference/translate-service-api#settranslation).
+
+
+
+
+
+## Using Dynamic Ids
+
+You can construct the translation keys dynamically by using simple string concatenation inside the template:
+
+```html title=app.template.html
+<ul *ngFor="let language of languages">
+  <li>{{ 'languages.' + language | translate }}</li>
+</ul>
+```
+
+Where `languages` is an array member of your component:
+
+```ts title=app.component.ts
+languages = ['en', 'fr', 'de'];
+```
+
+You language file would look like this;
+```json  title=assets/i18n/en.json
+{
+    'languages': {
+        'en': 'English',
+        'fr': 'French',
+        'de': 'German'
+    }
+}
+```
+
+:::caution
+A plugin called **ngx-translate-extract** or an editor like [BabelEdit](https://www.codeandweb.com/babeledit)
+can help you keep your source code and translation files in
+sync: It extracts the translation IDs from your source code. This does of course not work with
+dynamically created IDs like the one above.
+:::
+
+
+You can also use the output of the built-in pipes `uppercase` and `lowercase` in order to guarantee
+that your dynamically generated translation keys are either all uppercase or all lowercase. For example:
+
+```html
+<p>{{ 'roles.' + role | lowercase | translate }}</p>
+```
+
+```ts
+role = 'ADMIN';
+```
+
+will match the following translation:
+```json
+{
+  "roles": {
+    "admin": "Administrator"
+  }
+}
+```
+
+

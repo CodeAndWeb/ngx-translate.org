@@ -1,0 +1,281 @@
+---
+title: TranslateService API
+description: Reference documentation of the TranslateService API for ngx-translate.
+slug: reference/translate-service-api
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+## Methods
+
+### setDefaultLang
+
+~~~ ts
+setDefaultLang(lang: string)
+~~~
+
+Sets the default language to use as a fallback.
+A translation is used from the default language, if no translation is found
+in the current language.
+
+Calling `setDefaultLang()` uses the loader to retrieve the language and
+updates the list of available languages which can be retrieved using [`getLangs()`](#getlangs).
+
+### getDefaultLang
+
+~~~ts
+getDefaultLang(): string
+~~~
+
+Returns the default language.
+
+### use
+
+~~~ts
+use(lang: string): Observable<any>
+~~~
+
+Changes the currently active language. This method triggers the loader to
+retrieve the translations if the language has not been loaded yet.
+
+Calling `use()` fetches the translation for the given language and updates the
+list of available languages, which can be accessed using
+[`getLangs()`](#getlangs).
+
+:::caution
+Avoid making multiple calls to `use()` in quick succession. If translations are
+loaded from a server, the second call might complete before the first one. This will
+leave the TranslateService in an inconsistent state.
+**Wait for the Observable to resolve before calling it again.**
+:::
+
+
+### getTranslation
+
+~~~ts
+getTranslation(lang: string): Observable<any>
+~~~
+
+Gets an object of translations for a given language with the current loader.
+
+### setTranslation
+
+~~~ts
+setTranslation(lang: string, translations: Object, shouldMerge: boolean = false)
+~~~
+
+Manually sets an object of translations for a given language,
+set `shouldMerge` to true if you want to append the translations instead of replacing them.
+
+Using `setTranslation` updates the list of available languages which can be retrieved using [`getLangs`](#getlangs).
+
+
+### addLangs
+
+~~~ts
+addLangs(langs: Array<string>)
+~~~
+
+Add new languages to the list. This does **not** invoke the loader to retrieve the languages.
+
+
+### getLangs
+
+~~~ts
+getLangs(): string
+~~~
+
+Returns an array of currently available languages. The list can be extended
+calling  [`setDefaultLang`](#setdefaultlang), [`use`](#use), [`setTranslation`](#settranslation)
+or[`addLangs`](#addlangs).
+
+
+### get
+
+~~~ts
+get(key: string|Array<string>, interpolateParams?: Object): Observable<string|Object>
+~~~
+
+Retrieves the translated value for a key (or an array of keys). If the translation
+is not found, the key itself is returned. The `Observable` will emit once the
+language file has finished loading.
+
+If you also want to receive updates when the language changes, consider using
+[`stream()`](#stream) instead.
+
+### getStreamOnTranslationChange
+
+~~~ts
+getStreamOnTranslationChange(key: string|Array<string>, interpolateParams?: Object): Observable<string|Object>
+~~~
+
+Returns a stream of translated values for a key (or an array of keys). If the
+translation is not found, the key itself is returned. Without any
+[`onTranslationChange()`](#ontranslationchange-event-emitter) events, this behaves
+similarly to [`get()`](#get). However, it will also emit new values whenever the
+translation changes.
+
+### stream
+
+~~~ts
+stream(key: string|Array<string>, interpolateParams?: Object): Observable<string|Object>
+~~~
+
+Returns a stream of translated values for a key (or an array of keys). If the
+translation is not found, the key itself is returned. Without any
+[`onLangChange()`](#onlangchange-event-emitter) events, this behaves the same as
+[`get()`](#get), but it will also emit new values whenever the active language
+changes.
+
+
+### instant
+
+~~~ts
+instant(key: string|Array<string>, interpolateParams?: Object): string|Object
+~~~
+
+Retrieves the translated value for a key (or an array of keys) instantly.
+
+:::caution
+This method is **synchronous**, but the default file loader is asynchronous. You
+must ensure that your translations have been fully loaded before using this
+method. If you're unsure, it's safer to use the [`get()`](#get) method, which
+waits for the translations to load.
+:::
+
+
+### set
+
+~~~ts
+set(key: string, value: string, lang?: string)
+~~~
+
+Assigns a translated value to a specific key. Optionally, you can specify a
+language to set the translation for. If no language is provided, it defaults
+to the currently active language.
+
+
+### reloadLang
+
+~~~ts
+reloadLang(lang: string): Observable<string|Object>
+~~~
+
+This method calls [`resetLang()`](#resetlang) and re-fetches the translations
+object using the current loader for the specified language.
+
+
+
+### resetLang
+
+~~~ts
+resetLang(lang: string)
+~~~
+
+Removes the current translations for the specified language.
+
+:::caution
+After calling `resetLang`, you will need to call [`use()`](#use),
+[`reloadLang()`](#reloadlang), or [`getTranslation()`](#gettranslation) again to
+reload and retrieve the translations.
+:::
+
+
+
+### getBrowserLang
+
+~~~ts
+getBrowserLang(): string | undefined
+~~~
+
+Returns the browser's current language setting if available, or `undefined` if
+it cannot be determined.
+
+
+
+### getBrowserCultureLang
+
+~~~ts
+getBrowserCultureLang(): string | undefined
+~~~
+
+Returns the browser's full culture language code (e.g., `"en-US"`) if available,
+or `undefined` if it cannot be determined.
+
+
+## Properties
+
+The TranslateService exposes the following properties:
+
+## Properties
+
+The `TranslateService` exposes the following properties:
+
+| Property                                     | Description                                               |
+|---------------------------------------------------------|-----------------------------------------------------------|
+| `langs`                                  | List of languages.      <br/> `string[]`                         |
+| `translations`                                  | Object containing translations per language     <br/> `any`                         |
+| `currentLang`                                  | The language currently in use.     <br/> `string`                         |
+| `defaultLang`                                | The default (fallback) language.   <br/> `string`                           |
+| `currentLoader`                       | The current instance of the loader (static loader by default).  <br/> `TranslateLoader` |
+| `onLangChange`          | Event emitter that fires when the language changes.     <br/> `EventEmitter<LangChangeEvent>`     |
+| `onTranslationChange`  | Event emitter that fires when the translations change.  <br/> `EventEmitter<TranslationChangeEvent>`   |
+| `onDefaultLangChange`  | Event emitter that fires when the default language changes. <br/> `EventEmitter<DefaultLangChangeEvent>`|
+
+## Event Emitters
+
+### onLangChange (Event Emitter)
+
+An `EventEmitter` that listens for language change events. A `LangChangeEvent`
+object is emitted, containing the following properties:
+
+| Name           | Type     | Description                                 |
+|----------------|----------|---------------------------------------------|
+| `lang`         | `string` | The code of the newly activated language.    |
+| `translations` | `any`    | An object containing the updated translations. |
+
+Example:
+```typescript
+onLangChange.subscribe((event: LangChangeEvent) => {
+    // do something
+);
+```
+
+### onTranslationChange (Event Emitter)
+
+An `EventEmitter` that listens for translation change events.
+
+A `TranslationChangeEvent` object is emitted, containing the following properties:
+
+| Name           | Type     | Description                                 |
+|----------------|----------|---------------------------------------------|
+| `lang`         | `string` | The code of the currently active language.   |
+| `translations` | `any`    | An object containing the updated translations. |
+
+Example:
+
+```ts
+onTranslationChange.subscribe((event: TranslationChangeEvent) => {
+    // do something
+);
+```
+
+
+### onDefaultLangChange (Event Emitter)
+
+An `EventEmitter` that listens for default language change events.
+
+A `DefaultLangChangeEvent` object is emitted, containing the following properties:
+
+| Name           | Type     | Description                                 |
+|----------------|----------|---------------------------------------------|
+| `lang`         | `string` | The code of the newly set default language.  |
+| `translations` | `any`    | An object containing the default translations. |
+
+Example:
+
+```ts
+onDefaultLangChange.subscribe((event: DefaultLangChangeEvent) => {
+  // Do something with the new default language or translations
+});
+```

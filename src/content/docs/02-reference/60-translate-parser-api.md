@@ -1,10 +1,19 @@
 ---
-title: Translate Parser API
+title: TranslateParser API
 description: Reference documentation of the TranslateParser API for ngx-translate.
 slug: reference/translate-parser-api
 ---
 
-## TranslateParser API
+The `TranslateParser` is responsible for formatting the translated messages 
+and using parameters that are passed in.
+
+Usually, you would not use the `TranslateParser` directly. It's called in the 
+background when a translation string is requested in your app.
+
+It's also most likely that you don't have to create your own parser at all.
+
+
+## The default parser
 
 The `TranslateParser` service has 2 methods which might sometimes be useful:
 
@@ -46,4 +55,19 @@ parser.getValue({ key1: { keyA: 'value' }}, 'key1.keyA')
 
 Returns `value`.
 
+
+
+## Custom parser
+
+A `TranslateParser` implements this interface - you can create your
+own parser and plug in into the [`TranslateModule`](/reference/translate-module-api) using 
+the config.
+
+~~~
+export abstract class TranslateParser 
+{
+  abstract interpolate(expr: string | Function, params?: any): string | undefined;
+  abstract getValue(target: any, key: string): any
+}
+~~~
 

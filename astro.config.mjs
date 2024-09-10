@@ -6,21 +6,24 @@ import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import sitemap from '@astrojs/sitemap';
 import tailwind from "@astrojs/tailwind";
 import matomo from 'astro-matomo';
-
-import playformInline from "@playform/inline";
+import rehypeMermaid from 'rehype-mermaid'
+//import markdown from "astro/dist/vite-plugin-markdown/index.js";
 
 // https://astro.build/config
 export default defineConfig({
     site: 'https://ngx-translate.org',
     trailingSlash: 'never',
     markdown: {
-        rehypePlugins: [rehypeHeadingIds, [rehypeAutolinkHeadings, {
+        rehypePlugins: [
+            rehypeHeadingIds,
+            rehypeMermaid,
+            [rehypeAutolinkHeadings, {
             // Wrap the heading text in a link.
             behavior: 'wrap'
         }]]
     },
     redirects: {
-        '/': "/getting-started/installation/"
+      //  '/': "/getting-started/installation/"
     },
     integrations: [
         sitemap({
@@ -38,7 +41,9 @@ export default defineConfig({
         }),
         starlight({
             title: 'ngx-translate',
-            plugins: [starlightLinksValidator()],
+            plugins: [starlightLinksValidator({
+                exclude: ["/"]
+            })],
             logo: {
                 src: "./src/assets/ngx-translate.svg"
             },
@@ -64,24 +69,66 @@ export default defineConfig({
                 // Path to your Tailwind base styles:
                 './src/tailwind.css'],
             sidebar: [{
-                label: 'Getting started',
-                autogenerate: {
-                    directory: '01-getting-started'
-                }
+                label: 'Start here',
+                items: [
+                    {
+                        label: "Getting started",
+                        link: "/"
+                    },
+                    {
+                        label: "Installation",
+                        link: "/getting-started/installation"
+                    },
+                    {
+                        label: "Translation files",
+                        link: "/getting-started/translation-files"
+                    },
+                    {
+                        label: "Translating your components",
+                        link: "/getting-started/translating-your-components"
+                    }
+                ]
             }, {
                 label: 'Reference',
-                autogenerate: {
-                    directory: '02-reference'
-                }
+                items: [
+                    {
+                        label: "Concepts",
+                        link: "/reference/concepts"
+                    },
+                    {
+                        label: "TranslateModule API",
+                        link: "/reference/translate-module-api"
+                    },
+                    {
+                        label: "TranslateService API",
+                        link: "/reference/translate-service-api"
+                    },
+                    {
+                        label: "TranslateLoader API",
+                        link: "/reference/translate-loader-api"
+                    },
+                    {
+                        label: "TranslateCompiler API",
+                        link: "/reference/translate-compiler-api"
+                    },
+                    {
+                        label: "TranslateParser API",
+                        link: "/reference/translate-parser-api"
+                    },
+                    {
+                        label: "MissingTranslationHandler API",
+                        link: "/reference/missing-translation-handler-api"
+                    },
+                ]
             }, {
                 label: 'Recipes',
                 autogenerate: {
-                    directory: '03-recipes'
+                    directory: '04-recipes'
                 }
             }, {
                 label: 'Resources',
                 autogenerate: {
-                    directory: '04-resources'
+                    directory: '05-resources'
                 }
             }]
         }),

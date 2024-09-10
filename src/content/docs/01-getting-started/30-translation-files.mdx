@@ -1,0 +1,254 @@
+---
+title: Loading Translation Files
+description: Learn how to add ngx-translate to your project.
+slug: /getting-started/translation-files
+---
+
+import {Tabs, TabItem, CardGrid, LinkCard} from "@astrojs/starlight/components";
+import { PackageManagers } from 'starlight-package-managers'
+import { FileTree } from '@astrojs/starlight/components';
+import { Badge } from '@astrojs/starlight/components';
+
+**@ngx-translate/core** does not come with a loader. The reason for this is to keep the
+module as small as possible and to make it adaptable to your needs.
+
+However, there's an official plugin called **``@ngx-translate/http-loader``** that implements
+a dynamic loader.
+
+## Static Translations via `import`
+
+The easy way to set translation data is using `import` and [`setTranslation()`](/reference/translate-service-api#settranslation).
+
+~~~ts  {1,4} title="src/app/app.component.ts"
+import translationsEN from "./../public/i18n/en.json";
+...
+constructor(private translate: TranslateService) {
+    translate.setTranslation('en', translationsEN);
+    translate.setDefaultLang('en');
+}
+~~~
+
+The advantage of this is, that the translations are available immediately when loading the app.
+The big disadvantage is that this binds all translations into your app. If you have many
+texts and languages, this might bloat your application and slow down startup time.
+
+
+## Loading translations dynamically
+
+`ngx-translate` comes with `TranslateHttpLoader`, which loads translation files
+using `HttpClient`. To use it, you need to install the `http-loader` package from
+`@ngx-translate`:
+
+<PackageManagers pkg={"@ngx-translate/http-loader"}/>
+
+Here is how you would use the `TranslateHttpLoader` to load
+translations from `"/assets/i18n/[lang].json"`. `[lang]` is the lang that you're using, for english it could be `en`.
+
+You can override the paths when creating a new instance of the `TranslateHttpLoader`:
+
+~~~ts
+constructor(
+    private http: HttpClient,
+    public prefix: string = "/assets/i18n/",
+    public suffix: string = ".json"
+) {}
+~~~
+
+In newer versions of Angular, the `assets` folder is no longer used. Instead,
+translations are stored in the `public` folder. For this, you can initialize the
+`TranslateHttpLoader` like this:
+
+~~~ts
+const httpLoaderFactory: (http: HttpClient) => TranslateHttpLoader = (http: HttpClient) =>
+    new TranslateHttpLoader(http, './i18n/', '.json');
+~~~
+
+You need to create the `TranslateLoader` inside a factory method if you're using
+[AoT compilation](https://angular.dev/tools/cli/aot-compiler) or
+[Ionic](http://ionic.io/). However, it's generally a good practice to use this
+approach to initialize the paths, even when AoT compilation is not required.
+
+
+### Standalone Components
+
+This configuration is for standalone components. If you don't have a `app.config.ts` you are
+most likely using an [NgModules](#ngmodule)
+
+```ts {2-8,13,15-19} title="app.config.ts"
+import {ApplicationConfig, importProvidersFrom, provideZoneChangeDetection} from "@angular/core";
+import {provideHttpClient} from "@angular/common/http";
+import {TranslateModule, TranslateLoader} from "@ngx-translate/core";
+import {TranslateHttpLoader} from '@ngx-translate/http-loader';
+import {HttpClient} from '@angular/common/http';
+
+const httpLoaderFactory: (http: HttpClient) => TranslateHttpLoader = (http: HttpClient) =>
+    new TranslateHttpLoader(http, './i18n/', '.json');
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideZoneChangeDetection({ eventCoalescing: true }),
+    provideHttpClient(),
+    importProvidersFrom([TranslateModule.forRoot({
+      loader: {
+        provide: TranslateLoader,
+        useFactory: httpLoaderFactory,
+        deps: [HttpClient],
+      },
+    })])
+  ],
+};
+```
+
+### NgModule
+
+Use this if you are using an `app.module.ts`. If this file does not exist, you are most likely using
+[standalone components](#standalone-components).
+
+```ts {3-5,8-10,16-23} title="app.module.ts"
+import {NgModule} from '@angular/core';
+import {BrowserModule} from '@angular/platform-browser';
+import {HttpClientModule, HttpClient} from '@angular/common/http';
+import {TranslateModule, TranslateLoader} from '@ngx-translate/core';
+import {TranslateHttpLoader} from '@ngx-translate/http-loader';
+import {AppComponent} from './app';
+
+export function HttpLoaderFactory(http: HttpClient) {
+    return new TranslateHttpLoader(http, './i18n/', '.json');
+}
+
+@NgModule({
+    imports: [
+        BrowserModule,
+        HttpClientModule,
+        TranslateModule.forRoot({
+            loader: {
+                provide: TranslateLoader,
+                useFactory: HttpLoaderFactory,
+                deps: [HttpClient]
+            },
+            defaultLanguage: 'en'
+        })
+    ],
+    bootstrap: [AppComponent]
+})
+export class AppModule { }
+```
+
+
+ngx-translate uses JSON translation files by default when using the `TranslateHttpLoader`.
+These files have the added benefit of being easily embedded directly into your application
+using `import`.
+
+The modular design of ngx-translate also makes it easy to switch to other file formats
+by implementing your own [loader](/reference/translate-loader-api) or using one of the
+[plugins](/resources/plugins).
+
+
+
+
+## Where to store the Translation Files
+
+
+In older Angular versions, translation files are typically stored in the `/src/assets/i18n` folder.
+Starting with Angular 18+, the `assets` folder is no longer available, so use the `public` folder instead.
+
+
+<FileTree>
+    - public
+        - i18n
+            - de.json
+            - en.json
+    - src/
+</FileTree>
+
+We recommend using an `i18n` folder within the `assets` or `public` folder to organize your translation files in one place.
+
+## Translation file formats
+
+ngx-translate supports two basic types of translation file structures: flat and
+nested.
+
+The **nested structure** enforces a tree hierarchy, which can be more intuitive
+to display in editors. This structure is less repetitive and may result in
+smaller file sizes.
+
+**Flat Structure**
+
+```json title=public/i18n/en.json
+{
+  "app.hello": "hello {{value}}",
+  "app.title": "Translation Demo"
+}
+```
+
+**Nested Structure** <Badge text="preferred" variant="tip" size="small" />
+
+```json
+{
+  "app": {
+    "hello": "hello {{value}}",
+    "title": "Translation Demo"
+  }
+}
+```
+
+You should choose one structure and avoid mixing flat and nested structures, as
+this can lead to confusion and inconsistency in your translation files.
+
+## Managing Translations
+
+We highly recommend using [BabelEdit](https://www.codeandweb.com/babeledit) to manage your translations.
+BabelEdit allows you to edit all JSON translation files at once, ensuring consistency across them.
+Features like PreTranslate also provide a fast preview of your application in other languages.
+
+## Why Use Contextual IDs like `app.title`?
+
+Using keys like `app.title` provides valuable context to both translators and
+developers.
+
+For **translators**, it helps clarify where and how the translation will be
+used. Instead of seeing isolated text strings, they can interpret the purpose
+of the text based on the structure of the key. For example, `app.title`
+indicates that the string is the title of an application, reducing ambiguity
+and improving translation accuracy.
+
+For **developers**, grouping keys by components or modules (e.g., `header.title`,
+`header.login-link`) makes it easier to manage and maintain translation files. This
+structured approach helps organize related translations, simplifying updates
+and ensuring consistency across different parts of the application.
+
+Additionally, it allows for different translations of the same word depending
+on the context. For example, in a table heading where space is limited, you
+might need to use an abbreviation in one language. IDs keys make this
+possible without confusion.
+
+## Using Translation Text as IDs
+
+Using translation texts as IDs might seem tempting, and there are two main
+advantages:
+
+1. **Fallback**: The translation texts will always act as the fallback, so if a
+translation is missing, the default text is already in place instead of the translation ID.
+
+2. **Simplicity**: It can be easier to simply wrap strings with translation
+functions or pipes, as no separate ID management is required.
+
+However, there are several major disadvantages:
+
+1. **Fragility**: Small changes in the main language will break the connection
+to all translations. For each change, you'll need to update the IDs in every
+translation file.
+
+2. **Context-specific translations**: Translations cannot differ depending on
+their use. For example, you might use an abbreviation for a word in a table
+but the full word in another context.
+
+3. **Context for translators**: IDs provide valuable context to translators.
+They understand where a text is used and can choose the most suitable
+translation for that context.
+
+4. **Grouping by component or module**: Hierarchical IDs automatically create
+groups, making it easy to identify which module or component an ID is used
+in.
+
+
