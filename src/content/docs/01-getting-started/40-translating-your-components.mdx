@@ -168,8 +168,8 @@ loaded or if translations have been manually set using
 You can construct the translation keys dynamically by using simple string concatenation inside the template:
 
 ```html title=app.template.html
-<ul *ngFor="let language of languages">
-  <li>{{ 'languages.' + language | translate }}</li>
+<ul>
+  <li *ngFor="let language of languages">{{ 'languages.' + language | translate }}</li>
 </ul>
 ```
 
