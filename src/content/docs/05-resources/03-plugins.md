@@ -32,4 +32,7 @@ Use these plugins to enhance ngx-translate with additional functionality:
 - [Localize Router](https://github.com/Greentube/localize-router) by @meeroslav: An implementation of routes localization for Angular. If you need localized urls (for example /fr/page and /en/page).
 - [ngx-translate-cache](https://github.com/jgpacheco/ngx-translate-cache) by @jgpacheco: Simplified version of localize-router. If you are already using localize-router you don't need this extension. This extension is aimed only to facilitate language caching.
 
+## Testing
+
+- [ngx-translate-testing](https://github.com/mwootendev/ngx-translate-plugins/tree/develop/projects/testing) by @mwootendev: Utilities for unit testing components with translations.
 
