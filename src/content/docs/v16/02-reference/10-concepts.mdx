@@ -1,0 +1,47 @@
+---
+title: Concepts
+description: ngx-translate uses translation files in JSON format. They can
+  either be nested or flat.
+slug: v16/reference/concepts
+---
+
+ngx-translate offers several customizable classes, making it highly adaptable
+to virtually any localization requirement.
+
+* [**TranslateModule**](/v16/reference/configuration)
+  The core module for configuring ngx-translate. It allows you to set up basic
+  configuration and specify which classes to override from the default
+  implementation. Not required for standalone components.
+
+* [**TranslateService**](/v16/reference/translate-service-api)
+  The central service: It provides the API for interacting with your
+  application, enabling you to load translations, switch languages, and
+  retrieve translated messages.
+
+* [**TranslateLoader**](/v16/reference/translate-loader-api)
+  Handles the loading of translation files. It can either statically import translation data into the app
+  or dynamically fetch it from a server, based on your configuration. Multiple loaders are available as plugins.
+  The default loader, for example, retrieves JSON-formatted translation files from the assets folder at runtime.
+  It is also possible to load other file formats such as .po files.
+
+* **TranslationPipe** and **TranslationDirective**
+  These allow you to use translated texts directly within your templates. Both automatically
+  update the UI when the language is switched at runtime.
+
+* [**MissingTranslationHandler**](/v16/reference/missing-translation-handler-api)
+  By default, if a translation ID is missing, ngx-translate serves the translation from the default language,
+  or if unavailable, returns the ID itself. The MissingTranslationHandler allows you to customize this behavior,
+  providing flexibility in how missing translations are handled.
+
+* [**TranslateCompiler**](/v16/reference/translate-compiler-api)
+  The compiler pre-processes translations after loading, allowing for
+  performance-intensive operations to be executed once per message. The results
+  are then cached for efficiency. It is commonly used to handle tasks like
+  compiling ICU-formatted messages for advanced localization scenarios.
+
+* [**TranslateParser**](/v16/reference/translate-parser-api)
+  Injects parameters into translation strings, allowing dynamic content such as
+  usernames in greetings or other variable elements in your messages. This is
+  called each time a translation message is requested and should only perform
+  lightweight operations. The default implementation simply replaces all
+  strings in `{{...}}` with the matching provided parameter.

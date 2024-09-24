@@ -1,7 +1,7 @@
 ---
 title: Installation
 description: Learn how to add ngx-translate to your project.
-slug: getting-started/installation
+slug: v16/getting-started/installation
 ---
 
 import {Tabs, TabItem, CardGrid, LinkCard} from "@astrojs/starlight/components";
@@ -11,7 +11,7 @@ import { PackageManagers } from 'starlight-package-managers'
 
 Choose the version corresponding to your Angular version:
 
-| Angular       | @ngx-translate/core | @ngx-translate/http-loader | Tutorial |
+| Angular       | @codeandweb/ngx-translate | @codeandweb/http-loader | Tutorial |
 | ------------- | ------------------- | -------------------------- |--- |
 | 16 - 18+ | 15.x+ | 8.x+ | [Tutorial](https://www.codeandweb.com/babeledit/tutorials/how-to-translate-your-angular-app-with-ngx-translate) |
 | 13 - 15 (ivy only) | 14.x+               | 7.x+ | [Tutorial](https://www.codeandweb.com/babeledit/tutorials/how-to-translate-your-angular-app-with-ngx-translate) |
@@ -20,67 +20,63 @@ Choose the version corresponding to your Angular version:
 | 8             | 12.x+               | 4.x+  | [Tutorial](https://www.codeandweb.com/babeledit/tutorials/how-to-translate-your-angular-app-with-ngx-translate) |
 | 7             | 11.x+               | 4.x+  | [Tutorial](https://www.codeandweb.com/babeledit/tutorials/how-to-translate-your-angular7-app-with-ngx-translate) |
 | 6             | 10.x                | 3.x   | [Tutorial](https://www.codeandweb.com/babeledit/tutorials/how-to-translate-your-angular6-app-with-ngx-translate) |
-| 5             | 8.x to 9.x          | 1.x to 2.x | &mdash; |
-| 4.3           | 7.x or less         | 1.x to 2.x  | &mdash; |
-| 2 to 4.2.x    | 7.x or less         | 0.x  | &mdash; |
+| 5             | 8.x to 9.x          | 1.x to 2.x | — |
+| 4.3           | 7.x or less         | 1.x to 2.x  | — |
+| 2 to 4.2.x    | 7.x or less         | 0.x  | — |
 
-## Installation of the @ngx-translate/core
+## Installation of the @codeandweb/ngx-translate
 
 Start by adding the npm module:
 
-<PackageManagers pkg="@ngx-translate/core" />
-
+<PackageManagers pkg="@codeandweb/ngx-translate" />
 
 ## Standalone components or NgModule?
 
 The installation differs a bit depending on which concept you are using in your app:
 
 <CardGrid>
-    <LinkCard title="Standalone Components"
-              href="#using-standalone-components"
-              description="You application has a file app.config.ts in src/app. Your components set the property 'standalone:true.'"
-    />
-    <LinkCard title="NgModule"
-              href="#using-ngmodule"
-              description="You application has a file app.module.ts in src/app. Your components have no 'standalone' property."
-    />
+  <LinkCard title="Standalone Components" href="#using-standalone-components" description="You application has a file app.config.ts in src/app. Your components set the property 'standalone:true.'" />
+
+  <LinkCard title="NgModule" href="#using-ngmodule" description="You application has a file app.module.ts in src/app. Your components have no 'standalone' property." />
 </CardGrid>
 
 ## Using Standalone Components
 
-### Initialising the `TranslateModule`
+### Initialising the TranslateService
 
-To use ngx-translate in your project, import `TranslateModule.forRoot()` in your `appConfig`:
+To use ngx-translate in your project, use the `provideTranslateService`() function in `appConfig`:
 
-```ts title="app.config.ts"
-import {ApplicationConfig, importProvidersFrom, provideZoneChangeDetection} from "@angular/core";
-import {TranslateModule} from "@ngx-translate/core";
+```ts {2, 7-9} title="app.config.ts"
+import {ApplicationConfig, provideZoneChangeDetection} from "@angular/core";
+import {provideTranslateService} from "@codeandweb/ngx-translate";
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
-    importProvidersFrom([TranslateModule.forRoot({
+    provideTranslateService({
      defaultLanguage: 'en'
-    })])
+    ])
   ],
 };
 ```
-
 
 ### Initialize the `TranslateService` for your application
 
 In your components, add `TranslateModule` to your `imports`.  This gives you access to the
 TranslateService for configuration:
 
-```ts {2-3,8,13-17} title="app.component.ts"
+```ts {2-6,11,16-20} title="app.component.ts"
 import { Component } from '@angular/core';
-import {TranslateModule} from "@ngx-translate/core";
-import {TranslateService} from "@ngx-translate/core";
+import {
+    TranslateService,
+    TranslatePipe,
+    TranslateDirective
+} from "@codeandweb/ngx-translate";
 
 @Component({
     selector: 'app-root',
     standalone: true,
-    imports: [TranslateModule],
+    imports: [TranslatePipe, TranslateDirective],
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.scss']
 })
@@ -97,9 +93,6 @@ Now, skip the next chapter:
 
 <LinkCard title="Loading translation files" href="/getting-started/translation-files" />
 
-
-
-
 ## Using NgModule
 
 ### Initialising the `TranslateModule`
@@ -115,12 +108,12 @@ This method lets you configure the `TranslateModule` by specifying a loader,
 a parser, and/or a `MissingTranslationHandler`. Additionally, you can set the
 default language using `defaultLanguage`.
 
-See the section [Translate Module API](/reference/translate-module-api) for details.
+See the section [Translate Module API](/v16/reference/configuration) for details.
 
 ```ts {3,8-10}  title="app.module.ts"
 import {BrowserModule} from '@angular/platform-browser';
 import {NgModule} from '@angular/core';
-import {TranslateModule} from '@ngx-translate/core';
+import {TranslateModule} from '@codeandweb/ngx-translate';
 
 @NgModule({
     imports: [
@@ -133,8 +126,6 @@ import {TranslateModule} from '@ngx-translate/core';
 })
 export class AppModule { }
 ```
-
-
 
 ### Usage with SharedModules
 
@@ -186,13 +177,11 @@ different loader/compiler/parser/handler even if you don't isolate the service).
 export class LazyLoadedModule { }
 ```
 
-
 ### Initialize the `TranslateService` for your application
-
 
 ```ts {2,7,11-16} title="app.component.ts"
 import {Component} from '@angular/core';
-import {TranslateService} from '@ngx-translate/core';
+import {TranslateService} from '@codeandweb/ngx-translate';
 
 @Component({
     selector: 'app',
@@ -210,10 +199,9 @@ export class AppComponent {
 }
 ```
 
-[`setDefaultLang()`](/reference/translate-service-api#setdefaultlang) sets the default language. The default language is used
+[`setDefaultLang()`](/v16/reference/translate-service-api#setdefaultlang) sets the default language. The default language is used
 as a fall-back if no translation is found in the currently selected language.
 You can also do this at application startup using the `TranslateModule.forRoot({defaultLanguage:'en'})`.
 
-[`use()`](/reference/translate-service-api#use) sets the current language for the application. If the selected language is not yet
+[`use()`](/v16/reference/translate-service-api#use) sets the current language for the application. If the selected language is not yet
 loaded, the loader is invoked to retrieve the file.
-
