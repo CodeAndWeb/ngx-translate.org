@@ -7,6 +7,8 @@ import sitemap from '@astrojs/sitemap';
 import tailwind from "@astrojs/tailwind";
 import matomo from 'astro-matomo';
 import rehypeMermaid from 'rehype-mermaid'
+import starlightVersions from "starlight-versions";
+
 //import markdown from "astro/dist/vite-plugin-markdown/index.js";
 
 // https://astro.build/config
@@ -41,9 +43,22 @@ export default defineConfig({
         }),
         starlight({
             title: 'ngx-translate',
-            plugins: [starlightLinksValidator({
-                exclude: ["/"]
-            })],
+            plugins: [
+                starlightLinksValidator({
+                    exclude: ["/"]
+                }),
+                starlightVersions({
+                    current: {
+                        label: "v15"
+                    },
+                    versions: [
+                        {
+                            slug: 'v16',
+                            label: 'v16-beta',
+                        },
+                    ],
+                }),
+            ],
             logo: {
                 src: "./src/assets/ngx-translate.svg"
             },
