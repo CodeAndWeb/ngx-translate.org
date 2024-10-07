@@ -1,0 +1,310 @@
+---
+title: Migration guide v15 → v16
+description: This guide explains how to move from @ngx-translate/core to @codeandweb/ngx-translate
+slug: getting-started/migration-guide
+---
+
+import { Badge } from '@astrojs/starlight/components';
+import { PackageManagers } from 'starlight-package-managers'
+
+This guide helps you transition from `@ngx-translate/core` to the new forked version,
+`@codeandweb/ngx-translate`. Follow the steps below to ensure a smooth migration.
+
+## What's New in v16 and Why Migrate to @codeandweb/ngx-translate
+
+The release of `ngx-translate` v16 brings significant improvements that make migrating from `@ngx-translate/core` beneficial for your project. Here are the key reasons to migrate and what's new in v16:
+
+### Key Highlights:
+
+1. **Active Maintenance**: <br/>
+    The original `@ngx-translate/core` was abandoned in September 2023 and no longer
+    receives updates or support. Unfortunately, there's no way to publish new versions
+    to the original npm package. <br/>
+    `@codeandweb/ngx-translate` is actively
+    maintained, ensuring ongoing bug fixes, feature requests, and compatibility
+    with newer Angular versions.
+2. **Support for Angular Standalone Components**:<br/>
+    v16 adds full support for Angular's standalone components, simplifying the integration of `ngx-translate` in modern Angular applications.
+3. **Bug Fixes and Performance Enhancements**:<br/>
+    Several bugs have been fixed, improving overall stability and performance across various scenarios. These fixes ensure smoother operation in multilingual projects.
+4. **Code Quality Improvements**:<br/>
+    v16 introduces specific types for interfaces, reducing reliance on `any` and improving type safety.
+    Additionally, numerous ESLint warnings have been resolved, resulting in cleaner and more maintainable code.
+5. **Improved Documentation**: <br/>
+    This release introduces a new structured documentation system, moving away from
+    the basic GitHub README. This provides a clearer, more detailed reference guide
+    for users, making it easier to navigate and find necessary information.
+6. **License Included in NPM Package**: <br/>
+    The MIT license is now included directly in the npm package, ensuring full
+    transparency and compliance for users. This allows developers to clearly understand
+    the terms of use when installing and using `@codeandweb/ngx-translate`.
+
+By migrating to `@codeandweb/ngx-translate`, you can ensure your project stays up-to-date, secure, and compatible with the latest Angular features, while benefiting from these new improvements in v16.
+
+
+## 1. Installing the new library
+
+
+First, remove the old `@ngx-translate/core` package from your project:
+
+<PackageManagers type="remove" pkg="@ngx-translate/core" />
+
+Now, install the new `@codeandweb/ngx-translate`:
+
+<PackageManagers pkg="@codeandweb/ngx-translate" />
+
+
+
+## 2. Update Components and Code
+
+
+### 2.1 Update Imports in Your Code
+
+**Action**: <Badge text="Required" variant="danger" />
+
+You need to replace all instances of `@ngx-translate/core` with `@codeandweb/ngx-translate`
+in your project files. For example:
+
+~~~typescript ins={2} del={1}
+import { TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@codeandweb/ngx-translate';
+~~~
+
+Search your project for any imports from `@ngx-translate/core` and update them accordingly.
+
+
+While the forked version maintains backward compatibility with most core features of
+`ngx-translate`, there are some minor adjustments:
+
+### 2.2 Standalone Components Support
+
+**Action**: <Badge text="Recommended" variant="caution" /> when using Standalone Components
+
+If your project uses Angular's standalone components, ensure you're utilizing the
+latest features of `@codeandweb/ngx-translate`. Refer to the updated documentation
+for detailed instructions on how to integrate translations with standalone components.
+
+Here's a quick overview what you should change.
+
+##### Configuring ngx-translate
+
+Update your configuration in the **app.config.ts**. Instead of using `importProvidersFrom()`,
+you can now use [`provideTranslateService()`](/reference/configuration) with the same configuration.
+
+~~~ts title="app.config.ts" del={9,16} ins={1,10,17}
+import {provideTranslateService} from "@codeandweb/ngx-translate";
+
+...
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideZoneChangeDetection({ eventCoalescing: true }),
+    provideHttpClient(),
+    importProvidersFrom([TranslateModule.forRoot({
+    provideTranslateService({
+      loader: {
+        provide: TranslateLoader,
+        useFactory: httpLoaderFactory,
+        deps: [HttpClient],
+      },
+    })])
+    })
+  ],
+};
+~~~
+
+#### Updating your standalone components
+
+In your component, instead of importing the `TranslateModule`,
+import the `TranslatePipe` or `TranslateDirective` as used in your code.
+
+~~~ts title="my.component.ts" del={2,8} ins={3,9}
+import {Component} from "@angular/core";
+import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe, TranslateDirective} from "@codeandweb/ngx-translate";
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [TranslateModule],
+  imports: [TranslatePipe, TranslateDirective],
+  templateUrl: './app.component.html',
+  styleUrl: './app.component.scss'
+})
+export class MyComponent {
+  ...
+}
+~~~
+
+
+### 2.3 Update Types
+
+**Action**: <Badge text="Optional" variant="success" />
+
+We’ve introduced types to enhance type checking in `ngx-translate`, such as
+`Translation` and `TranslationObject` for several functions. However, due to
+limitations in TypeScript's handling of recursively defined types, we are still
+forced to include `any` in certain parts of these types. As a result, the impact
+on your existing code should be minimal.
+
+You can optionally update your code to use these specific types instead of `any`
+for better type safety:
+
+~~~ts del={3} ins={4}
+const subscription = translateService
+    .getStreamOnTranslationChange('hello.world')
+    .subscribe((res: any) => {
+    .subscribe((res: Translation) => {
+        console.log(res);
+     });
+~~~
+
+Switching to `Translation` type will improve type checking without drastically
+affecting your current implementation.
+
+
+### 2.4 Using the ngx-translate `_()` Marker Function
+
+**Action**: <Badge text="Optional" variant="success" />
+
+If you're extracting translations directly from your code using a marker function,
+you can now use the built-in `_()` function provided by `ngx-translate`. This function helps
+mark strings for translation and is integrated with the `ngx-translate` service.
+
+Here’s an example of how to use it:
+
+~~~ts
+import {_} from "@codeandweb/ngx-translate";
+
+const text = translateService.instant(_("hello.world"));
+~~~
+
+This simplifies your code by directly using the integrated marker function, making it easier to maintain and extract translations.
+
+
+### 2.5 TranslateParser: getValue()
+
+**Action**: <Badge text="Low Impact" variant="tip" />.
+
+This is only relevant if
+you implemented a custom parser and/or use the `getValue()` function.
+
+We’ve removed the need to manually implement the `getValue()` function in your
+custom `TranslateParser`. In fact, the implementation in the parser itself
+is not used anymore.
+
+The `getValue()` function is now directly available from `ngx-translate` as
+an import, making it easier to use without additional implementation.
+
+If you were previously using the `getValue()` function from the default parser,
+update your code to use the new direct import:
+
+~~~ts del={5} ins={1,6}
+import {getValue} from "@codeandweb/ngx-translate";
+
+...
+
+const text = parser.getValue({ hello: { world: 'Hello World!' }}, 'hello.world');
+const text = getValue({ hello: { world: 'Hello World!' }}, 'hello.world');
+~~~
+
+### 2.6 TranslateService: Deprecated `getTranslation()`
+
+**Action**: <Badge text="Low Impact" variant="tip" />
+
+The `getTranslation()` function, which returned all translations for the given
+language in an internal state, has been deprecated. When using a custom
+`TranslateCompiler`, this function might not only return text nodes but also
+functions used for text interpolation.
+
+We do not see a practical use case for continuing to rely on this function.
+
+To retrieve translated text, use functions like `get()` or `instant()` to
+access the specific translations you need.
+
+
+
+
+## 4. Review Behaviour Changes
+
+### `use()`
+
+Previously, the `use()` function relied on the order in which translation files
+were loaded from the server, making it non-deterministic when rapidly switching
+languages. This could result in earlier language files overriding later selections.
+
+We’ve updated the `use()` function to ensure consistent behavior.
+
+- **First Call**: When calling `use()` for the first time, it now immediately
+sets the current language and begins loading the language file.
+
+- **Successive Calls**: For multiple successive calls, the function will
+trigger the loading of each requested language. However, the current language
+will always switch to the language selected by the **most recent call**,
+regardless of the order in which the translation files finish loading.
+
+This change ensures that even when making rapid language changes, the most
+recent language selection is applied correctly.
+
+
+### Interpolations in nested Translation Objects
+
+Starting with `ngx-translate` 16, all translation functions now apply interpolations
+to **nested translation objects**, addressing a limitation present in previous versions.
+
+**Example:**
+
+When using a key like `main` that contains translations for subkeys such as
+`main.title`, and `main.text` the returned object will include
+the keys `title`, `text`, and `footer`.
+
+~~~json title="en.json"
+{
+  "main": {
+    "title": "Hello {name},",
+    "text": "nice to see you again!"
+  }
+}
+~~~
+
+~~~ts
+translateService.instant('main')
+~~~
+
+**In versions up to `ngx-translate` 15**: <Badge text="old" variant="danger" />
+
+- **Issue**: Parameters inside nested translation objects were **not interpolated**.
+- **Result**: The placeholders (e.g., `{name}`) remained as-is, and the returned object looked like this:
+
+    ~~~ts
+    {
+      "title": "Hello {name},",
+      "text": "nice to see you again!"
+    }
+    ~~~
+
+**In `ngx-translate` 16**: <Badge text="new" variant="success" />
+
+- **Improvement**: Parameters inside nested translation objects are **now fully interpolated**.
+- **Result**: The placeholders are replaced with actual values, producing the following output:
+
+    ~~~ts
+    {
+      "title": "Hello John,",
+      "text": "nice to see you again!"
+    }
+    ~~~
+
+## 3. Run and Test Your Application
+
+After making the changes, run your application to verify that everything works as expected.
+Make sure all translations are loading correctly and there are no errors related to the library.
+
+
+
+## 4. Stay Updated
+
+Keep track of updates and improvements by following the library on GitHub:
+[GitHub repository](https://github.com/codeandweb/ngx-translate).
+
+We welcome any feedback or issues you encounter during the migration process.

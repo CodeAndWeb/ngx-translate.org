@@ -49,12 +49,12 @@ export default defineConfig({
                 }),
                 starlightVersions({
                     current: {
-                        label: "v15"
+                        label: "v16"
                     },
                     versions: [
                         {
-                            slug: 'v16',
-                            label: 'v16-beta',
+                            slug: 'v15',
+                            label: 'v15',
                         },
                     ],
                 }),
@@ -101,6 +101,10 @@ export default defineConfig({
                     {
                         label: "Translating your components",
                         link: "/getting-started/translating-your-components"
+                    },
+                    {
+                        label: "Migration guide v15 → v16",
+                        link: "/getting-started/migration-guide"
                     }
                 ]
             }, {
@@ -111,8 +115,8 @@ export default defineConfig({
                         link: "/reference/concepts"
                     },
                     {
-                        label: "TranslateModule API",
-                        link: "/reference/translate-module-api"
+                        label: "Configuration",
+                        link: "/reference/configuration"
                     },
                     {
                         label: "TranslateService API",
@@ -138,12 +142,12 @@ export default defineConfig({
             }, {
                 label: 'Recipes',
                 autogenerate: {
-                    directory: '04-recipes'
+                    directory: '30-recipes'
                 }
             }, {
                 label: 'Resources',
                 autogenerate: {
-                    directory: '05-resources'
+                    directory: '40-resources'
                 }
             }]
         }),
