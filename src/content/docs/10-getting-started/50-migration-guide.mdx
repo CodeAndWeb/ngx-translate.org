@@ -1,87 +1,55 @@
 ---
 title: Migration guide v15 → v16
-description: This guide explains how to move from @ngx-translate/core to @codeandweb/ngx-translate
+description: This guide explains how to upgrade from ngx-translate v15 -> v16
 slug: getting-started/migration-guide
 ---
 
 import { Badge } from '@astrojs/starlight/components';
 import { PackageManagers } from 'starlight-package-managers'
 
-This guide helps you transition from `@ngx-translate/core` to the new forked version,
-`@codeandweb/ngx-translate`. Follow the steps below to ensure a smooth migration.
 
-## What's New in v16 and Why Migrate to @codeandweb/ngx-translate
+### Key Highlights
 
-The release of `ngx-translate` v16 brings significant improvements that make migrating from `@ngx-translate/core` beneficial for your project. Here are the key reasons to migrate and what's new in v16:
-
-### Key Highlights:
-
-1. **Active Maintenance**: <br/>
-    The original `@ngx-translate/core` was abandoned in September 2023 and no longer
-    receives updates or support. Unfortunately, there's no way to publish new versions
-    to the original npm package. <br/>
-    `@codeandweb/ngx-translate` is actively
-    maintained, ensuring ongoing bug fixes, feature requests, and compatibility
-    with newer Angular versions.
-2. **Support for Angular Standalone Components**:<br/>
+1. **Support for Angular Standalone Components**:<br/>
     v16 adds full support for Angular's standalone components, simplifying the integration of `ngx-translate` in modern Angular applications.
-3. **Bug Fixes and Performance Enhancements**:<br/>
+2. **Bug Fixes and Performance Enhancements**:<br/>
     Several bugs have been fixed, improving overall stability and performance across various scenarios. These fixes ensure smoother operation in multilingual projects.
-4. **Code Quality Improvements**:<br/>
+3. **Code Quality Improvements**:<br/>
     v16 introduces specific types for interfaces, reducing reliance on `any` and improving type safety.
     Additionally, numerous ESLint warnings have been resolved, resulting in cleaner and more maintainable code.
-5. **Improved Documentation**: <br/>
+4. **Improved Documentation**: <br/>
     This release introduces a new structured documentation system, moving away from
     the basic GitHub README. This provides a clearer, more detailed reference guide
     for users, making it easier to navigate and find necessary information.
-6. **License Included in NPM Package**: <br/>
+5. **License Included in NPM Package**: <br/>
     The MIT license is now included directly in the npm package, ensuring full
     transparency and compliance for users. This allows developers to clearly understand
-    the terms of use when installing and using `@codeandweb/ngx-translate`.
+    the terms of use when installing and using `@ngx-translate/core`.
 
-By migrating to `@codeandweb/ngx-translate`, you can ensure your project stays up-to-date, secure, and compatible with the latest Angular features, while benefiting from these new improvements in v16.
-
-
-## 1. Installing the new library
+By migrating to `@ngx-translate/core`, you can ensure your project stays up-to-date, secure, and compatible with the latest Angular features, while benefiting from these new improvements in v16.
 
 
-First, remove the old `@ngx-translate/core` package from your project:
+## 1. Update @ngx-translate/core to the new release
 
-<PackageManagers type="remove" pkg="@ngx-translate/core" />
+Start by updating to the newest version of @ngx-translate/core:
 
-Now, install the new `@codeandweb/ngx-translate`:
+<PackageManagers type="add" pkg="@ngx-translate/core@^16" />
 
-<PackageManagers pkg="@codeandweb/ngx-translate" />
+If you are also using @ngx-translate/http-loader, update that one too.
+With this release, we are now keeping the versions of both modules in sync, making it less
+confusing:
 
+<PackageManagers type="add" pkg="@ngx-translate/http-loader@^16" />
 
 
 ## 2. Update Components and Code
 
-
-### 2.1 Update Imports in Your Code
-
-**Action**: <Badge text="Required" variant="danger" />
-
-You need to replace all instances of `@ngx-translate/core` with `@codeandweb/ngx-translate`
-in your project files. For example:
-
-~~~typescript ins={2} del={1}
-import { TranslateService } from '@ngx-translate/core';
-import { TranslateService } from '@codeandweb/ngx-translate';
-~~~
-
-Search your project for any imports from `@ngx-translate/core` and update them accordingly.
-
-
-While the forked version maintains backward compatibility with most core features of
-`ngx-translate`, there are some minor adjustments:
-
-### 2.2 Standalone Components Support
+### 2.1 Standalone Components Support
 
 **Action**: <Badge text="Recommended" variant="caution" /> when using Standalone Components
 
 If your project uses Angular's standalone components, ensure you're utilizing the
-latest features of `@codeandweb/ngx-translate`. Refer to the updated documentation
+latest features of `@ngx-translate/core`. Refer to the updated documentation
 for detailed instructions on how to integrate translations with standalone components.
 
 Here's a quick overview what you should change.
@@ -92,7 +60,7 @@ Update your configuration in the **app.config.ts**. Instead of using `importProv
 you can now use [`provideTranslateService()`](/reference/configuration) with the same configuration.
 
 ~~~ts title="app.config.ts" del={9,16} ins={1,10,17}
-import {provideTranslateService} from "@codeandweb/ngx-translate";
+import {provideTranslateService} from "@ngx-translate/core";
 
 ...
 
@@ -120,8 +88,7 @@ import the `TranslatePipe` or `TranslateDirective` as used in your code.
 
 ~~~ts title="my.component.ts" del={2,8} ins={3,9}
 import {Component} from "@angular/core";
-import {TranslateModule} from "@ngx-translate/core";
-import {TranslatePipe, TranslateDirective} from "@codeandweb/ngx-translate";
+import {TranslateModule, TranslatePipe, TranslateDirective} from "@ngx-translate/core";
 
 @Component({
   selector: 'app-root',
@@ -137,7 +104,7 @@ export class MyComponent {
 ~~~
 
 
-### 2.3 Update Types
+### 2.2 Update Types
 
 **Action**: <Badge text="Optional" variant="success" />
 
@@ -163,7 +130,7 @@ Switching to `Translation` type will improve type checking without drastically
 affecting your current implementation.
 
 
-### 2.4 Using the ngx-translate `_()` Marker Function
+### 2.3 Using the ngx-translate `_()` Marker Function
 
 **Action**: <Badge text="Optional" variant="success" />
 
@@ -174,7 +141,7 @@ mark strings for translation and is integrated with the `ngx-translate` service.
 Here’s an example of how to use it:
 
 ~~~ts
-import {_} from "@codeandweb/ngx-translate";
+import {_} from "@ngx-translate/core";
 
 const text = translateService.instant(_("hello.world"));
 ~~~
@@ -182,7 +149,7 @@ const text = translateService.instant(_("hello.world"));
 This simplifies your code by directly using the integrated marker function, making it easier to maintain and extract translations.
 
 
-### 2.5 TranslateParser: getValue()
+### 2.4 TranslateParser: getValue()
 
 **Action**: <Badge text="Low Impact" variant="tip" />.
 
@@ -200,7 +167,7 @@ If you were previously using the `getValue()` function from the default parser,
 update your code to use the new direct import:
 
 ~~~ts del={5} ins={1,6}
-import {getValue} from "@codeandweb/ngx-translate";
+import {getValue} from "@ngx-translate/core";
 
 ...
 
@@ -208,7 +175,7 @@ const text = parser.getValue({ hello: { world: 'Hello World!' }}, 'hello.world')
 const text = getValue({ hello: { world: 'Hello World!' }}, 'hello.world');
 ~~~
 
-### 2.6 TranslateService: Deprecated `getTranslation()`
+### 2.5 TranslateService: Deprecated `getTranslation()`
 
 **Action**: <Badge text="Low Impact" variant="tip" />
 

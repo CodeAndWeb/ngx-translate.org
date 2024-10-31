@@ -16,7 +16,7 @@ If you set it to `false`, `MissingTranslationHandler` will be used instead of th
 Create a Missing Translation Handler
 
 ~~~ts
-import {MissingTranslationHandler, MissingTranslationHandlerParams} from '@codeandweb/ngx-translate';
+import {MissingTranslationHandler, MissingTranslationHandlerParams} from '@ngx-translate/core';
 
 export class MyMissingTranslationHandler implements MissingTranslationHandler {
     handle(params: MissingTranslationHandlerParams) {

@@ -23,7 +23,7 @@ When using standalone components, import the `TranslatePipe` and `TranslateDirec
 
 ~~~ts {2,7} title="your-component.ts"
 import {Component} from '@angular/core';
-import {TranslatePipe, TranslateDirective} from "@codeandweb/ngx-translate";
+import {TranslatePipe, TranslateDirective} from "@ngx-translate/core";
 
 @Component({
   selector: 'app-root',
@@ -119,7 +119,7 @@ translated messages directly within your application logic.
 
 ~~~ts {2,11-16} title="your-component.ts"
 import {Component} from '@angular/core';
-import {TranslateService, _} from "@codeandweb/ngx-translate";
+import {TranslateService, _} from "@ngx-translate/core";
 
 @Component({
   selector: 'app-root',

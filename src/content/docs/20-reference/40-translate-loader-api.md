@@ -11,7 +11,7 @@ It can deliver either embedded translations or load them from a server.
 
 There are several loaders already available as plugins. So in most
 cases, you'll not need to create your own. See [Installation](/getting-started/installation)
-on how to use the default loader `@codeandweb/http-loader`.
+on how to use the default loader `@ngx-translate/http-loader`.
 
 You might also find 3rd party loaders in the [plugins section](/resources/plugins).
 
@@ -43,7 +43,7 @@ change the configuration in `provideTranslationService()` function in your app.c
 
 ~~~ts {9-12} title="app.config.ts"
 ...
-import {provideTranslationService, TranslateLoader} from "@codeandweb/ngx-translate";
+import {provideTranslationService, TranslateLoader} from "@ngx-translate/core";
 ...
 
 export const appConfig: ApplicationConfig = {
@@ -64,8 +64,8 @@ If you are using the `HttpClient`, use a factory method to initialise it:
 ~~~ts {2-5,7-8,13-20} title="app.config.ts"
 import {ApplicationConfig, provideZoneChangeDetection} from "@angular/core";
 import {provideHttpClient} from "@angular/common/http";
-import {provideTranslationService, TranslateLoader} from "@codeandweb/ngx-translate";
-import {TranslateHttpLoader} from '@codeandweb/http-loader';
+import {provideTranslationService, TranslateLoader} from "@ngx-translate/core";
+import {TranslateHttpLoader} from '@ngx-translate/http-loader';
 import {HttpClient} from '@angular/common/http';
 
 const httpLoaderFactory: (http: HttpClient) => TranslateLoader = (http: HttpClient) =>

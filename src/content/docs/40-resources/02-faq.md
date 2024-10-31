@@ -33,23 +33,6 @@ You are not required to use it, of course, but we would be happy if you give it 
 If you like it, get a license, and this also supports the development of this library.
 
 
-### What is the difference between @codeandweb/ngx-translate vs @ngx-translate/core?
-
-`ngx-translate` was originally created by Olivier Combe, but he abandoned the project
-in September 2023. Since then, he ignores all communication related to ngx-translate.
-
-We decided not to let it die and instead work on it, also adapting it to newer versions
-of Angular — e.g. supporting standalone components and fixing bugs.
-
-Since Olivier is not interested in handing over the GitHub and npm repo for further
-development, we were unfortunately forced to fork the original repo and create a new
-npm module to keep working on the library.
-
-And this now is: `@codeandweb/ngx-translate`.
-
-Read our [migration guide](/getting-started/migration-guide) to get help with the update.
-
-
 ### What's the future of this library?
 
 This is what we currently plan to do:
@@ -65,7 +48,7 @@ edge-cases.
 ### Where can I report issues or request new features?
 
 We use the **GitHub bug tracker** to manage all issues, bugs, and feature requests.
-If you encounter any problems while using `@codeandweb/ngx-translate` or have ideas for
+If you encounter any problems while using `@ngx-translate/core` or have ideas for
 new features, feel free to submit them there.
 
 1. Go to the [GitHub repository](https://github.com/codeandweb/ngx-translate).

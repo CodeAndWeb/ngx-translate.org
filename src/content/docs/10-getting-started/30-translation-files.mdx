@@ -9,10 +9,10 @@ import { PackageManagers } from 'starlight-package-managers'
 import { FileTree } from '@astrojs/starlight/components';
 import { Badge } from '@astrojs/starlight/components';
 
-**@codeandweb/ngx-translate** does not come with a loader. The reason for this is to keep the
+**@ngx-translate/core** does not come with a loader. The reason for this is to keep the
 module as small as possible and to make it adaptable to your needs.
 
-However, there's an official plugin called **`@codeandweb/http-loader`** that implements
+However, there's an official plugin called **`@ngx-translate/http-loader`** that implements
 a dynamic loader.
 
 ## Static Translations via `import`
@@ -38,7 +38,7 @@ texts and languages, this might bloat your application and slow down startup tim
 using `HttpClient`. To use it, you need to install the `http-loader` package from
 `@ngx-translate`:
 
-<PackageManagers pkg={"@codeandweb/http-loader"} />
+<PackageManagers pkg={"@ngx-translate/http-loader"} />
 
 Here is how you would use the `TranslateHttpLoader` to load
 translations from `"/assets/i18n/[lang].json"`. `[lang]` is the lang that you're using, for english it could be `en`.
@@ -75,8 +75,8 @@ most likely using an [NgModules](#ngmodule)
 ~~~ts {2-8,13-20} title="app.config.ts"
 import {ApplicationConfig, provideZoneChangeDetection} from "@angular/core";
 import {provideHttpClient} from "@angular/common/http";
-import {provideTranslationService, TranslateLoader} from "@codeandweb/ngx-translate";
-import {TranslateHttpLoader} from '@codeandweb/http-loader';
+import {provideTranslationService, TranslateLoader} from "@ngx-translate/core";
+import {TranslateHttpLoader} from '@ngx-translate/http-loader';
 import {HttpClient} from '@angular/common/http';
 
 const httpLoaderFactory: (http: HttpClient) => TranslateHttpLoader = (http: HttpClient) =>
@@ -106,8 +106,8 @@ Use this if you are using an `app.module.ts`. If this file does not exist, you a
 import {NgModule} from '@angular/core';
 import {BrowserModule} from '@angular/platform-browser';
 import {HttpClientModule, HttpClient} from '@angular/common/http';
-import {TranslateModule, TranslateLoader} from '@codeandweb/ngx-translate';
-import {TranslateHttpLoader} from '@codeandweb/http-loader';
+import {TranslateModule, TranslateLoader} from '@ngx-translate/core';
+import {TranslateHttpLoader} from '@ngx-translate/http-loader';
 import {AppComponent} from './app';
 
 export function HttpLoaderFactory(http: HttpClient) {
