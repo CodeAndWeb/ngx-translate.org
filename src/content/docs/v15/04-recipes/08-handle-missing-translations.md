@@ -17,7 +17,9 @@ Create a Missing Translation Handler
 
 ~~~ts
 import {MissingTranslationHandler, MissingTranslationHandlerParams} from '@ngx-translate/core';
+import {Injectable} from "@angular/core";
 
+@Injectable()
 export class MyMissingTranslationHandler implements MissingTranslationHandler {
     handle(params: MissingTranslationHandlerParams) {
         return 'some value';
