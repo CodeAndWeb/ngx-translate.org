@@ -135,8 +135,11 @@ affecting your current implementation.
 **Action**: <Badge text="Optional" variant="success" />
 
 If you're extracting translations directly from your code using a marker function,
-you can now use the built-in `_()` function provided by `ngx-translate`. This function helps
-mark strings for translation and is integrated with the `ngx-translate` service.
+you can now use the built-in `_()` function provided by `ngx-translate`.
+
+This function helps
+mark strings for automated extractions, e.g. when using [BabelEdit](https://www.codeandweb.com/babeledit)
+or the ngx-translate-extract plugin.
 
 Here’s an example of how to use it:
 
@@ -145,8 +148,6 @@ import {_} from "@ngx-translate/core";
 
 const text = translateService.instant(_("hello.world"));
 ~~~
-
-This simplifies your code by directly using the integrated marker function, making it easier to maintain and extract translations.
 
 
 ### 2.4 TranslateParser: getValue()

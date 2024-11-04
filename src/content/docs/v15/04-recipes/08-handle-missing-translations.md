@@ -27,7 +27,7 @@ export class MyMissingTranslationHandler implements MissingTranslationHandler {
 }
 ~~~
 
-Setup the Missing Translation Handler in your module import by adding it to the `forRoot` (or `forChild`) configuration.
+Set up the Missing Translation Handler in your module import by adding it to the `forRoot` (or `forChild`) configuration.
 
 ~~~ts
 @NgModule({
