@@ -78,7 +78,10 @@ export default defineConfig({
                 PageFrame: "./src/components/PageFrameWithFooter.astro"
             },
             social: {
-                github: 'https://github.com/codeandweb/ngx-translate'
+                github: 'https://github.com/ngx-translate/core'
+            },
+            editLink: {
+                baseUrl: 'https://github.com/CodeAndWeb/ngx-translate.org/edit/main/',
             },
             customCss: [
                 // Path to your Tailwind base styles:
