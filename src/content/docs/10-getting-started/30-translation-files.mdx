@@ -20,7 +20,7 @@ a dynamic loader.
 The easy way to set translation data is using `import` and [`setTranslation()`](/reference/translate-service-api#settranslation).
 
 ~~~ts {1,4} title="src/app/app.component.ts"
-import translationsEN from "./../public/i18n/en.json";
+import translationsEN from "../../public/i18n/en.json";
 ...
 constructor(private translate: TranslateService) {
     translate.setTranslation('en', translationsEN);
