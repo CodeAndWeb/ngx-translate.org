@@ -39,17 +39,17 @@ has to return a promise the resolves to a translation object.
 ## Standalone Components
 
 To configure ngx-translate to use your loader
-change the configuration in `provideTranslationService()` function in your app.config.ts:
+change the configuration in `provideTranslateService()` function in your app.config.ts:
 
 ~~~ts {9-12} title="app.config.ts"
 ...
-import {provideTranslationService, TranslateLoader} from "@ngx-translate/core";
+import {provideTranslateService, TranslateLoader} from "@ngx-translate/core";
 ...
 
 export const appConfig: ApplicationConfig = {
     providers: [
       ...
-        provideTranslationService({
+        provideTranslateService({
             loader: {
                 provide: TranslateLoader,
                 userClass: YourLoader
@@ -64,7 +64,7 @@ If you are using the `HttpClient`, use a factory method to initialise it:
 ~~~ts {2-5,7-8,13-20} title="app.config.ts"
 import {ApplicationConfig, provideZoneChangeDetection} from "@angular/core";
 import {provideHttpClient} from "@angular/common/http";
-import {provideTranslationService, TranslateLoader} from "@ngx-translate/core";
+import {provideTranslateService, TranslateLoader} from "@ngx-translate/core";
 import {TranslateHttpLoader} from '@ngx-translate/http-loader';
 import {HttpClient} from '@angular/common/http';
 
@@ -75,7 +75,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     ...
     provideHttpClient(),
-    provideTranslationService({
+      provideTranslateService({
       loader: {
         provide: TranslateLoader,
         useFactory: httpLoaderFactory,

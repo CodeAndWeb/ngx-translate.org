@@ -75,7 +75,7 @@ most likely using an [NgModules](#ngmodule)
 ~~~ts {2-8,13-20} title="app.config.ts"
 import {ApplicationConfig, provideZoneChangeDetection} from "@angular/core";
 import {provideHttpClient} from "@angular/common/http";
-import {provideTranslationService, TranslateLoader} from "@ngx-translate/core";
+import {provideTranslateService, TranslateLoader} from "@ngx-translate/core";
 import {TranslateHttpLoader} from '@ngx-translate/http-loader';
 import {HttpClient} from '@angular/common/http';
 
@@ -86,7 +86,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideHttpClient(),
-    provideTranslationService({
+    provideTranslateService({
       loader: {
         provide: TranslateLoader,
         useFactory: httpLoaderFactory,
