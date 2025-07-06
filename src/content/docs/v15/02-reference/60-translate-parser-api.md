@@ -64,7 +64,7 @@ Returns `value`.
 ## Custom parser
 
 A `TranslateParser` implements this interface - you can create your
-own parser and plug in into the [`TranslateModule`](/v15/reference/translate-module-api) using
+own parser and plug in into the [`TranslateModule`](/v15/reference/translate-module-api/) using
 the config.
 
 ~~~

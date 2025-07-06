@@ -40,14 +40,14 @@ can be used for both `TranslateModule.forRoot()` and `TranslateModule.forChild()
 
 Providers allow you to replace default implementations of the Loader, Compiler,
 Parser, and MissingTranslationsHandler with enhanced versions, either from
-[plugins](/v15/resources/plugins) or your own implementation.
+[plugins](/v15/resources/plugins/) or your own implementation.
 
 | Name                        | Type      | Description                                                                                                                                                                      |
 |-----------------------------|-----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `loader`                    | `Provider`| Provides a [`TranslateLoader`](/v15/reference/translate-loader-api) to load translations.                                                                                             |
-| `compiler`                  | `Provider`| Provides a [`TranslateCompiler`](/v15/reference/translate-compiler-api) to prepare translations after loading. The default implementation does nothing.                               |
-| `parser`                    | `Provider`| Provides a [`TranslateParser`](/v15/reference/translate-parser-api) that interpolates parameters in translations. The default checks translations for placeholders like `{{value}}`.   |
-| `missingTranslationHandler` | `Provider`| Provides a [`MissingTranslationHandler`](/v15/reference/missing-translation-handler-api) that handles missing translations. The default returns the translation key.                   |
+| `loader`                    | `Provider`| Provides a [`TranslateLoader`](/v15/reference/translate-loader-api/) to load translations.                                                                                             |
+| `compiler`                  | `Provider`| Provides a [`TranslateCompiler`](/v15/reference/translate-compiler-api/) to prepare translations after loading. The default implementation does nothing.                               |
+| `parser`                    | `Provider`| Provides a [`TranslateParser`](/v15/reference/translate-parser-api/) that interpolates parameters in translations. The default checks translations for placeholders like `{{value}}`.   |
+| `missingTranslationHandler` | `Provider`| Provides a [`MissingTranslationHandler`](/v15/reference/missing-translation-handler-api/) that handles missing translations. The default returns the translation key.                   |
 
 Providers use the standard Angular [Providers API](https://angular.dev/guide/di/dependency-injection-providers).
 

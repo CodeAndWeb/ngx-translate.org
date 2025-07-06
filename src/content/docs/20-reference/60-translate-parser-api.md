@@ -47,7 +47,7 @@ Returns `This is a banana!`
 ## Custom parser
 
 A `TranslateParser` implements this interface - you can create your
-own parser and plug in into the [`TranslateModule`](/reference/configuration) using
+own parser and plug in into the [`TranslateModule`](/reference/configuration/) using
 the config.
 
 ~~~

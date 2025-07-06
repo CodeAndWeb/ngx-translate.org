@@ -15,12 +15,12 @@ The loader is responsible for providing translations to the application.
 It can deliver either embedded translations or load them from a server.
 
 There are several loaders already available as plugins. So in most
-cases, you'll not need to create your own. See [Installation](/getting-started/installation)
+cases, you'll not need to create your own. See [Installation](/getting-started/installation/)
 on how to use the default loader `@ngx-translate/http-loader`.
 
-You might also find 3rd party loaders in the [plugins section](/resources/plugins).
+You might also find 3rd party loaders in the [plugins section](/resources/plugins/).
 
-The ngx-translate can be [configured](/reference/configuration) with 
+The ngx-translate can be [configured](/reference/configuration/) with 
 a loader which loads translation files at runtime.
 
 To implement your own loader, create a class derived from this

@@ -118,7 +118,7 @@ To render them, simply use the `innerHTML` attribute with the pipe on any elemen
 ## Using Translations in Code
 
 To use translations in your code, you need to utilize Dependency Injection in
-the constructor to access the [TranslateService](/reference/translate-service-api).
+the constructor to access the [TranslateService](/reference/translate-service-api/).
 This service allows you to load translations, switch languages, and retrieve
 translated messages directly within your application logic.
 
@@ -131,7 +131,7 @@ import {TranslateService, _} from "@ngx-translate/core";
   standalone: true,
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
-})
+}/)
 export class YourComponent {
   constructor(private translate: TranslateService) {
     this.translate.get(_('app.hello'), {value: 'world'}).subscribe((res: string) => {
@@ -146,21 +146,21 @@ The `_()` function is a marker function. It helps BabelEdit and the ngx-translat
 plugin to distinguish between regular string and translation IDs in your app for automated
 extraction of translation stings. Simply wrap all IDs with `_()` - e.g. `_('demo.title)`.
 
-You might wonder why the [`get()`](/reference/translate-service-api#get) method
+You might wonder why the [`get()`](/reference/translate-service-api/#get) method
 uses a subscription to retrieve translations. The reason is that your language
 file might not be loaded at the time the `get()` function is called, so the
 update is triggered once the file finishes loading.
 
-Alternatively, you can use [`stream()`](/reference/translate-service-api#stream),
+Alternatively, you can use [`stream()`](/reference/translate-service-api/#stream),
 which works similarly to `get()` but has the added benefit of firing again
 whenever the language changes. This ensures the translation stays up to date
 even if the user switches languages.
 
 For cases where you need an immediate, synchronous translation result, you can
-use [`instant()`](/reference/translate-service-api#instant). This method returns
+use [`instant()`](/reference/translate-service-api/#instant). This method returns
 the translation instantly but only works if the translation file is already
 loaded or if translations have been manually set using
-[`setTranslation()`](/reference/translate-service-api#settranslation).
+[`setTranslation()`](/reference/translate-service-api/#settranslation).
 
 ## Using Dynamic Ids
 

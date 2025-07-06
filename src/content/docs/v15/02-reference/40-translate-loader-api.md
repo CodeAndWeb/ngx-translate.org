@@ -15,12 +15,12 @@ The loader is responsible for providing translations to the application.
 It can deliver either embedded translations or load them from a server.
 
 There are several loaders already available as plugins. So in most
-cases, you'll not need to create your own. See [Installation](/v15/getting-started/installation)
+cases, you'll not need to create your own. See [Installation](/v15/getting-started/installation/)
 on how to use the default loader `@ngx-translate/http-loader`.
 
-You might also find 3rd party loaders in the [plugins section](/v15/resources/plugins).
+You might also find 3rd party loaders in the [plugins section](/v15/resources/plugins/).
 
-The [`TranslateModule`](/v15/reference/translate-module-api)
+The [`TranslateModule`](/v15/reference/translate-module-api/)
 can be configured with a loader which loads translation
 files at runtime.
 
@@ -29,7 +29,7 @@ interface:
 
 ~~~ts
 export abstract class TranslateLoader {
-  abstract getTranslation(lang: string): Observable<any>;
+  abstract getTranslation(lang: string/): Observable<any>;
 }
 ~~~
 

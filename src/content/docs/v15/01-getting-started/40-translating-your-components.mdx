@@ -116,7 +116,7 @@ To render them, simply use the `innerHTML` attribute with the pipe on any elemen
 ## Using Translations in Code
 
 To use translations in your code, you need to utilize Dependency Injection in
-the constructor to access the [TranslateService](/v15/reference/translate-service-api).
+the constructor to access the [TranslateService](/v15/reference/translate-service-api/).
 This service allows you to load translations, switch languages, and retrieve
 translated messages directly within your application logic.
 
@@ -143,12 +143,12 @@ export class YourComponent {
 }
 ~~~
 
-You might wonder why the [`get()`](/v15/reference/translate-service-api#get) method
+You might wonder why the [`get()`](/v15/reference/translate-service-api/#get) method
 uses a subscription to retrieve translations. The reason is that your language
 file might not be loaded at the time the `get()` function is called, so the
 update is triggered once the file finishes loading.
 
-Alternatively, you can use [`stream()`](/v15/reference/translate-service-api#stream),
+Alternatively, you can use [`stream()`](/v15/reference/translate-service-api/#stream),
 which works similarly to `get()` but has the added benefit of firing again
 whenever the language changes. This ensures the translation stays up to date
 even if the user switches languages.
@@ -157,7 +157,7 @@ For cases where you need an immediate, synchronous translation result, you can
 use [`instant()`](/v15/reference/translate-service-api#instant). This method returns
 the translation instantly but only works if the translation file is already
 loaded or if translations have been manually set using
-[`setTranslation()`](/v15/reference/translate-service-api#settranslation).
+[`setTranslation()`](/v15/reference/translate-service-api/#settranslation).
 
 ## Using Dynamic Ids
 

@@ -98,5 +98,5 @@ Yes.
 
 If you want to reload the translations and see the update on all your components
 without reloading the page, you have to load the translations manually and call
-[`setTranslation`](/reference/translate-service-api#settranslation) function, which
-triggers [`onTranslationChange`](/reference/translate-service-api#ontranslationchange-event-emitter).
+[`setTranslation`](/reference/translate-service-api/#settranslation) function, which
+triggers [`onTranslationChange`](/reference/translate-service-api/#ontranslationchange-event-emitter).

@@ -58,19 +58,19 @@ export default defineConfig({
                   },
                   {
                       label: "Installation",
-                      link: "/getting-started/installation"
+                      link: "/getting-started/installation/"
                   },
                   {
                       label: "Translation files",
-                      link: "/getting-started/translation-files"
+                      link: "/getting-started/translation-files/"
                   },
                   {
                       label: "Translating your components",
-                      link: "/getting-started/translating-your-components"
+                      link: "/getting-started/translating-your-components/"
                   },
                   {
                       label: "Migration guide v15 → v16",
-                      link: "/getting-started/migration-guide"
+                      link: "/getting-started/migration-guide/"
                   }
               ]
           }, {
@@ -78,31 +78,31 @@ export default defineConfig({
               items: [
                   {
                       label: "Concepts",
-                      link: "/reference/concepts"
+                      link: "/reference/concepts/"
                   },
                   {
                       label: "Configuration",
-                      link: "/reference/configuration"
+                      link: "/reference/configuration/"
                   },
                   {
                       label: "TranslateService API",
-                      link: "/reference/translate-service-api"
+                      link: "/reference/translate-service-api/"
                   },
                   {
                       label: "TranslateLoader API",
-                      link: "/reference/translate-loader-api"
+                      link: "/reference/translate-loader-api/"
                   },
                   {
                       label: "TranslateCompiler API",
-                      link: "/reference/translate-compiler-api"
+                      link: "/reference/translate-compiler-api/"
                   },
                   {
                       label: "TranslateParser API",
-                      link: "/reference/translate-parser-api"
+                      link: "/reference/translate-parser-api/"
                   },
                   {
                       label: "MissingTranslationHandler API",
-                      link: "/reference/missing-translation-handler-api"
+                      link: "/reference/missing-translation-handler-api/"
                   },
               ]
           }, {

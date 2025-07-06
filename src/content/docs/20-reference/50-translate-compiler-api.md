@@ -11,12 +11,12 @@ head:
 
 ## TranslateCompiler API
 
-After a translation file is loaded using the [`TranslateLoader`](/reference/translate-loader-api), it is passed
+After a translation file is loaded using the [`TranslateLoader`](/reference/translate-loader-api/), it is passed
 through the `TranslateCompiler`. The compiler's job is to prepare the translation files for faster
 processing later. E.g. the `ngx-translate-messageformat-compiler` plugin makes use of this API to support
 ICU formatted messages.
 
-To make use of a `TranslateCompiler`, pass it with the configuration of the  [`TranslateModule`](/reference/configuration).
+To make use of a `TranslateCompiler`, pass it with the configuration of the  [`TranslateModule`](/reference/configuration/).
 
 ~~~ts
 export abstract class TranslateCompiler {
@@ -28,7 +28,7 @@ export abstract class TranslateCompiler {
 * `compile()` is designed to compile a single translation.
 * `compileTranslations()` is designed to iterate over all translations of a file using the `compile()` method.
 
-When translating a single message, the [`TranslateParser`](/reference/translate-parser-api) uses the
+When translating a single message, the [`TranslateParser`](/reference/translate-parser-api/) uses the
 result of that function to interpolate the result string. You can provide your own `TranslateParser` that works with your custom data.
 
 The default parser works differently, depending on the result of each compiled message.

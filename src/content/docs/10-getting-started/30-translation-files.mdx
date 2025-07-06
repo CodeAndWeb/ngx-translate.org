@@ -22,7 +22,7 @@ a dynamic loader.
 
 ## Static Translations via `import`
 
-The easy way to set translation data is using `import` and [`setTranslation()`](/reference/translate-service-api#settranslation).
+The easy way to set translation data is using `import` and [`setTranslation()`](/reference/translate-service-api/#settranslation).
 
 ~~~ts {1,4} title="src/app/app.component.ts"
 import translationsEN from "../../public/i18n/en.json";
@@ -68,7 +68,7 @@ const httpLoaderFactory: (http: HttpClient) => TranslateHttpLoader = (http: Http
 ~~~
 
 You need to create the `TranslateLoader` inside a factory method if you're using
-[AoT compilation](https://angular.dev/tools/cli/aot-compiler) or
+[AoT compilation](https://angular.dev/tools/cli/aot-compiler/) or
 [Ionic](http://ionic.io/). However, it's generally a good practice to use this
 approach to initialize the paths, even when AoT compilation is not required.
 
@@ -142,8 +142,8 @@ These files have the added benefit of being easily embedded directly into your a
 using `import`.
 
 The modular design of ngx-translate also makes it easy to switch to other file formats
-by implementing your own [loader](/reference/translate-loader-api) or using one of the
-[plugins](/resources/plugins).
+by implementing your own [loader](/reference/translate-loader-api/) or using one of the
+[plugins](/resources/plugins/).
 
 ## Where to store the Translation Files
 

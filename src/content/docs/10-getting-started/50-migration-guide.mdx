@@ -62,7 +62,7 @@ Here's a quick overview what you should change.
 ##### Configuring ngx-translate
 
 Update your configuration in the **app.config.ts**. Instead of using `importProvidersFrom()`,
-you can now use [`provideTranslateService()`](/reference/configuration) with the same configuration.
+you can now use [`provideTranslateService()`](/reference/configuration/) with the same configuration.
 
 ~~~ts title="app.config.ts" del={9,16} ins={1,10,17}
 import {provideTranslateService} from "@ngx-translate/core";

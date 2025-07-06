@@ -13,17 +13,17 @@ head:
 ngx-translate offers several customizable classes, making it highly adaptable
 to virtually any localization requirement.
 
-* [**TranslateModule**](/v15/reference/translate-module-api)
+* [**TranslateModule**](/v15/reference/translate-module-api/)
   The core module for configuring ngx-translate. It allows you to set up basic
   configuration and specify which classes to override from the default
   implementation.
 
-* [**TranslateService**](/v15/reference/translate-service-api)
+* [**TranslateService**](/v15/reference/translate-service-api/)
   The central service: It provides the API for interacting with your
   application, enabling you to load translations, switch languages, and
   retrieve translated messages.
 
-* [**TranslateLoader**](/v15/reference/translate-loader-api)
+* [**TranslateLoader**](/v15/reference/translate-loader-api/)
   Handles the loading of translation files. It can either statically import translation data into the app
   or dynamically fetch it from a server, based on your configuration. Multiple loaders are available as plugins.
   The default loader, for example, retrieves JSON-formatted translation files from the assets folder at runtime.
@@ -33,18 +33,18 @@ to virtually any localization requirement.
   These allow you to use translated texts directly within your templates. Both automatically
   update the UI when the language is switched at runtime.
 
-* [**MissingTranslationHandler**](/v15/reference/missing-translation-handler-api)
+* [**MissingTranslationHandler**](/v15/reference/missing-translation-handler-api/)
   By default, if a translation ID is missing, ngx-translate serves the translation from the default language,
   or if unavailable, returns the ID itself. The MissingTranslationHandler allows you to customize this behavior,
   providing flexibility in how missing translations are handled.
 
-* [**TranslateCompiler**](/v15/reference/translate-compiler-api)
+* [**TranslateCompiler**](/v15/reference/translate-compiler-api/)
   The compiler pre-processes translations after loading, allowing for
   performance-intensive operations to be executed once per message. The results
   are then cached for efficiency. It is commonly used to handle tasks like
   compiling ICU-formatted messages for advanced localization scenarios.
 
-* [**TranslateParser**](/v15/reference/translate-parser-api)
+* [**TranslateParser**](/v15/reference/translate-parser-api/)
   Injects parameters into translation strings, allowing dynamic content such as
   usernames in greetings or other variable elements in your messages. This is
   called each time a translation message is requested and should only perform
