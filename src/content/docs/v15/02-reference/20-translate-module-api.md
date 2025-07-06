@@ -2,11 +2,6 @@
 title: TranslateModule API
 description: Reference documentation of the TranslateModule API for ngx-translate.
 slug: v15/reference/translate-module-api
-head:
-  - tag: link
-    attrs:
-        rel: canonical
-        href: https://ngx-translate.org/reference/translate-module-api/
 ---
 
 The `TranslateModule` must be initialized in your `app.config.ts` or `app.module.ts`

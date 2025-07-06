@@ -2,11 +2,6 @@
 title: Configuration
 description: Reference documentation of the TranslateModule API for ngx-translate.
 slug: reference/configuration
-head:
-  - tag: link
-    attrs:
-        rel: canonical
-        href: https://ngx-translate.org/reference/configuration/
 ---
 
 How you configure ngx-translate depends on your project setup:

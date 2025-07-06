@@ -2,11 +2,6 @@
 title: TranslateParser API
 description: Reference documentation of the TranslateParser API for ngx-translate.
 slug: reference/translate-parser-api
-head:
-  - tag: link
-    attrs:
-        rel: canonical
-        href: https://ngx-translate.org/reference/translate-parser-api/
 ---
 
 The `TranslateParser` is responsible for formatting the translated messages

@@ -2,11 +2,6 @@
 title: How to handle missing translations
 description: Handle missing translations in ngx-translate using a MissingTranslationHandler.
 slug: v15/recipes/handle-missing-translations
-head:
-  - tag: link
-    attrs:
-        rel: canonical
-        href: https://ngx-translate.org/recipes/handle-missing-translations/
 ---
 
 You can set up a provider for the [`MissingTranslationHandler`](/v15/reference/missing-translation-handler-api/) in the

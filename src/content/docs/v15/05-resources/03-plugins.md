@@ -2,11 +2,6 @@
 title: Plugins
 description: Plugins for ngx-translate
 slug: v15/resources/plugins
-head:
-  - tag: link
-    attrs:
-        rel: canonical
-        href: https://ngx-translate.org/resources/plugins/
 ---
 
 Use these plugins to enhance ngx-translate with additional functionality:
