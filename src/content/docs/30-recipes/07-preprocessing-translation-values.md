@@ -3,6 +3,11 @@ title: How to use a compiler to preprocess translation values
 description: Use a TranslationCompiler to pre-process translation files after
   loading for ngx-translate
 slug: recipes/preprocess-translations
+head:
+  - tag: link
+    attrs:
+        rel: canonical
+        href: https://ngx-translate.org/recipes/preprocess-translations/
 ---
 
 By default, translation values are added "as-is". You can configure a `compiler` that

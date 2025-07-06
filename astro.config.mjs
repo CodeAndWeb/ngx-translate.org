@@ -29,7 +29,7 @@ export default defineConfig({
   },
 
   redirects: {
-    '/': "/getting-started"
+//    '/': "/getting-started"
   },
 
   integrations: [
@@ -54,7 +54,7 @@ export default defineConfig({
               items: [
                   {
                       label: "Getting started",
-                      link: "/getting-started"
+                      link: "/"
                   },
                   {
                       label: "Installation",

@@ -2,6 +2,11 @@
 title: MissingTranslationHandler API
 description: Reference documentation of the MissingTranslationHandler API for ngx-translate.
 slug: v15/reference/missing-translation-handler-api
+head:
+  - tag: link
+    attrs:
+        rel: canonical
+        href: https://ngx-translate.org/reference/missing-translation-handler-api/
 ---
 
 Use the `MissingTranslationHandler` to customize what is happening in case

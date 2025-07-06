@@ -2,6 +2,11 @@
 title: Write & use your own loader
 description: Create our own loader for translation files for ngx-translate.
 slug: v15/recipes/write-own-loader
+head:
+  - tag: link
+    attrs:
+        rel: canonical
+        href: https://ngx-translate.org/recipes/write-own-loader/
 ---
 
 ## Write & use your own loader

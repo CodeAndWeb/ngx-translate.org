@@ -2,6 +2,11 @@
 title: TranslateLoader API
 description: Reference documentation of the TranslateLoader API for ngx-translate.
 slug: reference/translate-loader-api
+head:
+  - tag: link
+    attrs:
+        rel: canonical
+        href: https://ngx-translate.org/reference/translate-loader-api/
 ---
 
 ## Translate Loader API

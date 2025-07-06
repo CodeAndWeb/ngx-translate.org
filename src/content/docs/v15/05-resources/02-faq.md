@@ -2,6 +2,11 @@
 title: FAQ
 description: Frequently asked questions.
 slug: v15/resources/faq
+head:
+  - tag: link
+    attrs:
+        rel: canonical
+        href: https://ngx-translate.org/resources/faq/
 ---
 
 #### I want to hot reload the translations in my application but `reloadLang` does not work

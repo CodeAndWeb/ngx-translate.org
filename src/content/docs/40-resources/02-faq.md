@@ -2,6 +2,11 @@
 title: FAQ
 description: Frequently asked questions.
 slug: resources/faq
+head:
+  - tag: link
+    attrs:
+        rel: canonical
+        href: https://ngx-translate.org/resources/faq/
 ---
 
 ## About the ngx-translate

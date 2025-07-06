@@ -2,6 +2,11 @@
 title: TranslateCompiler API
 description: Reference documentation of the TranslateCompiler API for ngx-translate.
 slug: v15/reference/translate-compiler-api
+head:
+  - tag: link
+    attrs:
+        rel: canonical
+        href: https://ngx-translate.org/reference/translate-compiler-api/
 ---
 
 ## TranslateCompiler API
