@@ -1,0 +1,678 @@
+---
+title: TranslateService API
+description: Reference documentation of the TranslateService API for ngx-translate.
+slug: v16/reference/translate-service-api
+---
+
+import { Aside } from '@astrojs/starlight/components';
+import { Badge } from '@astrojs/starlight/components';
+
+## Methods
+
+##### Setting the current and fallback language
+
+* [use](#use) - Set the current language and load translation file(s) if not yet done
+* [setDefaultLang](#setdefaultlang) - Set and load the fallback language. Strings of this language are displayed
+  if keys are missing in the current language.
+* [getDefaultLang](#getdefaultlang) - Get the fallback language
+* [getLangs](#getlangs) - Get list of languages loaded - or set by `addLangs`
+* [addLangs](#addlangs) - Add language to the list of languages (does not load that language)
+
+##### Translating strings
+
+* [stream](#stream) - Get an `Observable` for the given translation key, fires when translations are loaded or
+  the language changed.
+* [instant](#instant) - Translate text once, returns a string immediately if the language is already loaded.
+* [get](#get) - Get an `Observable` for the given translation key, fires once as soon as the translation is loaded.
+* [getStreamOnTranslationChange](#getstreamontranslationchange) - Get an `Observable` for the given translation key,
+  monitors changes of the translation (e.g. when new translations are set or the language changes)
+
+##### Getting browser defaults
+
+* [getBrowserCultureLang](#getbrowserculturelang) - Get the browser culture language (e.g. `de-DE`)
+* [getBrowserLang](#getbrowserlang) - Get the browser language (e.g. `de`)
+
+###### Manual handling of translations
+
+* [set](#set) - Set single translation
+* [reloadLang](#reloadlang) - Reload translations for the given language
+* [resetLang](#resetlang) - Remove translations for the given language
+* [setTranslation](#settranslation) - Set translations for a language
+
+###### Deprecated functions
+
+* [getTranslation](#gettranslation)
+
+### addLangs
+
+```ts
+addLangs(langs: string[])
+```
+
+Add new languages to the list. This does **not** invoke the loader to retrieve the languages.
+
+### get
+
+```ts
+get(key: string|string[], interpolateParams?: object): Observable<Translation|TranslationObject>
+```
+
+Retrieves the translation(s) for the specified key(s).
+
+##### Parameters
+
+* `key`: A single string or an array of strings representing the translation key(s) to retrieve.
+* `interpolateParams` (optional): An object containing parameter values to interpolate within the translation strings.
+
+##### Returns
+
+An `Observable` that emits the translated string(s):
+
+* If a single key is provided, it emits the translated message as `Translation`.
+* If an array of keys is provided, it emits an object `{ [key: string]: Translation }` mapping each key to its translated string.
+* If a translation for a given key is not found, the key itself is returned (unless a fallback mechanism is configured).
+
+##### Behavior
+
+The `Observable` will emit once the translation file has finished loading and the translation(s) are available.
+After emitting, the Observable completes.
+
+:::note
+If you need to receive updates whenever the language changes or the translations are reloaded,
+consider using [`stream()`](#stream)  instead.
+:::
+
+##### Examples
+
+Getting a single translation
+
+```ts
+translateService.get('HELLO')
+    .subscribe((res: string) => {
+        console.log(res);  // Output: 'Hello'
+    });
+```
+
+Getting multiple translations
+
+```ts
+translateService.get(['HELLO', 'WELCOME'])
+    .subscribe((translations: { [key: string]: string }) => {
+        console.log(translations);
+        // Output: { HELLO: 'Hello', WELCOME: 'Welcome' }
+    });
+```
+
+Using interpolateParams
+
+```ts
+translateService.get('WELCOME_USER', { username: 'John' })
+    .subscribe((res: string) => {
+        console.log(res); // Output: 'Welcome, John!'
+    });
+```
+
+### getBrowserCultureLang
+
+```ts
+getBrowserCultureLang(): string | undefined
+```
+
+Returns the browser's full culture language code (e.g., `"en-US"`)
+
+##### Returns
+
+Returns the browser's culture language setting if available, or `undefined` if
+it cannot be determined.
+
+##### Example
+
+```ts
+const lang = translateService.getBrowserLang();
+console.log(lang); // Output: "de-DE"
+```
+
+### getBrowserLang
+
+```ts
+getBrowserLang(): string | undefined
+```
+
+Get the language set in the browser.
+
+##### Returns
+
+Returns the browser's current language setting if available, or `undefined` if
+it cannot be determined.
+
+##### Example
+
+```ts
+const lang = translateService.getBrowserLang();
+console.log(lang); // Output: "de"
+```
+
+### getDefaultLang
+
+```ts
+getDefaultLang(): string
+```
+
+Returns the default language code that has been set as the fallback language.
+
+##### Returns
+
+string: The language code of the default fallback language.
+
+##### Description
+
+The `getDefaultLang()` method retrieves the default language that has been set
+using the [`setDefaultLang()`](#setdefaultlang) method. This is the language code that the `TranslateService`
+uses as a fallback when a translation key is missing in the current language.
+
+##### Example
+
+```ts
+const defaultLang = translateService.getDefaultLang();
+console.log('Default language:', defaultLang);
+// Output: 'en'
+```
+
+### getLangs
+
+```ts
+getLangs(): string[]
+```
+
+Returns an array of currently available languages. The list can be extended
+calling  [`setDefaultLang`](#setdefaultlang), [`use`](#use), [`setTranslation`](#settranslation)
+or[`addLangs`](#addlangs).
+
+### getStreamOnTranslationChange
+
+```ts
+getStreamOnTranslationChange(key: string|string[], interpolateParams?: object):
+     Observable<Translation|TranslationObject>
+```
+
+Returns an `Observable` stream of translated values for the specified key(s). Unlike [`get()`](#get),
+this method emits a new value whenever the translations change, such as when new translations are
+loaded or when `onTranslationChange` events occur.
+
+##### Parameters
+
+* `key`: A string or an array of strings representing the translation key(s) to retrieve.
+* `interpolateParams` (optional): An object containing parameters to interpolate within the translation strings.
+
+##### Returns
+
+An `Observable` that emits the translated string(s):
+
+* If a single key is provided, it emits the translated message as `Translation`.
+* If an array of keys is provided, it emits an object `{ [key: string]: Translation }` mapping each key to its translated string.
+* If a translation for a given key is not found, the key itself is returned (unless a fallback mechanism is configured).
+
+##### Behavior
+
+The Observable will emit:
+
+* Immediately with the current translation(s) once the translation file has finished loading.
+* Whenever the translation changes due to events like language updates or new translations being added.
+* The Observable does not complete on its own; it remains active to emit future translation changes.
+  You should unsubscribe to prevent memory leaks when the stream is no longer needed.
+
+##### Examples
+
+Subscribing to a single translation key
+
+```ts
+const subscription = translateService
+    .getStreamOnTranslationChange('HELLO')
+    .subscribe((res: string) => {
+        console.log(res);
+        // Output: 'Hello' (and updates if the translation changes)
+     });
+```
+
+Subscribing to multiple translation keys
+
+```ts
+const subscription = translateService
+    .getStreamOnTranslationChange(['HELLO', 'WELCOME'])
+    .subscribe((translations: { [key: string]: string }) => {
+        console.log(translations);
+        // Output: { HELLO: 'Hello', WELCOME: 'Welcome' }
+        // (and updates if translations change)
+    });
+```
+
+Using interpolateParams
+
+```ts
+const subscription = translateService
+    .getStreamOnTranslationChange('WELCOME_USER', { username: 'John' })
+    .subscribe((res: string) => {
+        console.log(res);
+        // Output: 'Welcome, John!' (and updates if translations change)
+    });
+
+// Remember to unsubscribe when done
+subscription.unsubscribe();
+```
+
+### getTranslation
+
+<Badge text="Deprecated" variant="danger" />
+
+The `getTranslation()` function, which returned an object containing all translations
+for a given language, has been deprecated. This function might return not only text
+nodes but also functions (when using a custom `TranslateCompiler`) for text interpolation.
+
+We no longer see a practical use case for relying on this function.
+
+#### Alternative Approach:
+
+To retrieve specific translations, use functions like [`get()`](#get) or
+[`instant()`](#instant) to access the translations you need directly.
+
+This provides more control and efficiency in handling translation retrieval.
+
+### instant
+
+```ts
+instant(key: string|string[], interpolateParams?: object): Translation|TranslationObject
+```
+
+Retrieves the translated value(s) for a key (or an array of keys) instantly.
+
+##### Parameters
+
+* `key`: A string or an array of strings representing the translation key(s) to retrieve.
+* `interpolateParams` (optional): An object containing parameters to interpolate within the translation strings.
+
+##### Returns
+
+An `Observable` that emits the translated string(s):
+
+* If a single key is provided, it emits the translated message as `Translation`.
+* If an array of keys is provided, it emits an object `{ [key: string]: Translation }` mapping each key to its translated string.
+* If a translation for a given key is not found or not yet loaded, the key itself is returned (unless a fallback mechanism is configured).
+
+:::caution
+This method is **synchronous**, but the default file loader is asynchronous. You
+must ensure that your translations have been fully loaded before using this
+method. If you're unsure, it's safer to use the [`get()`](#get) method, which
+waits for the translations to load.
+:::
+
+##### Examples
+
+Translating a single translation key
+
+```typescript
+const res = translateService.instant('HELLO');
+console.log(res);
+// Output: 'Hello' (if translation is already loaded)
+```
+
+Translating multiple keys
+
+```ts
+const res = translateService.instant(['HELLO', 'WELCOME']);
+console.log(res);
+// Output: { HELLO: 'Hello', WELCOME: 'Welcome' }
+// (if translation is already loaded)
+```
+
+Translating a key with interpolation
+
+```ts
+const res = translateService.instant('WELCOME_USER', { username: 'John' });
+console.log(res);
+// Output: 'Welcome, John!' (if translation is already loaded)
+```
+
+### reloadLang
+
+```ts
+reloadLang(lang: string): Observable<InterpolatableTranslationObject>
+```
+
+Reloads the translations for the specified language by resetting (calling [`resetLang()`](#resetlang)) and fetching them
+anew using the current loader.
+
+##### Parameters
+
+* `lang`: The language to reload
+
+##### Returns
+
+An `Observable` that completes after the translations are loaded.
+
+##### Examples
+
+```ts
+translateService.reloadLang('es').subscribe((translations) => {
+  console.log('Spanish translations reloaded:', translations);
+  // Output: Spanish translations reloaded:
+  // { 'HELLO': 'Hola', 'GOODBYE': 'Adiós', ... }
+});
+```
+
+### resetLang
+
+```ts
+resetLang(lang: string): void
+```
+
+Removes the translations for the specified language.
+
+##### Parameters
+
+* `lang`: The language to remove
+
+:::caution
+After calling `resetLang`, you will need to call [`use()`](#use) or
+[`reloadLang()`](#reloadlang) to
+reload and retrieve the translations.
+:::
+
+##### Examples
+
+```ts
+translateService.resetLang('es');
+```
+
+### set
+
+```ts
+set(key: string, translation: InterpolatableTranslationObject, lang?: string): void
+```
+
+Assigns a translation value to a specific key.
+
+##### Parameters
+
+* `key`: A string representing the translation key(s) to set. The key can
+  contain "." to create a hierarchy of translations (e.g., `hello.world`),
+  allowing for nested translation objects.
+
+* `translation`: The translation for this key. Passed through the
+  `TranslateCompiler` for preparing interpolations based on the provided translation object.
+
+* `lang` (optional): The language to set the key for. If not provided, the
+  key is set on the currently active language.
+
+##### Description
+
+This method sets a translation value for a given key in the specified
+language. If the language does not exist in the translation store, it
+is added automatically. The key can be hierarchical, using "." to
+indicate nesting (e.g., `hello.world` will create a structure where
+`world` is a child of `hello`).
+
+The `translation` object is processed by `TranslateCompiler`, which
+prepares the translation values for interpolation.
+This ensures that any dynamic elements within the
+translation string are correctly handled.
+
+If the key already exists, the translation is overwritten. Once the
+update is complete, `onTranslationChange` is triggered to notify all
+observers about the change.
+
+##### Edge Cases
+
+Overwriting an existing key will replace the current value without
+merging nested structures.
+
+##### Examples
+
+Setting a single translation for the default language
+
+```ts
+translateService.set('HELLO.WORLD', "Hallo World!");
+```
+
+Setting a translation for German:
+
+```ts
+translateService.set('HELLO.WORLD', "Hallo Welt!", "de");
+```
+
+### setDefaultLang
+
+```ts
+setDefaultLang(lang: string): void
+```
+
+Sets the default language to be used as a fallback when a translation is missing in the current language.
+
+##### Parameters
+
+* `lang`: A string representing the language code to set as the default language.
+
+##### Description
+
+The `setDefaultLang()` method specifies the default language that the `TranslateService`
+will use to look up translations when a key is not found in the current language.
+
+This ensures that your application can gracefully display translations from a fallback language rather than showing missing keys.
+
+Calling this method will:
+
+* Set the default fallback language for translations.
+* Use the loader to retrieve translations for the specified language if they haven't been loaded yet.
+* Update the list of available languages, which can be retrieved using [`getLangs()`](#getlangs).
+
+##### Example
+
+```ts
+translateService.setDefaultLang("en");
+```
+
+### setTranslation
+
+```ts
+setTranslation(lang: string, translations: InterpolatableTranslationObject, shouldMerge: boolean = false)
+```
+
+Manually sets an object of translations for a given language,
+set `shouldMerge` to true if you want to append the translations instead of replacing them.
+
+Using `setTranslation` updates the list of available languages which can be retrieved using [`getLangs`](#getlangs).
+
+### stream
+
+```ts
+stream(key: string|string[], interpolateParams?: object):
+       Observable<Translation|TranslationObject>
+```
+
+Returns an `Observable` stream of translated values for the specified key(s). Unlike [`get()`](#get),
+this method emits a new value whenever the language changes ([`onLangChange()`](#onlangchange-event-emitter) event), such as when calling [`use()`](#use).
+
+##### Parameters
+
+* `key`: A string or an array of strings representing the translation key(s) to retrieve.
+* `interpolateParams` (optional): An object containing parameters to interpolate within the translation strings.
+
+##### Returns
+
+An `Observable` that emits the translated string(s):
+
+* If a single key is provided, it emits the translated message as `Translation`.
+* If an array of keys is provided, it emits an object `{ [key: string]: Translation }` mapping each key to its translated string.
+* If a translation for a given key is not found, the key itself is returned (unless a fallback mechanism is configured).
+
+##### Behavior
+
+The Observable will emit:
+
+* Immediately with the current translation(s) once the translation file has finished loading.
+* Whenever the language changes due to events like language updates
+* The Observable does not complete on its own; it remains active to emit future translation changes.
+  You should unsubscribe to prevent memory leaks when the stream is no longer needed.
+
+##### Examples
+
+Subscribing to a single translation key
+
+```ts
+const subscription = translateService
+    .stream('HELLO')
+    .subscribe((res: string) => {
+        console.log(res);
+        // Output: 'Hello' (and updates if the translation changes)
+     });
+```
+
+Subscribing to multiple translation keys
+
+```ts
+const subscription = translateService
+    .stream(['HELLO', 'WELCOME'])
+    .subscribe((translations: { [key: string]: string }) => {
+        console.log(translations);
+        // Output: { HELLO: 'Hello', WELCOME: 'Welcome' }
+        // (and updates if translations change)
+    });
+```
+
+Using parameter interpolation:
+
+```ts
+const subscription = translateService
+    .stream('WELCOME_USER', { username: 'John' })
+    .subscribe((res: string) => {
+        console.log(res);
+        // Output: 'Welcome, John!' (and updates if translations change)
+    });
+
+// Remember to unsubscribe when done
+subscription.unsubscribe();
+```
+
+### use
+
+```ts
+use(lang: string): Observable<InterpolatableTranslationObject>
+```
+
+Changes the currently active language to the specified language code. This method
+triggers the loader to retrieve the translations for the new language if they have
+not been loaded yet.
+
+##### Parameters
+
+* `lang`: A string representing the language code to set as the current language.
+
+##### Returns
+
+An Observable that emits the translations object for the specified language and
+completes when the loading is finished.
+
+##### Description
+
+The `use()` method switches the application's current language to the one provided.
+If the translations for the specified language are not already loaded, it will use
+the configured loader to fetch them. This method also updates the list of available
+languages, which can be accessed using [`getLangs()`](#getlangs).
+
+Since `ngx-translate` v16, `use()` now has a deterministic behavior. When calling this
+function in quick succession, the most recent call sets the current language,
+regardless of which language's translation file finishes loading first.
+
+##### Notes
+
+* **Impact on Existing Subscriptions**: Components or services subscribed to translation
+  observables (e.g., via [`get()`](#get) or [`stream()`](#stream)) will receive updates
+  when the language changes.
+* **Available Languages**: The specified language will be added to the list of available
+  languages accessible via [`getLangs()`](#getlangs) if it’s not already included.
+* **Current Language**: The current language is set immediately on the first call to `use()`.
+  Afterward, it is only updated once the translation file for the most recent call of
+  `use()` finishes loading.
+
+##### Examples
+
+```ts
+// Switch to French language
+translateService.use('fr').subscribe((translations) => {
+    console.log('Current language is now French.');
+    console.log('French translations:', translations);
+    // Output: French translations: { 'HELLO': 'Bonjour', 'GOODBYE': 'Au revoir', ... }
+});
+```
+
+## Properties
+
+The `TranslateService` exposes the following properties:
+
+| Property                                     | Description                                               |
+|---------------------------------------------------------|-----------------------------------------------------------|
+| `langs`                                  | List of languages.      <br /> `string[]`                         |
+| `translations`                                  | Object containing translations per language     <br /> `any`                         |
+| `currentLang`                                  | The language currently in use.     <br /> `string`                         |
+| `defaultLang`                                | The default (fallback) language.   <br /> `string`                           |
+| `currentLoader`                       | The current instance of the loader (static loader by default).  <br /> `TranslateLoader` |
+| `onLangChange`          | Event emitter that fires when the language changes.     <br /> `EventEmitter<LangChangeEvent>`     |
+| `onTranslationChange`  | Event emitter that fires when the translations change.  <br /> `EventEmitter<TranslationChangeEvent>`   |
+| `onDefaultLangChange`  | Event emitter that fires when the default language changes. <br /> `EventEmitter<DefaultLangChangeEvent>`|
+
+## Event Emitters
+
+### onLangChange (Event Emitter)
+
+An `EventEmitter` that listens for language change events. A `LangChangeEvent`
+object is emitted, containing the following properties:
+
+| Name           | Type     | Description                                 |
+|----------------|----------|---------------------------------------------|
+| `lang`         | `string` | The code of the newly activated language.    |
+| `translations` | `any`    | An object containing the updated translations. |
+
+Example:
+
+```typescript
+onLangChange.subscribe((event: LangChangeEvent) => {
+    // do something
+);
+```
+
+### onTranslationChange (Event Emitter)
+
+An `EventEmitter` that listens for translation change events.
+
+A `TranslationChangeEvent` object is emitted, containing the following properties:
+
+| Name           | Type     | Description                                 |
+|----------------|----------|---------------------------------------------|
+| `lang`         | `string` | The code of the currently active language.   |
+| `translations` | `any`    | An object containing the updated translations. |
+
+Example:
+
+```ts
+onTranslationChange.subscribe((event: TranslationChangeEvent) => {
+    // do something
+);
+```
+
+### onDefaultLangChange (Event Emitter)
+
+An `EventEmitter` that listens for default language change events.
+
+A `DefaultLangChangeEvent` object is emitted, containing the following properties:
+
+| Name           | Type     | Description                                 |
+|----------------|----------|---------------------------------------------|
+| `lang`         | `string` | The code of the newly set default language.  |
+| `translations` | `any`    | An object containing the default translations. |
+
+Example:
+
+```ts
+onDefaultLangChange.subscribe((event: DefaultLangChangeEvent) => {
+  // Do something with the new default language or translations
+});
+```
