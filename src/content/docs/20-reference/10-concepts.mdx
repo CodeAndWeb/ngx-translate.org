@@ -8,15 +8,83 @@ slug: reference/concepts
 ngx-translate offers several customizable classes, making it highly adaptable
 to virtually any localization requirement.
 
-* [**TranslateModule**](/reference/configuration/)
-  The core module for configuring ngx-translate. It allows you to set up basic
-  configuration and specify which classes to override from the default
-  implementation. Not required for standalone components.
+## Core Components
 
 * [**TranslateService**](/reference/translate-service-api/)
   The central service: It provides the API for interacting with your
   application, enabling you to load translations, switch languages, and
   retrieve translated messages.
+
+## Integration Approaches
+
+ngx-translate supports two approaches for integrating with Angular applications:
+
+### Standalone Components (Angular 16+)
+
+* [**provideTranslateService**](/reference/configuration/#providetranslateserviceconfig-roottranslateserviceconfig)
+  The main provider function for configuring ngx-translate in standalone component applications.
+  It sets up the TranslateService and all its dependencies.
+
+* [**provideChildTranslateService**](/reference/configuration/#providechildtranslateserviceconfig-childtranslateserviceconfig)
+  Provider function for child components or lazy-loaded modules that need to extend or customize
+  the parent TranslateService.
+
+### NgModules (Legacy)
+
+* [**TranslateModule**](/reference/configuration/#translatemoduleforrootconfig-translatemoduleconfig)
+  The core module for configuring ngx-translate in NgModule-based applications. It allows you to set up basic
+  configuration and specify which classes to override from the default implementation.
+
+## Provider Functions
+
+NGX-Translate v17 uses a modern provider function pattern that replaces the traditional Angular provider syntax. For detailed configuration options, see the [Provider Functions section in Configuration](/reference/configuration/#provider-functions).
+
+```typescript
+// Traditional Angular provider syntax
+{ provide: TranslateLoader, useClass: CustomLoader }
+
+// NGX-Translate provider function syntax
+provideTranslateLoader(CustomLoader)
+
+// Complete example with context
+import { provideTranslateService, provideTranslateLoader } from '@ngx-translate/core';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideTranslateService({
+      loader: provideTranslateLoader(CustomLoader),
+      fallbackLang: 'en'
+    })
+  ],
+};
+```
+
+These provider functions should always be used within the `provideTranslateService` configuration:
+
+```typescript
+// CORRECT USAGE
+provideTranslateService({
+  loader: provideTranslateLoader(CustomLoader),
+  compiler: provideTranslateCompiler(CustomCompiler)
+})
+```
+
+```typescript
+// INCORRECT USAGE - Will not work as expected
+[
+  provideTranslateService(),
+  provideTranslateLoader(CustomLoader),  // This won't be used by TranslateService
+  provideTranslateCompiler(CustomCompiler)  // This won't be used by TranslateService
+]
+```
+
+:::caution
+**Important: Always Use Provider Functions Inside provideTranslateService**
+
+Provider functions should always be used within the `provideTranslateService` configuration object. If you provide these services separately, they won't be used by the TranslateService because it loads default implementations for any providers not explicitly included in its configuration object.
+:::
+
+## Customizable Components
 
 * [**TranslateLoader**](/reference/translate-loader-api/)
   Handles the loading of translation files. It can either statically import translation data into the app
@@ -29,7 +97,7 @@ to virtually any localization requirement.
   update the UI when the language is switched at runtime.
 
 * [**MissingTranslationHandler**](/reference/missing-translation-handler-api/)
-  By default, if a translation ID is missing, ngx-translate serves the translation from the default language,
+  By default, if a translation ID is missing, ngx-translate serves the translation from the fallback language,
   or if unavailable, returns the ID itself. The MissingTranslationHandler allows you to customize this behavior,
   providing flexibility in how missing translations are handled.
 

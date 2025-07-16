@@ -1,12 +1,439 @@
 ---
-title: Migration guide v15 → v16
-description: This guide explains how to upgrade from ngx-translate v15 -> v16
+title: Migration guide
+description: This guide explains how to upgrade between ngx-translate versions
 slug: getting-started/migration-guide
 ---
 
 import { Badge } from '@astrojs/starlight/components';
 import { PackageManagers } from 'starlight-package-managers'
 
+# Migration Guide
+
+This guide covers migration between different versions of ngx-translate:
+
+- [v16 → v17](#v16--v17) - **Latest migration**
+- [v15 → v16](#v15--v16) - Previous migration
+
+---
+
+## v16 → v17
+
+### Key Highlights
+
+1. **New Provider System**: Complete overhaul of the configuration system with new provider functions for better tree-shaking and modularity.
+2. **Terminology Changes**: "Default" language terminology changed to "Fallback" throughout the API for clarity.
+3. **Observable-based Events**: EventEmitters replaced with Observables for better RxJS integration.
+4. **Enhanced Type Safety**: Stricter TypeScript types and improved type definitions.
+5. **HTTP Loader Redesign**: Configuration-based approach with new features like cache busting and interceptor bypass.
+6. **Modern Injection Patterns**: Full support for Angular's `inject()` function in components.
+
+### Breaking Changes Summary
+
+| Category | v16 | v17 |
+|----------|-----|-----|
+| **Configuration** | `TranslateModule.forRoot()` | `provideTranslateService()` |
+| **HTTP Loader** | Factory functions | `provideTranslateHttpLoader()` |
+| **Terminology** | `setDefaultLang()` | `setFallbackLang()` |
+| **Events** | `EventEmitter` | `Observable` |
+| **Properties** | Direct access | Getter methods preferred |
+
+### 1. Update Dependencies
+
+Start by updating to the newest version of @ngx-translate/core:
+
+<PackageManagers type="add" pkg="@ngx-translate/core@^17" />
+
+If you are using @ngx-translate/http-loader, update that too:
+
+<PackageManagers type="add" pkg="@ngx-translate/http-loader@^17" />
+
+### 2. Update Configuration
+
+#### 2.1 Standalone Components (Recommended)
+
+**v16 Configuration:**
+```ts title="app.config.ts"
+import { provideTranslateService } from '@ngx-translate/core';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideTranslateService({
+      loader: {
+        provide: TranslateLoader,
+        useFactory: httpLoaderFactory,
+        deps: [HttpClient],
+      },
+      defaultLanguage: 'en',
+      useDefaultLang: true
+    })
+  ],
+};
+
+function httpLoaderFactory(http: HttpClient): TranslateHttpLoader {
+  return new TranslateHttpLoader(http, './assets/i18n/', '.json');
+}
+```
+
+**v17 Configuration:**
+```ts title="app.config.ts"
+import { provideTranslateService } from '@ngx-translate/core';
+import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideTranslateService({
+      loader: provideTranslateHttpLoader(),
+      fallbackLang: 'en',
+      lang: 'en'
+    })
+  ],
+};
+```
+
+#### 2.2 NgModule Configuration
+
+**v16 Configuration:**
+```ts title="app.module.ts"
+@NgModule({
+  imports: [
+    TranslateModule.forRoot({
+      loader: {
+        provide: TranslateLoader,
+        useFactory: httpLoaderFactory,
+        deps: [HttpClient],
+      },
+      defaultLanguage: 'en',
+      useDefaultLang: true
+    })
+  ],
+})
+export class AppModule { }
+```
+
+**v17 Configuration:**
+```ts title="app.module.ts"
+@NgModule({
+  imports: [
+    TranslateModule.forRoot({
+      loader: provideTranslateHttpLoader(),
+      fallbackLang: 'en'
+    })
+  ],
+})
+export class AppModule { }
+```
+
+### 3. Update Method Calls
+
+#### 3.1 Language Configuration Methods
+
+**v16 → v17 Method Changes:**
+
+| v16 Method | v17 Method | Notes |
+|------------|------------|-------|
+| `setDefaultLang(lang)` | `setFallbackLang(lang)` | Returns Observable |
+| `getDefaultLang()` | `getFallbackLang()` | Returns `string \| null` |
+| `onDefaultLangChange` | `onFallbackLangChange` | Now Observable |
+
+**Migration Example:**
+```ts
+// v16
+translateService.setDefaultLang('en');
+const defaultLang = translateService.getDefaultLang();
+translateService.onDefaultLangChange.subscribe(event => {
+  console.log('Default language changed:', event.lang);
+});
+
+// v17
+translateService.setFallbackLang('en').subscribe(translations => {
+  console.log('Fallback language set');
+});
+const fallbackLang = translateService.getFallbackLang();
+translateService.onFallbackLangChange.subscribe(event => {
+  console.log('Fallback language changed:', event.lang);
+});
+```
+
+#### 3.2 Property Access
+
+**v16 → v17 Property Changes:**
+
+| v16 Property | v17 Replacement | Notes |
+|--------------|-----------------|-------|
+| `currentLang` | `getCurrentLang()` | Method preferred |
+| `defaultLang` | `getFallbackLang()` | Method preferred |
+| `langs` | `getLangs()` | Method preferred |
+
+**Migration Example:**
+```ts
+// v16
+const current = translateService.currentLang;
+const fallback = translateService.defaultLang;
+const languages = translateService.langs;
+
+// v17 (recommended)
+const current = translateService.getCurrentLang();
+const fallback = translateService.getFallbackLang();
+const languages = translateService.getLangs();
+```
+
+### 4. Update Component Injection
+
+#### 4.1 Modern Injection Pattern
+
+**v16 Pattern:**
+```ts
+import { Component } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
+
+@Component({
+  selector: 'app-example',
+  template: `{{ 'HELLO' | translate }}`
+})
+export class ExampleComponent {
+  constructor(private translate: TranslateService) {
+    this.translate.setDefaultLang('en');
+  }
+}
+```
+
+**v17 Pattern:**
+```ts
+import { Component, inject } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
+
+@Component({
+  selector: 'app-example',
+  template: `{{ 'HELLO' | translate }}`
+})
+export class ExampleComponent {
+  private translate = inject(TranslateService);
+
+  constructor() {
+    this.translate.setFallbackLang('en').subscribe();
+  }
+}
+```
+
+### 5. Update HTTP Loader Configuration
+
+#### 5.1 New Configuration Approach
+
+**v16 HTTP Loader:**
+```ts
+function httpLoaderFactory(http: HttpClient): TranslateHttpLoader {
+  return new TranslateHttpLoader(http, './assets/i18n/', '.json');
+}
+
+// Configuration
+{
+  loader: {
+    provide: TranslateLoader,
+    useFactory: httpLoaderFactory,
+    deps: [HttpClient],
+  }
+}
+```
+
+**v17 HTTP Loader:**
+```ts
+import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
+
+// Configuration
+{
+  loader: provideTranslateHttpLoader({
+    prefix: './assets/i18n/',
+    suffix: '.json',
+    enforceLoading: false,
+    useHttpBackend: false
+  })
+}
+```
+
+#### 5.2 New HTTP Loader Features
+
+v17 introduces new configuration options:
+
+```ts
+provideTranslateHttpLoader({
+  prefix: './assets/i18n/',
+  suffix: '.json',
+  enforceLoading: true,    // Adds cache-busting timestamp
+  useHttpBackend: true     // Bypasses HTTP interceptors
+})
+```
+
+### 6. Update Event Subscriptions
+
+#### 6.1 Observable-based Events
+
+**v16 Events (EventEmitter):**
+```ts
+translateService.onLangChange.subscribe((event: LangChangeEvent) => {
+  console.log('Language changed:', event.lang);
+});
+
+translateService.onDefaultLangChange.subscribe((event: DefaultLangChangeEvent) => {
+  console.log('Default language changed:', event.lang);
+});
+```
+
+**v17 Events (Observable):**
+```ts
+translateService.onLangChange.subscribe((event: LangChangeEvent) => {
+  console.log('Language changed:', event.lang);
+});
+
+translateService.onFallbackLangChange.subscribe((event: FallbackLangChangeEvent) => {
+  console.log('Fallback language changed:', event.lang);
+});
+```
+
+### 7. Migration Checklist
+
+Use this checklist to ensure complete migration:
+
+#### Configuration Updates
+- [ ] Replace `TranslateModule.forRoot()` with `provideTranslateService()` (standalone)
+- [ ] Update HTTP loader from factory function to `provideTranslateHttpLoader()`
+- [ ] Change `defaultLanguage` to `fallbackLang`
+- [ ] Remove `useDefaultLang` property (always enabled with `fallbackLang`)
+
+#### Method Updates
+- [ ] Replace `setDefaultLang()` with `setFallbackLang()`
+- [ ] Replace `getDefaultLang()` with `getFallbackLang()`
+- [ ] Update property access to use getter methods
+- [ ] Handle Observable return values from `setFallbackLang()`
+
+#### Component Updates
+- [ ] Update injection patterns to use `inject()` function
+- [ ] Update event subscriptions to use new Observable events
+- [ ] Replace `onDefaultLangChange` with `onFallbackLangChange`
+
+#### Testing Updates
+- [ ] Update unit tests to use new provider functions
+- [ ] Test Observable-based event handling
+- [ ] Verify HTTP loader configuration works correctly
+
+### 8. Common Migration Issues
+
+#### Issue 1: Provider Pattern Understanding
+
+**Problem:** Not understanding that `provideXXX(YYY)` is a direct replacement for `{provide: XXX, useClass: YYY}`.
+
+**Solution:** In NGX-Translate v17, the provider function pattern replaces the traditional Angular provider syntax:
+
+```ts
+// ❌ Old Angular provider syntax
+{ provide: TranslateLoader, useClass: CustomLoader }
+
+// ✅ New provider function syntax
+provideTranslateLoader(CustomLoader)
+```
+
+These provider functions should always be used within the `provideTranslateService` configuration:
+
+```typescript
+// ✅ CORRECT USAGE
+provideTranslateService({
+  loader: provideTranslateLoader(CustomLoader),
+  compiler: provideTranslateCompiler(CustomCompiler)
+})
+```
+
+This is because `provideTranslateService` loads default implementations for any providers not explicitly included in its configuration object. If you provide these services separately, they won't be used by the TranslateService.
+
+#### Issue 2: Provider Usage Location
+
+**Problem:** Using provider functions outside of `provideTranslateService` configuration.
+
+**Solution:** Always use provider functions within the `provideTranslateService` configuration object:
+```ts
+// ❌ INCORRECT USAGE - Will not work as expected
+[
+  provideTranslateService(),
+  provideTranslateLoader(CustomLoader),  // This won't be used by TranslateService
+  provideTranslateCompiler(CustomCompiler)  // This won't be used by TranslateService
+]
+
+// ✅ CORRECT USAGE
+provideTranslateService({
+  loader: provideTranslateLoader(CustomLoader),
+  compiler: provideTranslateCompiler(CustomCompiler)
+})
+```
+
+This is because `provideTranslateService` loads default implementations for any providers not explicitly included in its configuration object. If you provide these services separately, they won't be used by the TranslateService.
+
+#### Issue 3: Configuration Not Working
+
+**Problem:** Old factory function approach not working with v17.
+
+**Solution:** Use the new provider functions:
+```ts
+// ❌ v16 approach (won't work in v17)
+{
+  loader: {
+    provide: TranslateLoader,
+    useFactory: httpLoaderFactory,
+    deps: [HttpClient],
+  }
+}
+
+// ✅ v17 approach
+{
+  loader: provideTranslateHttpLoader({
+    prefix: '/assets/i18n/',
+    suffix: '.json',
+    enforceLoading: false,
+    useHttpBackend: false
+  })
+}
+```
+
+#### Issue 4: Method Return Types Changed
+
+**Problem:** `setFallbackLang()` now returns Observable, breaking existing code.
+
+**Solution:** Handle the Observable return value:
+```ts
+// ❌ v16 approach
+translateService.setDefaultLang('en');
+
+// ✅ v17 approach
+translateService.setFallbackLang('en').subscribe();
+```
+
+#### Issue 5: Event Subscription Errors
+
+**Problem:** Event subscriptions failing due to Observable changes.
+
+**Solution:** Update event names and ensure proper Observable handling:
+```ts
+// ❌ v16 approach
+translateService.onDefaultLangChange.subscribe(event => {
+  // Handle event
+});
+
+// ✅ v17 approach
+translateService.onFallbackLangChange.subscribe(event => {
+  // Handle event
+});
+```
+
+### 9. Testing Your Migration
+
+After completing the migration:
+
+1. **Build your application** to check for TypeScript errors
+2. **Run unit tests** to ensure all functionality works
+3. **Test language switching** to verify Observable events work correctly
+4. **Verify HTTP loader** loads translation files properly
+5. **Check fallback behavior** when translations are missing
+
+---
+
+## v15 → v16
 
 ### Key Highlights
 

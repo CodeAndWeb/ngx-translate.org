@@ -24,7 +24,7 @@ import translationsEN from "../../public/i18n/en.json";
 ...
 constructor(private translate: TranslateService) {
     translate.setTranslation('en', translationsEN);
-    translate.setDefaultLang('en');
+    translate.setFallbackLang('en');
 }
 ~~~
 
@@ -72,26 +72,19 @@ approach to initialize the paths, even when AoT compilation is not required.
 This configuration is for standalone components. If you don't have a `app.config.ts` you are
 most likely using an [NgModules](#ngmodule)
 
-~~~ts {2-8,13-20} title="app.config.ts"
+~~~ts {2-4,9-14} title="app.config.ts"
 import {ApplicationConfig, provideZoneChangeDetection} from "@angular/core";
 import {provideHttpClient} from "@angular/common/http";
-import {provideTranslateService, TranslateLoader} from "@ngx-translate/core";
+import {provideTranslateService, provideTranslateLoader} from "@ngx-translate/core";
 import {TranslateHttpLoader} from '@ngx-translate/http-loader';
-import {HttpClient} from '@angular/common/http';
-
-const httpLoaderFactory: (http: HttpClient) => TranslateHttpLoader = (http: HttpClient) =>
-    new TranslateHttpLoader(http, './i18n/', '.json');
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideHttpClient(),
     provideTranslateService({
-      loader: {
-        provide: TranslateLoader,
-        useFactory: httpLoaderFactory,
-        deps: [HttpClient],
-      },
+      loader: provideTranslateHttpLoader({prefix:'./i18n/', suffix:'.json'}),
+      fallbackLang: 'en'
     })
   ],
 };
@@ -119,12 +112,8 @@ export function HttpLoaderFactory(http: HttpClient) {
         BrowserModule,
         HttpClientModule,
         TranslateModule.forRoot({
-            loader: {
-                provide: TranslateLoader,
-                useFactory: HttpLoaderFactory,
-                deps: [HttpClient]
-            },
-            defaultLanguage: 'en'
+            loader: provideTranslateHttpLoader({prefix:'./i18n/', suffix:'.json'}),
+            fallbackLang: 'en'
         })
     ],
     bootstrap: [AppComponent]

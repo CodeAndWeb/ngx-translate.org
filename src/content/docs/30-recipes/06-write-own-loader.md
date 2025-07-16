@@ -8,27 +8,66 @@ slug: recipes/write-own-loader
 
 If you want to write your own loader, you need to create a class that
 implements `TranslateLoader`. The only required method is `getTranslation` that must
-return an `Observable`. If your loader is synchronous, just use [`Observable.of`](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/of.md) to create
+return an `Observable`. If your loader is synchronous, just use `of()` from RxJS to create
 an observable from your static value.
 
-#### Example
+### Creating a Custom Loader
 
 ~~~ts
-class CustomLoader implements TranslateLoader {
+import { Injectable } from '@angular/core';
+import { Observable, of } from 'rxjs';
+import { TranslateLoader } from '@ngx-translate/core';
+
+@Injectable()
+export class CustomLoader implements TranslateLoader {
     getTranslation(lang: string): Observable<any> {
-        return Observable.of({KEY: 'value'});
+        // Example: Return different translations based on language
+        const translations = {
+            en: { KEY: 'English value', HELLO: 'Hello' },
+            de: { KEY: 'German value', HELLO: 'Hallo' },
+            fr: { KEY: 'French value', HELLO: 'Bonjour' }
+        };
+        
+        return of(translations[lang] || translations['en']);
     }
 }
 ~~~
 
-Once you've defined your loader, you can provide it in your configuration by adding it to its `providers` property.
+### Using Your Custom Loader
+
+#### Standalone Components (v17)
+
+The recommended approach is to use the `provideTranslateLoader()` function:
 
 ~~~ts
+import { ApplicationConfig } from '@angular/core';
+import { provideTranslateService, provideTranslateLoader } from '@ngx-translate/core';
+import { CustomLoader } from './custom-loader';
+
+export const appConfig: ApplicationConfig = {
+    providers: [
+        provideTranslateService({
+            loader: provideTranslateLoader(CustomLoader),
+            fallbackLang: 'en'
+        })
+    ],
+};
+~~~
+
+#### NgModule (Traditional)
+
+~~~ts
+import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import { CustomLoader } from './custom-loader';
+
 @NgModule({
     imports: [
         BrowserModule,
         TranslateModule.forRoot({
-            loader: {provide: TranslateLoader, useClass: CustomLoader}
+            loader: { provide: TranslateLoader, useClass: CustomLoader },
+            fallbackLang: 'en'
         })
     ],
     bootstrap: [AppComponent]

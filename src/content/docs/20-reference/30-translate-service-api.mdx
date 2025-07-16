@@ -12,9 +12,9 @@ import { Badge } from '@astrojs/starlight/components';
 ##### Setting the current and fallback language
 
 - [use](#use) - Set the current language and load translation file(s) if not yet done
-- [setDefaultLang](#setdefaultlang) - Set and load the fallback language. Strings of this language are displayed
+- [setFallbackLang](#setfallbacklang) - Set and load the fallback language. Strings of this language are displayed
   if keys are missing in the current language.
-- [getDefaultLang](#getdefaultlang) - Get the fallback language
+- [getFallbackLang](#getfallbacklang) - Get the fallback language
 - [getLangs](#getlangs) - Get list of languages loaded - or set by `addLangs`
 - [addLangs](#addlangs) - Add language to the list of languages (does not load that language)
 
@@ -39,6 +39,8 @@ import { Badge } from '@astrojs/starlight/components';
 ###### Deprecated functions
 
 - [getTranslation](#gettranslation)
+- [setDefaultLang](#setdefaultlang) - Use `setFallbackLang()` instead
+- [getDefaultLang](#getdefaultlang) - Use `getFallbackLang()` instead
 
 ### addLangs
 
@@ -154,22 +156,55 @@ console.log(lang); // Output: "de"
 
 
 
-### getDefaultLang
+
+### getFallbackLang
 
 ~~~ts
-getDefaultLang(): string
+getFallbackLang(): string | null
 ~~~
 
-Returns the default language code that has been set as the fallback language.
+Returns the fallback language code that has been set as the fallback language.
 
 ##### Returns
 
-string: The language code of the default fallback language.
+string | null: The language code of the fallback language, or `null` if none is set.
 
 ##### Description
 
-The `getDefaultLang()` method retrieves the default language that has been set
-using the [`setDefaultLang()`](#setdefaultlang) method. This is the language code that the `TranslateService`
+The `getFallbackLang()` method retrieves the fallback language that has been set
+using the [`setFallbackLang()`](#setfallbacklang) method. This is the language code that the `TranslateService`
+uses as a fallback when a translation key is missing in the current language.
+
+##### Example
+
+~~~ts
+const fallbackLang = translateService.getFallbackLang();
+console.log('Fallback language:', fallbackLang);
+// Output: 'en'
+~~~
+
+### getDefaultLang
+
+<Badge text="Deprecated" variant="danger" />
+
+~~~ts
+getDefaultLang(): string | null
+~~~
+
+Returns the fallback language code that has been set as the fallback language.
+
+:::caution
+This method is deprecated in v17. Use [`getFallbackLang()`](#getfallbacklang) instead.
+:::
+
+##### Returns
+
+string | null: The language code of the fallback language, or `null` if none is set.
+
+##### Description
+
+The `getDefaultLang()` method retrieves the fallback language that has been set
+using the [`setFallbackLang()`](#setfallbacklang) method. This is the language code that the `TranslateService`
 uses as a fallback when a translation key is missing in the current language.
 
 ##### Example
@@ -447,34 +482,78 @@ translateService.set('HELLO.WORLD', "Hallo Welt!", "de");
 
 
 
-### setDefaultLang
+### setFallbackLang
 
 ~~~ts
-setDefaultLang(lang: string): void
+setFallbackLang(lang: string): Observable<InterpolatableTranslationObject>
 ~~~
 
-Sets the default language to be used as a fallback when a translation is missing in the current language.
+Sets the fallback language to be used when a translation is missing in the current language.
 
 ##### Parameters
-- `lang`: A string representing the language code to set as the default language.
+- `lang`: A string representing the language code to set as the fallback language.
+
+##### Returns
+An `Observable` that emits the translations object for the specified language and
+completes when the loading is finished.
 
 ##### Description
 
-The `setDefaultLang()` method specifies the default language that the `TranslateService`
+The `setFallbackLang()` method specifies the fallback language that the `TranslateService`
 will use to look up translations when a key is not found in the current language.
 
 This ensures that your application can gracefully display translations from a fallback language rather than showing missing keys.
 
 Calling this method will:
 
-- Set the default fallback language for translations.
+- Set the fallback language for translations.
 - Use the loader to retrieve translations for the specified language if they haven't been loaded yet.
 - Update the list of available languages, which can be retrieved using [`getLangs()`](#getlangs).
+- Emit an `onFallbackLangChange` event to notify subscribers.
 
 ##### Example
 
 ~~~ts
-translateService.setDefaultLang("en");
+translateService.setFallbackLang("en").subscribe((translations) => {
+    console.log('Fallback language set to English');
+    console.log('English translations:', translations);
+});
+~~~
+
+### setDefaultLang
+
+<Badge text="Deprecated" variant="danger" />
+
+~~~ts
+setDefaultLang(lang: string): Observable<InterpolatableTranslationObject>
+~~~
+
+Sets the fallback language to be used when a translation is missing in the current language.
+
+:::caution
+This method is deprecated in v17. Use [`setFallbackLang()`](#setfallbacklang) instead.
+:::
+
+##### Parameters
+- `lang`: A string representing the language code to set as the fallback language.
+
+##### Returns
+An `Observable` that emits the translations object for the specified language and
+completes when the loading is finished.
+
+##### Description
+
+The `setDefaultLang()` method specifies the fallback language that the `TranslateService`
+will use to look up translations when a key is not found in the current language.
+
+This ensures that your application can gracefully display translations from a fallback language rather than showing missing keys.
+
+##### Example
+
+~~~ts
+translateService.setDefaultLang("en").subscribe((translations) => {
+    console.log('Fallback language set to English');
+});
 ~~~
 
 
@@ -625,76 +704,102 @@ The `TranslateService` exposes the following properties:
 
 | Property                                     | Description                                               |
 |---------------------------------------------------------|-----------------------------------------------------------|
-| `langs`                                  | List of languages.      <br /> `string[]`                         |
-| `translations`                                  | Object containing translations per language     <br /> `any`                         |
-| `currentLang`                                  | The language currently in use.     <br /> `string`                         |
-| `defaultLang`                                | The default (fallback) language.   <br /> `string`                           |
-| `currentLoader`                       | The current instance of the loader (static loader by default).  <br /> `TranslateLoader` |
-| `onLangChange`          | Event emitter that fires when the language changes.     <br /> `EventEmitter<LangChangeEvent>`     |
-| `onTranslationChange`  | Event emitter that fires when the translations change.  <br /> `EventEmitter<TranslationChangeEvent>`   |
-| `onDefaultLangChange`  | Event emitter that fires when the default language changes. <br /> `EventEmitter<DefaultLangChangeEvent>`|
+| `onLangChange`          | Observable that emits when the language changes.     <br /> `Observable<LangChangeEvent>`     |
+| `onTranslationChange`  | Observable that emits when the translations change.  <br /> `Observable<TranslationChangeEvent>`   |
+| `onFallbackLangChange`  | Observable that emits when the fallback language changes. <br /> `Observable<FallbackLangChangeEvent>`|
+
+### Deprecated properties
+
+| Property                                     | Description                                               |
+|---------------------------------------------------------|-----------------------------------------------------------|
+| `langs` <Badge text="Deprecated" variant="danger" />                                  | List of languages. Use `getLangs()` instead.      <br /> `readonly string[]`                         |
+| `currentLang` <Badge text="Deprecated" variant="danger" />                                  | The language currently in use. Access the current language through this property.     <br /> `string`                         |
+| `defaultLang` <Badge text="Deprecated" variant="danger" />                                | The fallback language. Use `getFallbackLang()` instead.   <br /> `string | null`                           |
+| `onDefaultLangChange` <Badge text="Deprecated" variant="danger" />  | Observable that emits when the fallback language changes. Use `onFallbackLangChange` instead. <br /> `Observable<DefaultLangChangeEvent>`|
 
 
+## Event Observables
 
+### onLangChange
 
-## Event Emitters
-
-### onLangChange (Event Emitter)
-
-An `EventEmitter` that listens for language change events. A `LangChangeEvent`
+An `Observable` that emits language change events. A `LangChangeEvent`
 object is emitted, containing the following properties:
 
 | Name           | Type     | Description                                 |
 |----------------|----------|---------------------------------------------|
 | `lang`         | `string` | The code of the newly activated language.    |
-| `translations` | `any`    | An object containing the updated translations. |
+| `translations` | `InterpolatableTranslationObject`    | An object containing the updated translations. |
 
 Example:
 
 ~~~typescript
-onLangChange.subscribe((event: LangChangeEvent) => {
-    // do something
-);
+translateService.onLangChange.subscribe((event: LangChangeEvent) => {
+    console.log('Language changed to:', event.lang);
+    console.log('Translations:', event.translations);
+});
 ~~~
 
-### onTranslationChange (Event Emitter)
+### onTranslationChange
 
-An `EventEmitter` that listens for translation change events.
+An `Observable` that emits translation change events.
 
 A `TranslationChangeEvent` object is emitted, containing the following properties:
 
 | Name           | Type     | Description                                 |
 |----------------|----------|---------------------------------------------|
 | `lang`         | `string` | The code of the currently active language.   |
-| `translations` | `any`    | An object containing the updated translations. |
+| `translations` | `InterpolatableTranslationObject`    | An object containing the updated translations. |
 
 Example:
 
 ~~~ts
-onTranslationChange.subscribe((event: TranslationChangeEvent) => {
-    // do something
-);
+translateService.onTranslationChange.subscribe((event: TranslationChangeEvent) => {
+    console.log('Translations changed for language:', event.lang);
+    console.log('Updated translations:', event.translations);
+});
 ~~~
 
-### onDefaultLangChange (Event Emitter)
+### onFallbackLangChange
 
-An `EventEmitter` that listens for default language change events.
+An `Observable` that emits fallback language change events.
+
+A `FallbackLangChangeEvent` object is emitted, containing the following properties:
+
+| Name           | Type     | Description                                 |
+|----------------|----------|---------------------------------------------|
+| `lang`         | `string` | The code of the newly set fallback language.  |
+| `translations` | `InterpolatableTranslationObject`    | An object containing the fallback translations. |
+
+Example:
+
+~~~ts
+translateService.onFallbackLangChange.subscribe((event: FallbackLangChangeEvent) => {
+    console.log('Fallback language changed to:', event.lang);
+    console.log('Fallback translations:', event.translations);
+});
+~~~
+
+### onDefaultLangChange
+
+<Badge text="Deprecated" variant="danger" />
+
+An `Observable` that emits fallback language change events.
+
+:::caution
+This observable is deprecated in v17. Use [`onFallbackLangChange`](#onfallbacklangchange) instead.
+:::
 
 A `DefaultLangChangeEvent` object is emitted, containing the following properties:
 
 | Name           | Type     | Description                                 |
 |----------------|----------|---------------------------------------------|
-| `lang`         | `string` | The code of the newly set default language.  |
-| `translations` | `any`    | An object containing the default translations. |
+| `lang`         | `string` | The code of the newly set fallback language.  |
+| `translations` | `InterpolatableTranslationObject`    | An object containing the fallback translations. |
 
 Example:
 
 ~~~ts
-onDefaultLangChange.subscribe((event: DefaultLangChangeEvent) => {
-  // Do something with the new default language or translations
+translateService.onDefaultLangChange.subscribe((event: DefaultLangChangeEvent) => {
+    console.log('Fallback language changed to:', event.lang);
 });
 ~~~
-
-
-
-

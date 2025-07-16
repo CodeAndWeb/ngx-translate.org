@@ -112,13 +112,12 @@ To render them, simply use the `innerHTML` attribute with the pipe on any elemen
 
 ## Using Translations in Code
 
-To use translations in your code, you need to utilize Dependency Injection in
-the constructor to access the [TranslateService](/reference/translate-service-api/).
-This service allows you to load translations, switch languages, and retrieve
+To use translations in your code, you can access the [TranslateService](/reference/translate-service-api/)
+using Angular's modern `inject()` function. This service allows you to load translations, switch languages, and retrieve
 translated messages directly within your application logic.
 
-~~~ts {2,11-16} title="your-component.ts"
-import {Component} from '@angular/core';
+~~~ts {2,11, 14-17} title="your-component.ts"
+import {Component, inject} from '@angular/core';
 import {TranslateService, _} from "@ngx-translate/core";
 
 @Component({
@@ -126,9 +125,11 @@ import {TranslateService, _} from "@ngx-translate/core";
   standalone: true,
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
-}/)
+})
 export class YourComponent {
-  constructor(private translate: TranslateService) {
+  private translate = inject(TranslateService);
+
+  constructor() {
     this.translate.get(_('app.hello'), {value: 'world'}).subscribe((res: string) => {
       console.log(res);
       //=> 'hello world'

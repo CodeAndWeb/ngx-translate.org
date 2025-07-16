@@ -13,6 +13,7 @@ Choose the version corresponding to your Angular version:
 
 | Angular       | @ngx-translate/core | @ngx-translate/http-loader | Tutorial |
 | ------------- | ------------------- | -------------------------- |--- |
+| 16 - 20+ | 17.x | 17.x | [Tutorial](https://www.codeandweb.com/babeledit/tutorials/how-to-translate-your-angular-app-with-ngx-translate/) |
 | 16 - 19+ | 16.x | 16.x | [Tutorial](https://www.codeandweb.com/babeledit/tutorials/how-to-translate-your-angular-app-with-ngx-translate/) |
 | 16 - 17+ | 16.x (15.x) | 16.x, (8.x) | [Tutorial](https://www.codeandweb.com/babeledit/tutorials/how-to-translate-your-angular-app-with-ngx-translate/) |
 | 13 - 15 (ivy only) | 14.x              | 7.x+ | [Tutorial](https://www.codeandweb.com/babeledit/tutorials/how-to-translate-your-angular-app-with-ngx-translate/) |
@@ -29,7 +30,10 @@ Choose the version corresponding to your Angular version:
 
 Start by adding the npm module:
 
-<PackageManagers pkg="@ngx-translate/core" />
+<PackageManagers pkg="@ngx-translate/core @ngx-translate/http-loader" />
+
+
+`@ngx-translate/http-loader` is optional. It allows loading translation files on demand from the server.
 
 ## Standalone components or NgModule?
 
@@ -45,7 +49,9 @@ The installation differs a bit depending on which concept you are using in your 
 
 ### Initialising the TranslateService
 
-To use ngx-translate in your project, use the `provideTranslateService`() function in `appConfig`:
+To use ngx-translate in your project, use the `provideTranslateService()` function in `appConfig`:
+
+#### Basic Setup
 
 ~~~ts {2, 7-9} title="app.config.ts"
 import {ApplicationConfig, provideZoneChangeDetection} from "@angular/core";
@@ -55,19 +61,72 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideTranslateService({
-     defaultLanguage: 'en'
+      fallbackLang: 'en',
+      lang: 'en'
     })
   ],
 };
 ~~~
 
+#### Setup with HTTP Loader
+
+For most applications, you'll want to load translations from JSON files. The HTTP loader makes this easy:
+
+~~~ts {2-3, 9-15} title="app.config.ts"
+import {ApplicationConfig, provideZoneChangeDetection} from "@angular/core";
+import {provideTranslateService, provideTranslateLoader} from "@ngx-translate/core";
+import {provideTranslateHttpLoader} from "@ngx-translate/http-loader";
+import {provideHttpClient} from "@angular/common/http";
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideZoneChangeDetection({ eventCoalescing: true }),
+    provideHttpClient(),
+    provideTranslateService({
+      loader: provideTranslateHttpLoader({
+        prefix: '/assets/i18n/',
+        suffix: '.json'
+      }),
+      fallbackLang: 'en',
+      lang: 'en'
+    })
+  ],
+};
+~~~
+
+:::caution
+**Important: Always Use Provider Functions Inside provideTranslateService**
+
+Provider functions should always be used within the `provideTranslateService` configuration object:
+
+```typescript
+// CORRECT USAGE
+provideTranslateService({
+  loader: provideTranslateLoader(CustomLoader),
+  compiler: provideTranslateCompiler(CustomCompiler)
+})
+```
+
+```typescript
+// INCORRECT USAGE - Will not work as expected
+[
+  provideTranslateService(),
+  provideTranslateLoader(CustomLoader),  // This won't be used by TranslateService
+  provideTranslateCompiler(CustomCompiler)  // This won't be used by TranslateService
+]
+```
+
+This is because `provideTranslateService` loads default implementations for any providers not explicitly included in its configuration object. If you provide these services separately, they won't be used by the TranslateService.
+:::
+
+
 ### Initialize the `TranslateService` for your application
 
-In your components, add `TranslateModule` to your `imports`.  This gives you access to the
-TranslateService for configuration:
+In your components, import `TranslatePipe` and `TranslateDirective` to your `imports`. You can access the
+TranslateService using the modern `inject()` function:
 
-~~~ts {2-6,11,16-20} title="app.component.ts"
-import { Component } from '@angular/core';
+~~~ts {2-7,12,16-20} title="app.component.ts"
+import { Component, inject } from '@angular/core';
 import {
     TranslateService,
     TranslatePipe,
@@ -82,9 +141,11 @@ import {
     styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-    constructor(private translate: TranslateService) {
+    private translate = inject(TranslateService);
+
+    constructor() {
         this.translate.addLangs(['de', 'en']);
-        this.translate.setDefaultLang('en');
+        this.translate.setFallbackLang('en');
         this.translate.use('en');
     }
 }
@@ -107,7 +168,7 @@ referred to as `AppModule`.
 
 This method lets you configure the `TranslateModule` by specifying a loader,
 a parser, and/or a `MissingTranslationHandler`. Additionally, you can set the
-default language using `defaultLanguage`.
+fallback language using `fallbackLang`.
 
 See the section [Translate Module API](/reference/configuration/) for details.
 
@@ -120,8 +181,8 @@ import {TranslateModule} from '@ngx-translate/core';
     imports: [
         BrowserModule,
         TranslateModule.forRoot({
-            defaultLanguage: 'en'
-        }/)
+            fallbackLang: 'en'
+        })
     ],
     bootstrap: [AppComponent]
 })
@@ -167,10 +228,10 @@ different loader/compiler/parser/handler even if you don't isolate the service).
 @NgModule({
     imports: [
         TranslateModule.forChild({
-            loader: {provide: TranslateLoader, useClass: CustomLoader},
-            compiler: {provide: TranslateCompiler, useClass: CustomCompiler},
-            parser: {provide: TranslateParser, useClass: CustomParser},
-            missingTranslationHandler: {provide: MissingTranslationHandler, useClass: CustomHandler},
+            loader: provideTranslateLoader(CustomLoader),
+            compiler: provideTranslateCompiler(CustomCompiler),
+            parser: provideTranslateParser(CustomParser),
+            missingTranslationHandler: provideMissingTranslationHandler(CustomHandler),
             isolate: true
         })
     ]
@@ -195,15 +256,31 @@ export class AppComponent {
     param = {value: 'world'};
 
     constructor(translate: TranslateService) {
-        translate.setDefaultLang('en');
+        translate.setFallbackLang('en');
         translate.use('en');
     }
 }
 ~~~
 
-[`setDefaultLang()`](/reference/translate-service-api/#setdefaultlang) sets the default language. The default language is used
-as a fall-back if no translation is found in the currently selected language.
-You can also do this at application startup using the `TranslateModule.forRoot({defaultLanguage:'en'})`.
+[`setFallbackLang()`](/reference/translate-service-api/#setfallbacklang) sets the fallback language. The fallback language is used
+when no translation is found in the currently selected language.
+You can also do this at application startup using the `TranslateModule.forRoot({fallbackLang:'en'})`.
 
 [`use()`](/reference/translate-service-api/#use) sets the current language for the application. If the selected language is not yet
 loaded, the loader is invoked to retrieve the file.
+
+:::note
+**Terminology Change in v17**
+
+In NGX-Translate v17, the terminology has been standardized to use "fallback language" instead of "default language" for clarity. The fallback language is used when a translation is missing in the current language.
+
+```typescript
+// v16 and earlier
+translateService.setDefaultLang('en');
+
+// v17 and later
+translateService.setFallbackLang('en');
+```
+
+The `setFallbackLang()` method replaces the deprecated `setDefaultLang()` method, and the `fallbackLang` configuration option replaces the deprecated `defaultLanguage` option.
+:::

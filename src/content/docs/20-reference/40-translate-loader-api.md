@@ -38,13 +38,53 @@ has to return a promise the resolves to a translation object.
 
 ## Standalone Components
 
-To configure ngx-translate to use your loader
-change the configuration in `provideTranslateService()` function in your app.config.ts:
+### Using Provider Functions (v17)
+
+The recommended approach in v17 is to use the `provideTranslateLoader()` function:
+
+~~~ts {2,8} title="app.config.ts"
+import {provideTranslateService, provideTranslateLoader} from "@ngx-translate/core";
+import {YourLoader} from './your-loader';
+
+export const appConfig: ApplicationConfig = {
+    providers: [
+        ...
+        provideTranslateService({
+            loader: provideTranslateLoader(YourLoader),
+        })
+    ],
+};
+~~~
+
+For loaders that need dependencies like `HttpClient`, use the traditional provider approach:
+
+~~~ts {2-4,13-20} title="app.config.ts"
+import {ApplicationConfig} from "@angular/core";
+import {provideHttpClient} from "@angular/common/http";
+import {provideTranslateService, TranslateLoader} from "@ngx-translate/core";
+import {HttpClient} from '@angular/common/http';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    ...
+    provideHttpClient(),
+    provideTranslateService({
+      loader: {
+        provide: TranslateLoader,
+        useFactory: (http: HttpClient) => new YourLoader(http),
+        deps: [HttpClient],
+      },
+    })
+  ],
+};
+~~~
+
+### Using Traditional Providers (Legacy)
+
+You can still use the traditional provider approach if needed:
 
 ~~~ts {9-12} title="app.config.ts"
-...
 import {provideTranslateService, TranslateLoader} from "@ngx-translate/core";
-...
 
 export const appConfig: ApplicationConfig = {
     providers: [
@@ -52,14 +92,14 @@ export const appConfig: ApplicationConfig = {
         provideTranslateService({
             loader: {
                 provide: TranslateLoader,
-                userClass: YourLoader
+                useClass: YourLoader
             },
         })
     ],
 };
 ~~~
 
-If you are using the `HttpClient`, use a factory method to initialise it:
+With factory method for dependencies:
 
 ~~~ts {2-5,7-8,13-20} title="app.config.ts"
 import {ApplicationConfig, provideZoneChangeDetection} from "@angular/core";

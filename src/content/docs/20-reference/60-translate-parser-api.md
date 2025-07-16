@@ -42,12 +42,62 @@ Returns `This is a banana!`
 ## Custom parser
 
 A `TranslateParser` implements this interface - you can create your
-own parser and plug in into the [`TranslateModule`](/reference/configuration/) using
-the config.
+own parser and configure it using the new provider functions or the traditional module configuration.
 
-~~~
-export abstract class TranslateParser 
-{
+If you are not using a [compiler](/reference/translate-compiler-api/), you can expect `expr` to be a `string`.
+
+The `TranslateParser` is called every time a translation is requested with a given set of interpolation parameters.
+If parsing these messages is too complex, we recommend using a compiler to pre-process the messages.
+
+
+```typescript
+export abstract class TranslateParser {
   abstract interpolate(expr: string | Function, params?: any): string | undefined;
 }
-~~~
+```
+
+### Using Provider Functions (Recommended for v17)
+
+```typescript
+import { provideTranslateParser } from '@ngx-translate/core';
+import { MyCustomParser } from './my-custom-parser';
+
+// In your bootstrap or component providers
+provideTranslateParser(MyCustomParser)
+```
+
+### Using TranslateModule Configuration
+
+```typescript
+import { TranslateModule, TranslateParser } from '@ngx-translate/core';
+import { MyCustomParser } from './my-custom-parser';
+
+TranslateModule.forRoot({
+  parser: {
+    provide: TranslateParser,
+    useClass: MyCustomParser
+  }
+})
+```
+
+### Example Custom Parser
+
+```typescript
+import { Injectable } from '@angular/core';
+import { TranslateParser } from '@ngx-translate/core';
+
+@Injectable()
+export class MyCustomParser extends TranslateParser {
+  interpolate(expr: string | Function, params?: any): string {
+    if (typeof expr === 'string') {
+      // Custom interpolation logic
+      return expr.replace(/\$\{([^}]+)\}/g, (match, key) => {
+        return params && params[key] !== undefined ? params[key] : match;
+      });
+    } else if (typeof expr === 'function') {
+      return expr(params);
+    }
+    return expr;
+  }
+}
+```

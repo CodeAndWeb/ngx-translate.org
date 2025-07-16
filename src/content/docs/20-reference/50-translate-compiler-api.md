@@ -11,7 +11,31 @@ through the `TranslateCompiler`. The compiler's job is to prepare the translatio
 processing later. E.g. the `ngx-translate-messageformat-compiler` plugin makes use of this API to support
 ICU formatted messages.
 
-To make use of a `TranslateCompiler`, pass it with the configuration of the  [`TranslateModule`](/reference/configuration/).
+To make use of a `TranslateCompiler`, you can configure it using the new provider functions or the traditional module configuration.
+
+### Using Provider Functions (Recommended for v17)
+
+```typescript
+import { provideTranslateCompiler } from '@ngx-translate/core';
+import { MyCustomCompiler } from './my-custom-compiler';
+
+// In your bootstrap or component providers
+provideTranslateCompiler(MyCustomCompiler)
+```
+
+### Using TranslateModule Configuration
+
+```typescript
+import { TranslateModule, TranslateCompiler } from '@ngx-translate/core';
+import { MyCustomCompiler } from './my-custom-compiler';
+
+TranslateModule.forRoot({
+  compiler: {
+    provide: TranslateCompiler,
+    useClass: MyCustomCompiler
+  }
+})
+```
 
 ~~~ts
 export abstract class TranslateCompiler {
