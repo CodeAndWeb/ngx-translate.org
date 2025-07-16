@@ -15,6 +15,7 @@ import { Badge } from '@astrojs/starlight/components';
 - [setFallbackLang](#setfallbacklang) - Set and load the fallback language. Strings of this language are displayed
   if keys are missing in the current language.
 - [getFallbackLang](#getfallbacklang) - Get the fallback language
+- [getCurrentLang](#getcurrentlang) - Get the current language
 - [getLangs](#getlangs) - Get list of languages loaded - or set by `addLangs`
 - [addLangs](#addlangs) - Add language to the list of languages (does not load that language)
 
@@ -128,7 +129,7 @@ it cannot be determined.
 ##### Example
 
 ~~~ts
-const lang = translateService.getBrowserLang();
+const lang = translateService.getBrowserCultureLang();
 console.log(lang); // Output: "de-DE"
 ~~~
 
@@ -183,6 +184,30 @@ console.log('Fallback language:', fallbackLang);
 // Output: 'en'
 ~~~
 
+### getCurrentLang
+
+~~~ts
+getCurrentLang(): Language
+~~~
+
+Returns the currently active language code.
+
+##### Returns
+
+Language: The language code of the currently active language.
+
+##### Description
+
+The `getCurrentLang()` method retrieves the language code that is currently being used by the `TranslateService` for translations. This is the language that was set using the [`use()`](#use) method.
+
+##### Example
+
+~~~ts
+const currentLang = translateService.getCurrentLang();
+console.log('Current language:', currentLang);
+// Output: 'en'
+~~~
+
 ### getDefaultLang
 
 <Badge text="Deprecated" variant="danger" />
@@ -222,7 +247,7 @@ console.log('Default language:', defaultLang);
 ### getLangs
 
 ~~~ts
-getLangs(): string[]
+getLangs(): readonly Language[]
 ~~~
 
 Returns an array of currently available languages. The list can be extended

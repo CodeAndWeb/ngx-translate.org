@@ -57,6 +57,10 @@ export default defineConfig({
                       link: "/"
                   },
                   {
+                      label: "Angular Compatibility",
+                      link: "/getting-started/angular-compatibility/"
+                  },
+                  {
                       label: "Installation",
                       link: "/getting-started/installation/"
                   },
@@ -103,6 +107,10 @@ export default defineConfig({
                   {
                       label: "MissingTranslationHandler API",
                       link: "/reference/missing-translation-handler-api/"
+                  },
+                  {
+                      label: "Using NgModules",
+                      link: "/reference/ngmodules/"
                   },
               ]
           }, {

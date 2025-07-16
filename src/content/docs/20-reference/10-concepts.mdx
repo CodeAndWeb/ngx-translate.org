@@ -15,25 +15,19 @@ to virtually any localization requirement.
   application, enabling you to load translations, switch languages, and
   retrieve translated messages.
 
-## Integration Approaches
+## Configuration
 
-ngx-translate supports two approaches for integrating with Angular applications:
-
-### Standalone Components (Angular 16+)
+ngx-translate is configured using provider functions in Angular applications:
 
 * [**provideTranslateService**](/reference/configuration/#providetranslateserviceconfig-roottranslateserviceconfig)
-  The main provider function for configuring ngx-translate in standalone component applications.
+  The main provider function for configuring ngx-translate in Angular applications.
   It sets up the TranslateService and all its dependencies.
 
 * [**provideChildTranslateService**](/reference/configuration/#providechildtranslateserviceconfig-childtranslateserviceconfig)
   Provider function for child components or lazy-loaded modules that need to extend or customize
   the parent TranslateService.
 
-### NgModules (Legacy)
-
-* [**TranslateModule**](/reference/configuration/#translatemoduleforrootconfig-translatemoduleconfig)
-  The core module for configuring ngx-translate in NgModule-based applications. It allows you to set up basic
-  configuration and specify which classes to override from the default implementation.
+For applications using NgModules, see the [NgModules Support](/reference/ngmodules/) documentation for configuration with **TranslateModule**.
 
 ## Provider Functions
 
@@ -73,15 +67,19 @@ provideTranslateService({
 // INCORRECT USAGE - Will not work as expected
 [
   provideTranslateService(),
-  provideTranslateLoader(CustomLoader),  // This won't be used by TranslateService
-  provideTranslateCompiler(CustomCompiler)  // This won't be used by TranslateService
+  provideTranslateLoader(CustomLoader),
+  provideTranslateCompiler(CustomCompiler)
 ]
 ```
 
 :::caution
 **Important: Always Use Provider Functions Inside provideTranslateService**
 
-Provider functions should always be used within the `provideTranslateService` configuration object. If you provide these services separately, they won't be used by the TranslateService because it loads default implementations for any providers not explicitly included in its configuration object.
+Provider functions should always be used within the `provideTranslateService` configuration object.
+`provideTranslateService()` provides default implementation for all required modules if they are not
+specified.
+If you provide these services separately, a duplicated configuration exists which might lead
+to unwanted behaviour.
 :::
 
 ## Customizable Components
@@ -92,7 +90,7 @@ Provider functions should always be used within the `provideTranslateService` co
   The default loader, for example, retrieves JSON-formatted translation files from the assets folder at runtime.
   It is also possible to load other file formats such as .po files.
 
-* **TranslationPipe** and **TranslationDirective**
+* **TranslatePipe** and **TranslateDirective**
   These allow you to use translated texts directly within your templates. Both automatically
   update the UI when the language is switched at runtime.
 

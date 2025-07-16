@@ -19,14 +19,14 @@ a dynamic loader.
 
 The easy way to set translation data is using `import` and [`setTranslation()`](/reference/translate-service-api/#settranslation).
 
-~~~ts {1,4} title="src/app/app.component.ts"
+```ts {1,4} title="src/app/app.component.ts"
 import translationsEN from "../../public/i18n/en.json";
 ...
 constructor(private translate: TranslateService) {
     translate.setTranslation('en', translationsEN);
     translate.setFallbackLang('en');
 }
-~~~
+```
 
 The advantage of this is, that the translations are available immediately when loading the app.
 The big disadvantage is that this binds all translations into your app. If you have many
@@ -43,36 +43,25 @@ using `HttpClient`. To use it, you need to install the `http-loader` package fro
 Here is how you would use the `TranslateHttpLoader` to load
 translations from `"/assets/i18n/[lang].json"`. `[lang]` is the lang that you're using, for english it could be `en`.
 
-You can override the paths when creating a new instance of the `TranslateHttpLoader`:
+The `TranslateHttpLoader` uses dependency injection and configuration through the `provideTranslateHttpLoader()` function. You can customize the paths by passing configuration options:
 
 ~~~ts
-constructor(
-    private http: HttpClient,
-    public prefix: string = "/assets/i18n/",
-    public suffix: string = ".json"
-) {}
+// Default configuration loads from "/assets/i18n/" with ".json" suffix
+provideTranslateHttpLoader()
+
+// Custom configuration for different paths
+provideTranslateHttpLoader({
+    prefix: './i18n/',
+    suffix: '.json'
+})
 ~~~
 
 In newer versions of Angular, the `assets` folder is no longer used. Instead,
-translations are stored in the `public` folder. For this, you can initialize the
-`TranslateHttpLoader` like this:
+translations are stored in the `public` folder. You can configure this using the `prefix` option as shown above.
 
-~~~ts
-const httpLoaderFactory: (http: HttpClient) => TranslateHttpLoader = (http: HttpClient) =>
-    new TranslateHttpLoader(http, './i18n/', '.json');
-~~~
+### Configuration
 
-You need to create the `TranslateLoader` inside a factory method if you're using
-[AoT compilation](https://angular.dev/tools/cli/aot-compiler/) or
-[Ionic](http://ionic.io/). However, it's generally a good practice to use this
-approach to initialize the paths, even when AoT compilation is not required.
-
-### Standalone Components
-
-This configuration is for standalone components. If you don't have a `app.config.ts` you are
-most likely using an [NgModules](#ngmodule)
-
-~~~ts {2-4,9-14} title="app.config.ts"
+```ts {2-4,9-14} title="app.config.ts"
 import {ApplicationConfig, provideZoneChangeDetection} from "@angular/core";
 import {provideHttpClient} from "@angular/common/http";
 import {provideTranslateService, provideTranslateLoader} from "@ngx-translate/core";
@@ -88,38 +77,11 @@ export const appConfig: ApplicationConfig = {
     })
   ],
 };
-~~~
+```
 
-### NgModule
 
-Use this if you are using an `app.module.ts`. If this file does not exist, you are most likely using
-[standalone components](#standalone-components).
+For comprehensive information about using ngx-translate with NgModules, see the [NgModules Support](/reference/ngmodules/) documentation.
 
-~~~ts {3-5,8-10,16-23} title="app.module.ts"
-import {NgModule} from '@angular/core';
-import {BrowserModule} from '@angular/platform-browser';
-import {HttpClientModule, HttpClient} from '@angular/common/http';
-import {TranslateModule, TranslateLoader} from '@ngx-translate/core';
-import {TranslateHttpLoader} from '@ngx-translate/http-loader';
-import {AppComponent} from './app';
-
-export function HttpLoaderFactory(http: HttpClient) {
-    return new TranslateHttpLoader(http, './i18n/', '.json');
-}
-
-@NgModule({
-    imports: [
-        BrowserModule,
-        HttpClientModule,
-        TranslateModule.forRoot({
-            loader: provideTranslateHttpLoader({prefix:'./i18n/', suffix:'.json'}),
-            fallbackLang: 'en'
-        })
-    ],
-    bootstrap: [AppComponent]
-})
-export class AppModule { }
-~~~
 
 ngx-translate uses JSON translation files by default when using the `TranslateHttpLoader`.
 These files have the added benefit of being easily embedded directly into your application

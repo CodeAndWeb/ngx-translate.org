@@ -64,7 +64,7 @@ export const appConfig: ApplicationConfig = {
 In your components, add `TranslateModule` to your `imports`.  This gives you access to the
 TranslateService for configuration:
 
-~~~ts {2-3,8,13-17} title="app.component.ts"
+```ts {2-3,8,13-17} title="app.component.ts"
 import { Component } from '@angular/core';
 import {TranslateModule} from "@ngx-translate/core";
 import {TranslateService} from "@ngx-translate/core";
@@ -106,7 +106,7 @@ default language using `defaultLanguage`.
 
 See the section [Translate Module API](/v15/reference/translate-module-api/) for details.
 
-~~~ts {3,8-10}  title="app.module.ts"
+```ts {3,8-10}  title="app.module.ts"
 import {BrowserModule} from '@angular/platform-browser';
 import {NgModule} from '@angular/core';
 import {TranslateModule} from '@ngx-translate/core';
@@ -175,7 +175,7 @@ export class LazyLoadedModule { }
 
 ### Initialize the `TranslateService` for your application
 
-~~~ts {2,7,11-16} title="app.component.ts"
+```ts {2,7,11-16} title="app.component.ts"
 import {Component} from '@angular/core';
 import {TranslateService} from '@ngx-translate/core';
 

@@ -7,12 +7,12 @@ slug: getting-started/migration-guide
 import { Badge } from '@astrojs/starlight/components';
 import { PackageManagers } from 'starlight-package-managers'
 
-# Migration Guide
-
 This guide covers migration between different versions of ngx-translate:
 
 - [v16 → v17](#v16--v17) - **Latest migration**
 - [v15 → v16](#v15--v16) - Previous migration
+
+For detailed information about compatibility with different Angular versions, see the [Angular Compatibility](/getting-started/angular-compatibility/) documentation.
 
 ---
 
@@ -122,6 +122,8 @@ export class AppModule { }
 })
 export class AppModule { }
 ```
+
+For comprehensive information about using ngx-translate with NgModules, see the [NgModules Support](/reference/ngmodules/) documentation.
 
 ### 3. Update Method Calls
 
@@ -456,7 +458,7 @@ After completing the migration:
 By migrating to `@ngx-translate/core`, you can ensure your project stays up-to-date, secure, and compatible with the latest Angular features, while benefiting from these new improvements in v16.
 
 
-## 1. Update @ngx-translate/core to the new release
+### 1. Update @ngx-translate/core to the new release
 
 Start by updating to the newest version of @ngx-translate/core:
 

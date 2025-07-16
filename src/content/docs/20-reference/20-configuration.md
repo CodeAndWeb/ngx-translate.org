@@ -4,12 +4,13 @@ description: Reference documentation for configuring ngx-translate v17.
 slug: reference/configuration
 ---
 
-How you configure ngx-translate depends on your project setup:
+ngx-translate is configured using provider functions in Angular applications with standalone components.
 
-- [Standalone components](#standalone-components)
-- [NgModules](#ngmodules)
+For detailed information about Angular version compatibility, see the [Angular Compatibility](/getting-started/angular-compatibility/) documentation.
 
-## Standalone components 
+For comprehensive information about using ngx-translate with NgModules, 
+see the [NgModules Support](/reference/ngmodules/) documentation.
+
 
 ### provideTranslateService(config: [RootTranslateServiceConfig](#roottranslateserviceconfig))
 
@@ -24,11 +25,12 @@ With this, it's possible to use different languages in parts of your application
 
 ~~~ts title="app.config.ts"
 import { provideTranslateService } from '@ngx-translate/core';
+import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 
 export const appConfig: ApplicationConfig = {
     providers: [
         provideTranslateService({
-            loader: provideHttpLoader({prefix:"/i18n/app/"}),
+            loader: provideTranslateHttpLoader({prefix:"/i18n/app/"}),
             fallbackLang: 'en',
             lang: 'de'
         })
@@ -75,7 +77,7 @@ Always provide all custom services (loader, compiler, parser, missingTranslation
 
 ### provideChildTranslateService(config: [ChildTranslateServiceConfig](#childtranslateserviceconfig))
 
-Use this function in child injectors or lazy-loaded modules when using standalone components.
+Use this function in child injectors or lazy-loaded components when using standalone components.
 This child service is directly connected with the parent `TranslateService`. Language changes to any of the
 services are reflected in all services.
 
@@ -84,13 +86,14 @@ adds the new translations to the parent `TranslateService`.
 
 ~~~ts title="feature.routes.ts"
 import { provideChildTranslateService } from '@ngx-translate/core';
+import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 
 export const routes: Routes = [
     {
         path: 'feature',
         providers: [
             provideChildTranslateService({
-                loader: provideHttpLoader({prefix:"/i18n/feature/"}),
+                loader: provideTranslateHttpLoader({prefix:"/i18n/feature/"}),
             })
         ],
         loadChildren: () => import('./feature/feature.routes')
@@ -118,63 +121,7 @@ a new `loader` with a new path to load additional translations for this componen
 :::
 
 
-## NgModules
 
-The `TranslateModule` is used for NgModule-based applications and must be initialized in your `app.module.ts`
-file, depending on your Angular setup.
-
-### TranslateModule.forRoot(config: [TranslateModuleConfig](#translatemoduleconfig))
-
-Use this static method in your application's root module to
-provide the `TranslateService`. See [TranslateModuleConfig](#translatemoduleconfig) for available options.
-
-This service manages language changes and holds the translations.
-
-~~~ts title="app.module.ts"
-@NgModule({ 
-    imports: [
-        TranslateModule.forRoot({
-            fallbackLang: 'en'
-        })
-    ],
-})
-export class AppModule { }
-~~~
-
-### TranslateModule.forChild(config: [TranslateModuleConfig](#translatemoduleconfig))
-
-Use this static method in your (non-root) modules to import the directive/pipe.
-This is not required for standalone components. See [TranslateModuleConfig](#translatemoduleconfig) for available options.
-
-The child `TranslateSerivce` by shares the same translations and language as the `forRoot()` service.
-
-Use `isolate=true` to make this services translations and language settings independent from the parent.
-
-
-~~~ts title="sub.module.ts"
-TranslateModule.forChild({
-    extend: true
-})
-~~~
-
-## Configuration Interfaces
-
-
-### TranslateModuleConfig
-
-Legacy configuration interface for `TranslateModule.forRoot()` and `TranslateModule.forChild()`.
-All properties are optional.
-
-| Name               | Type      | Description                                                                                                              |
-|--------------------|-----------|--------------------------------------------------------------------------------------------------------------------------|
-| `fallbackLang`     | `string`  | The fallback language used when a translation is missing in the current language.                                        |
-| `lang`             | `string`  | The initial language to set on startup.                                                                                  |
-| `extend`           | `boolean` | Default: `false`. Extends translations for a given language instead of replacing them.                                   |
-| `isolate`          | `boolean` | Default: `false`. Isolates the service instance - making allows inependent switching of languages.                       |
-| `loader`           | `Provider`| Provides a [`TranslateLoader`](/reference/translate-loader-api/) to load translations.                                   |
-| `compiler`         | `Provider`| Provides a [`TranslateCompiler`](/reference/translate-compiler-api/) to prepare translations after loading.              |
-| `parser`           | `Provider`| Provides a [`TranslateParser`](/reference/translate-parser-api/) that interpolates parameters in translations.           |
-| `missingTranslationHandler` | `Provider`| Provides a [`MissingTranslationHandler`](/reference/missing-translation-handler-api/) that handles missing translations. |
 
 ## Provider Functions
 
@@ -233,7 +180,7 @@ This is because `provideTranslateService` loads default implementations for any 
 Provides a custom loader implementation.
 
 ~~~ts title="app.config.ts"
-import { provideTranslateLoader } from '@ngx-translate/http-loader';
+import { provideTranslateLoader } from '@ngx-translate/core';
 
 export const appConfig: ApplicationConfig = {
     providers: [

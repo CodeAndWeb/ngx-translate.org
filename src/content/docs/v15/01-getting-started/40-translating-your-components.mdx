@@ -20,7 +20,7 @@ in the `app.module.ts` or the module itself.
 
 When using standalone components, import the `TranslateModule` like this:
 
-~~~ts {2,7} title="your-component.ts"
+```ts {2,7} title="your-component.ts"
 import {Component} from '@angular/core';
 import {TranslateModule} from "@ngx-translate/core";
 
@@ -115,7 +115,7 @@ the constructor to access the [TranslateService](/v15/reference/translate-servic
 This service allows you to load translations, switch languages, and retrieve
 translated messages directly within your application logic.
 
-~~~ts {2,3,8,14-19} title="your-component.ts"
+```ts {2,3,8,14-19} title="your-component.ts"
 import {Component} from '@angular/core';
 import {TranslateModule} from "@ngx-translate/core"; // standalone comp. only
 import {TranslateService} from "@ngx-translate/core";

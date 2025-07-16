@@ -16,12 +16,9 @@ and code.
 Using translations in the templates is straight forward. You just have to make sure, that the
 `TranslatePipe` and `TranslateDirective` are available in the component.
 
-If you are using NgModules, there's nothing to do inside the component itself. The import is either
-in the `app.module.ts` or the module itself.
+Import the `TranslatePipe` and `TranslateDirective` in your component like this:
 
-When using standalone components, import the `TranslatePipe` and `TranslateDirective` like this:
-
-~~~ts {2,7} title="your-component.ts"
+```ts {2,7} title="your-component.ts"
 import {Component} from '@angular/core';
 import {TranslatePipe, TranslateDirective} from "@ngx-translate/core";
 
@@ -35,13 +32,15 @@ import {TranslatePipe, TranslateDirective} from "@ngx-translate/core";
 export class YourComponent {
   ...
 }
-~~~
+```
 
 <Aside type="caution" title="Watch out!">
-  If you see one of the following messages, the `TranslateModule` is not imported properly:
+  If you see one of the following messages, the `TranslatePipe` and `TranslateDirective` are not imported properly in your component:
 
   * NG8002: Can't bind to 'translateParams' since it isn't a known property of '...'.
   * NG8004: No pipe found with name 'translate'.
+
+  For NgModule-based applications, see the [NgModules Support](/reference/ngmodules/) documentation.
 </Aside>
 
 ### TranslatePipe
@@ -116,7 +115,7 @@ To use translations in your code, you can access the [TranslateService](/referen
 using Angular's modern `inject()` function. This service allows you to load translations, switch languages, and retrieve
 translated messages directly within your application logic.
 
-~~~ts {2,11, 14-17} title="your-component.ts"
+```ts {2,11, 14-17} title="your-component.ts"
 import {Component, inject} from '@angular/core';
 import {TranslateService, _} from "@ngx-translate/core";
 
@@ -136,7 +135,7 @@ export class YourComponent {
     });
   }
 }
-~~~
+```
 
 The `_()` function is a marker function. It helps BabelEdit and the ngx-translate-extract
 plugin to distinguish between regular string and translation IDs in your app for automated

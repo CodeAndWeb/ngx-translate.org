@@ -4,38 +4,12 @@ description: Reference documentation of the TranslateCompiler API for ngx-transl
 slug: reference/translate-compiler-api
 ---
 
-## TranslateCompiler API
-
 After a translation file is loaded using the [`TranslateLoader`](/reference/translate-loader-api/), it is passed
 through the `TranslateCompiler`. The compiler's job is to prepare the translation files for faster
 processing later. E.g. the `ngx-translate-messageformat-compiler` plugin makes use of this API to support
 ICU formatted messages.
 
-To make use of a `TranslateCompiler`, you can configure it using the new provider functions or the traditional module configuration.
-
-### Using Provider Functions (Recommended for v17)
-
-```typescript
-import { provideTranslateCompiler } from '@ngx-translate/core';
-import { MyCustomCompiler } from './my-custom-compiler';
-
-// In your bootstrap or component providers
-provideTranslateCompiler(MyCustomCompiler)
-```
-
-### Using TranslateModule Configuration
-
-```typescript
-import { TranslateModule, TranslateCompiler } from '@ngx-translate/core';
-import { MyCustomCompiler } from './my-custom-compiler';
-
-TranslateModule.forRoot({
-  compiler: {
-    provide: TranslateCompiler,
-    useClass: MyCustomCompiler
-  }
-})
-```
+## API
 
 ~~~ts
 export abstract class TranslateCompiler {
@@ -43,6 +17,8 @@ export abstract class TranslateCompiler {
   abstract compileTranslations(translations: any, lang: string): any;
 }
 ~~~
+
+## API Description
 
 * `compile()` is designed to compile a single translation.
 * `compileTranslations()` is designed to iterate over all translations of a file using the `compile()` method.
@@ -59,7 +35,15 @@ If the result is a `Function`, it calls the function with the given translation 
 accept an object and return a string:
 
 ~~~ts
-{
-  "hello" = (params) => `Hello ${params.name}!`
-}
+// Example of compiled translations with function
+const compiledTranslations = {
+  hello: function(params: any) { 
+    return `Hello ${params.name}!`; 
+  }
+};
 ~~~
+
+## How to Build a Custom Compiler
+
+For detailed examples and step-by-step instructions on building and registering custom compilers, see [Custom Translation Compilers](/recipes/custom-compiler-guide/).
+

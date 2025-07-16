@@ -4,73 +4,88 @@ description: Create our own loader for translation files for ngx-translate.
 slug: recipes/write-own-loader
 ---
 
-## Write & use your own loader
 
 If you want to write your own loader, you need to create a class that
 implements `TranslateLoader`. The only required method is `getTranslation` that must
 return an `Observable`. If your loader is synchronous, just use `of()` from RxJS to create
 an observable from your static value.
 
-### Creating a Custom Loader
+## Building a Custom Loader
 
-~~~ts
+To implement your own loader, create a class that extends the `TranslateLoader` abstract class and implements the `getTranslation()` method.
+
+Here's an example of a custom loader that loads translations from local JSON files:
+
+```ts
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
 import { TranslateLoader } from '@ngx-translate/core';
+import { Observable, of } from 'rxjs';
+
+// Import your translation files
+import enTranslations from '../assets/i18n/en.json';
+import deTranslations from '../assets/i18n/de.json';
+import frTranslations from '../assets/i18n/fr.json';
 
 @Injectable()
-export class CustomLoader implements TranslateLoader {
-    getTranslation(lang: string): Observable<any> {
-        // Example: Return different translations based on language
-        const translations = {
-            en: { KEY: 'English value', HELLO: 'Hello' },
-            de: { KEY: 'German value', HELLO: 'Hallo' },
-            fr: { KEY: 'French value', HELLO: 'Bonjour' }
-        };
-        
-        return of(translations[lang] || translations['en']);
+export class JsonFileLoader implements TranslateLoader {
+  private translations: { [key: string]: any } = {
+    'en': enTranslations,
+    'de': deTranslations,
+    'fr': frTranslations
+  };
+
+  getTranslation(lang: string): Observable<any> {
+    // Return the imported translations for the requested language
+    const translation = this.translations[lang];
+    
+    if (translation) {
+      return of(translation);
     }
+    
+    // Fallback to empty object if language not found
+    return of({});
+  }
 }
-~~~
+```
 
-### Using Your Custom Loader
+## Registering a Custom Loader
 
-#### Standalone Components (v17)
+The recommended approach in v17 is to use the `provideTranslateLoader()` function:
 
-The recommended approach is to use the `provideTranslateLoader()` function:
-
-~~~ts
-import { ApplicationConfig } from '@angular/core';
-import { provideTranslateService, provideTranslateLoader } from '@ngx-translate/core';
-import { CustomLoader } from './custom-loader';
+```ts title="app.config.ts"
+import {provideTranslateService, provideTranslateLoader} from "@ngx-translate/core";
+import {JsonFileLoader} from './json-file-loader';
 
 export const appConfig: ApplicationConfig = {
     providers: [
+        ...
         provideTranslateService({
-            loader: provideTranslateLoader(CustomLoader),
-            fallbackLang: 'en'
+            loader: provideTranslateLoader(JsonFileLoader),
         })
     ],
 };
-~~~
+```
 
-#### NgModule (Traditional)
+For loaders that need dependencies like `HttpClient`, use the traditional provider approach:
 
-~~~ts
-import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
-import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
-import { CustomLoader } from './custom-loader';
+```ts title="app.config.ts"
+import {ApplicationConfig} from "@angular/core";
+import {provideHttpClient} from "@angular/common/http";
+import {provideTranslateService, TranslateLoader} from "@ngx-translate/core";
+import {JsonFileLoader} from './json-file-loader';
 
-@NgModule({
-    imports: [
-        BrowserModule,
-        TranslateModule.forRoot({
-            loader: { provide: TranslateLoader, useClass: CustomLoader },
-            fallbackLang: 'en'
-        })
-    ],
-    bootstrap: [AppComponent]
-})
-export class AppModule { }
-~~~
+export const appConfig: ApplicationConfig = {
+  providers: [
+    ...
+    provideHttpClient(),
+    provideTranslateService({
+      loader: {
+        provide: TranslateLoader,
+        useClass: JsonFileLoader,
+        deps: [HttpClient],
+      }
+    })
+  ],
+};
+```
+
