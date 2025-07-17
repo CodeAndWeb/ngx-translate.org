@@ -715,31 +715,6 @@ translateService.onFallbackLangChange.subscribe((event: FallbackLangChangeEvent)
 });
 ~~~
 
-### onDefaultLangChange
-
-<Badge text="Deprecated" variant="danger" />
-
-An `Observable` that emits fallback language change events.
-
-:::caution
-This observable is deprecated in v17. Use [`onFallbackLangChange`](#onfallbacklangchange) instead.
-:::
-
-A `DefaultLangChangeEvent` object is emitted, containing the following properties:
-
-| Name           | Type     | Description                                 |
-|----------------|----------|---------------------------------------------|
-| `lang`         | `string` | The code of the newly set fallback language.  |
-| `translations` | `InterpolatableTranslationObject`    | An object containing the fallback translations. |
-
-Example:
-
-~~~ts
-translate.onDefaultLangChange.subscribe((event: DefaultLangChangeEvent) => {
-    console.log('Fallback language changed to:', event.lang);
-});
-~~~
-
 ## Deprecations
 
 ### getDefaultLang
@@ -791,7 +766,7 @@ To retrieve specific translations, use functions like [`get()`](#get) or
 This provides more control and efficiency in handling translation retrieval.
 
 
-#### langs
+### langs
 
 **Reason**: The properties and methods implemented exactly the same functionality.
 
@@ -803,7 +778,7 @@ Use [`getLangs()`](#getlangs) method instead:
 +const availableLanguages = translate.getLangs();
 ~~~
 
-#### currentLang
+### currentLang
 
 **Reason**: The properties and methods implemented exactly the same functionality.
 
@@ -815,7 +790,7 @@ language. Use [`getCurrentLang()`](#getcurrentlang) method instead:
 +const current = translate.getCurrentLang();
 ~~~
 
-#### defaultLang
+### defaultLang
 
 **Reason**: The properties and methods implemented exactly the same functionality.
 We've deprecated this method because the *default* caused confusion with the users.
@@ -829,7 +804,7 @@ language. Use [`getFallbackLang()`](#getfallbacklang) method instead:
 +const fallback = translate.getFallbackLang();
 ~~~
 
-#### onDefaultLangChange
+### onDefaultLangChange
 
 **Reason**: We've deprecated this method because the *default* caused confusion with the users.
 This *fallback* describes way better what it does.
