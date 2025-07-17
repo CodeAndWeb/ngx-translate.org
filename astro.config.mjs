@@ -30,6 +30,24 @@ export default defineConfig({
 
   redirects: {
 //    '/': "/getting-started"
+    
+    // Redirects for documents that exist in current (v17) but not in v16
+    '/v16/getting-started/angular-compatibility/': '/v16/',
+    '/v16/reference/configuration/': '/v16/',
+    '/v16/reference/ngmodules/': '/v16/',
+    '/v16/recipes/custom-compiler-guide/': '/v16/',
+    '/v16/recipes/write-own-parser/': '/v16/',
+    '/v16/recipes/fix-translation-loading-glitches/': '/v16/',
+    
+    // Redirects for documents that exist in current (v17) but not in v15
+    '/v15/getting-started/angular-compatibility/': '/v15/',
+    '/v15/getting-started/migration-guide/': '/v15/',
+    '/v15/reference/configuration/': '/v15/',
+    '/v15/reference/ngmodules/': '/v15/',
+    '/v15/recipes/custom-compiler-guide/': '/v15/',
+    '/v15/recipes/write-own-parser/': '/v15/',
+    '/v15/recipes/fix-translation-loading-glitches/': '/v15/',
+    '/v15/support/': '/v15/',
   },
 
   integrations: [
@@ -73,7 +91,7 @@ export default defineConfig({
                       link: "/getting-started/translating-your-components/"
                   },
                   {
-                      label: "Migration guide v15 → v16",
+                      label: "Migration guide",
                       link: "/getting-started/migration-guide/"
                   }
               ]

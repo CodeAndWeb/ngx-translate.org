@@ -1,5 +1,5 @@
 ---
-title: Migration guide
+title: Migration guide v16 → v17
 description: This guide explains how to upgrade between ngx-translate versions
 slug: getting-started/migration-guide
 ---
@@ -7,18 +7,17 @@ slug: getting-started/migration-guide
 import { Badge } from '@astrojs/starlight/components';
 import { PackageManagers } from 'starlight-package-managers'
 
-This guide will help you migrate between different versions of ngx-translate:
+:::note
+If you are upgrading from **v15**, please follow the previous upgrade steps first:<br/>
+[Migration Guide v15 → v16](/v16/getting-started/migration-guide/)
+:::
 
-- [v16 → v17](#v16--v17) - **Latest migration**
-- [v15 → v16](#v15--v16) - Previous migration
-
-For detailed information about compatibility with different Angular versions, see the [Angular Compatibility](/getting-started/angular-compatibility/) documentation.
+For full details on version support across Angular releases, refer to the
+[Angular Compatibility](/getting-started/angular-compatibility/) documentation.
 
 ---
 
-## v16 → v17
-
-### Key Highlights
+## Key Highlights
 
 1. **New Provider System**: Complete overhaul of the configuration system with new provider functions for better tree-shaking and modularity.
 2. **Terminology Changes**: "Default" language terminology changed to "Fallback" throughout the API for clarity.
@@ -27,17 +26,16 @@ For detailed information about compatibility with different Angular versions, se
 5. **HTTP Loader Redesign**: Configuration-based approach with new features like cache busting and interceptor bypass.
 6. **Modern Injection Patterns**: Full support for Angular's `inject()` function in components.
 
-### Breaking Changes Summary
+## Breaking Changes Summary
 
 | Category | v16 | v17 |
 |----------|-----|-----|
-| **Configuration** | `TranslateModule.forRoot()` | `provideTranslateService()` |
-| **HTTP Loader** | Factory functions | `provideTranslateHttpLoader()` |
 | **Terminology** | `setDefaultLang()` | `setFallbackLang()` |
+| **Configuration** | `defaultLang` + `useDefaultLang` | `fallbackLang` |
 | **Events** | `EventEmitter` | `Observable` |
 | **Properties** | Direct access | Getter methods preferred |
 
-### 1. Update Dependencies
+## 1. Update Dependencies
 
 Start by updating to the newest version of @ngx-translate/core:
 
@@ -47,44 +45,24 @@ If you are using @ngx-translate/http-loader, update that too:
 
 <PackageManagers type="add" pkg="@ngx-translate/http-loader@^17" />
 
-### 2. Update Configuration
+## 2. Update Configuration
+
+
+### Use `fallbackLang` configuration property
+<Badge text="Required" variant="caution" />
 
 #### 2.1 Standalone Components (Recommended)
 
-**v16 Configuration:**
-```ts title="app.config.ts"
+**Migration Example:**
+```diff lang=ts title="app.config.ts"
 import { provideTranslateService } from '@ngx-translate/core';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideTranslateService({
-      loader: {
-        provide: TranslateLoader,
-        useFactory: httpLoaderFactory,
-        deps: [HttpClient],
-      },
-      defaultLanguage: 'en',
-      useDefaultLang: true
-    })
-  ],
-};
-
-function httpLoaderFactory(http: HttpClient): TranslateHttpLoader {
-  return new TranslateHttpLoader(http, './assets/i18n/', '.json');
-}
-```
-
-**v17 Configuration:**
-```ts title="app.config.ts"
-import { provideTranslateService } from '@ngx-translate/core';
-import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
-
-export const appConfig: ApplicationConfig = {
-  providers: [
-    provideTranslateService({
-      loader: provideTranslateHttpLoader(),
-      fallbackLang: 'en',
-      lang: 'en'
+-      defaultLanguage: 'en',
+-      useDefaultLang: true
++      fallbackLang: 'en',
     })
   ],
 };
@@ -92,38 +70,69 @@ export const appConfig: ApplicationConfig = {
 
 #### 2.2 NgModule Configuration
 
-**v16 Configuration:**
-```ts title="app.module.ts"
+```diff lang=ts title="app.module.ts"
+
 @NgModule({
   imports: [
     TranslateModule.forRoot({
-      loader: {
-        provide: TranslateLoader,
-        useFactory: httpLoaderFactory,
-        deps: [HttpClient],
-      },
-      defaultLanguage: 'en',
-      useDefaultLang: true
+-      defaultLanguage: 'en',
+-      useDefaultLang: true
++      fallbackLang: 'en',
     })
   ],
 })
 export class AppModule { }
 ```
 
-**v17 Configuration:**
-```ts title="app.module.ts"
-@NgModule({
-  imports: [
-    TranslateModule.forRoot({
-      loader: provideTranslateHttpLoader(),
-      fallbackLang: 'en'
-    })
-  ],
-})
-export class AppModule { }
+## Using provider functions
+(optional)
+
+
+
+
+```diff lang=ts
+- { provide: TranslateLoader, useClass: CustomLoader }
++ provideTranslateLoader(CustomLoader)
 ```
 
-For comprehensive information about using ngx-translate with NgModules, see the [NgModules Support](/reference/ngmodules/) documentation.
+These provider functions should always be used within the `provideTranslateService` configuration:
+
+```typescript
+  loader: provideTranslateLoader(CustomLoader),
+  compiler: provideTranslateCompiler(CustomCompiler),
+  missingTranslationHandler: provideMissingTranslationHandler(CustomMissingTranslationHandler),
+
+```
+
+This is because `provideTranslateService` loads default implementations for any providers not explicitly included in its configuration object.
+If you provide these services separately, they might not be used by the TranslateService.
+
+#### Issue 2: Provider Usage Location
+
+**Problem:** Using provider functions outside of `provideTranslateService` configuration.
+
+**Solution:** Always use provider functions within the `provideTranslateService` configuration object:
+```diff lang=ts
+// ❌ INCORRECT USAGE - Will not work as expected
+[
+  provideTranslateService(),
+-  provideTranslateLoader(CustomLoader),  // This won't be used by TranslateService
+-  provideTranslateCompiler(CustomCompiler)  // This won't be used by TranslateService
+]
+
+// ✅ CORRECT USAGE
+provideTranslateService({
++  loader: provideTranslateLoader(CustomLoader),
++  compiler: provideTranslateCompiler(CustomCompiler)
+})
+```
+
+This is because `provideTranslateService` loads default implementations for any providers
+not explicitly included in its configuration object. If you provide these services separately, they won't be used by the TranslateService.
+
+
+
+
 
 ### 3. Update Method Calls
 
@@ -134,25 +143,27 @@ For comprehensive information about using ngx-translate with NgModules, see the 
 | v16 Method | v17 Method | Notes |
 |------------|------------|-------|
 | `setDefaultLang(lang)` | `setFallbackLang(lang)` | Returns Observable |
-| `getDefaultLang()` | `getFallbackLang()` | Returns `string \| null` |
+| `getDefaultLang()` | `getFallbackLang()` | Returns `Language \| null` |
 | `onDefaultLangChange` | `onFallbackLangChange` | Now Observable |
 
-**Migration Example:**
-```ts
-// v16
-translateService.setDefaultLang('en');
-const defaultLang = translateService.getDefaultLang();
-translateService.onDefaultLangChange.subscribe(event => {
-  console.log('Default language changed:', event.lang);
-});
 
-// v17
-translateService.setFallbackLang('en').subscribe(translations => {
-  console.log('Fallback language set');
-});
-const fallbackLang = translateService.getFallbackLang();
-translateService.onFallbackLangChange.subscribe(event => {
-  console.log('Fallback language changed:', event.lang);
+<Badge text="Breaking change" variant="danger" />: `getDefaultLang()` in v16 returned a `string` - which was not always true since it could
+also return `undefined` or `null` if no fallback language was configured.
+`getFallbackLang()` returns `Langauge|null`. `Language` is an alias for `string`.
+
+
+
+**Migration Example:**
+```diff lang=ts
+- translateService.setDefaultLang('en');
++ translateService.setFallbackLang('en')
+
+- const defaultLang = translateService.getDefaultLang();
++ const fallbackLang = translateService.getFallbackLang();
+
+-translateService.onDefaultLangChange.subscribe(event => {
++translateService.onFallbackLangChange.subscribe(event => {
+  console.log('Default language changed:', event.lang);
 });
 ```
 
@@ -167,25 +178,26 @@ translateService.onFallbackLangChange.subscribe(event => {
 | `langs` | `getLangs()` | Method preferred |
 
 **Migration Example:**
-```ts
-// v16
-const current = translateService.currentLang;
-const fallback = translateService.defaultLang;
-const languages = translateService.langs;
+```diff lang=ts
+-const current = translateService.currentLang;
++const current = translateService.getCurrentLang();
 
-// v17 (recommended)
-const current = translateService.getCurrentLang();
-const fallback = translateService.getFallbackLang();
-const languages = translateService.getLangs();
+-const fallback = translateService.defaultLang;
++const fallback = translateService.getFallbackLang();
+
+-const languages = translateService.langs;
++const languages = translateService.getLangs();
 ```
 
 ### 4. Update Component Injection
 
 #### 4.1 Modern Injection Pattern
+<Badge text="Optional" variant="success" />
 
-**v16 Pattern:**
-```ts
-import { Component } from '@angular/core';
+
+```diff lang=ts
+-import { Component } from '@angular/core';
++import { Component, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
@@ -193,64 +205,71 @@ import { TranslateService } from '@ngx-translate/core';
   template: `{{ 'HELLO' | translate }}`
 })
 export class ExampleComponent {
-  constructor(private translate: TranslateService) {
+-  constructor(private translate: TranslateService) {
++  private translate = inject(TranslateService);
++
++  constructor() {
     this.translate.setDefaultLang('en');
   }
 }
 ```
 
-**v17 Pattern:**
-```ts
-import { Component, inject } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
-
-@Component({
-  selector: 'app-example',
-  template: `{{ 'HELLO' | translate }}`
-})
-export class ExampleComponent {
-  private translate = inject(TranslateService);
-
-  constructor() {
-    this.translate.setFallbackLang('en').subscribe();
-  }
-}
-```
 
 ### 5. Update HTTP Loader Configuration
 
-#### 5.1 New Configuration Approach
 
-**v16 HTTP Loader:**
-```ts
-function httpLoaderFactory(http: HttpClient): TranslateHttpLoader {
-  return new TranslateHttpLoader(http, './assets/i18n/', '.json');
-}
+### Use provider function for `TranslateHttpLoader`
+<Badge text="Optional" variant="success" />
 
-// Configuration
-{
-  loader: {
-    provide: TranslateLoader,
-    useFactory: httpLoaderFactory,
-    deps: [HttpClient],
-  }
-}
+#### 2.1 Standalone Components (Recommended)
+
+**Migration Example:**
+```diff lang=ts title="app.config.ts"
+
+-const httpLoaderFactory: (http: HttpClient) => TranslateHttpLoader = (http: HttpClient) =>
+-    new TranslateHttpLoader(http, './i18n/', '.json');
+
+import { provideTranslateService } from '@ngx-translate/core';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideTranslateService({
+-      loader: {
+-        provide: TranslateLoader,
+-        useFactory: httpLoaderFactory,
+-        deps: [HttpClient],
+-      },
++      loader: provideTranslateHttpLoader({prefix:"./assets/i18n/", suffix:".json"}),
+    })
+  ],
+};
 ```
 
-**v17 HTTP Loader:**
-```ts
-import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
+#### 2.2 NgModule Configuration
 
-// Configuration
-{
-  loader: provideTranslateHttpLoader({
-    prefix: './assets/i18n/',
-    suffix: '.json',
-    enforceLoading: false,
-    useHttpBackend: false
-  })
-}
+**Migration Example:**
+```diff lang=ts title="app.module.ts"
+
+-const httpLoaderFactory: (http: HttpClient) => TranslateHttpLoader = (http: HttpClient) =>
+-    new TranslateHttpLoader(http, './i18n/', '.json');
+
+@NgModule({
+  imports: [
+    TranslateModule.forRoot({
+-      loader: {
+-        provide: TranslateLoader,
+-        useFactory: httpLoaderFactory,
+-        deps: [HttpClient],
+-      },
++      loader: provideTranslateHttpLoader({prefix:"./i18n/", suffix:".json"}),
+    })
+  ],
+})
+export class AppModule { }
 ```
+
+For comprehensive information about using ngx-translate with NgModules, see the [NgModules Support](/reference/ngmodules/) documentation.
+
 
 #### 5.2 New HTTP Loader Features
 
@@ -265,444 +284,19 @@ provideTranslateHttpLoader({
 })
 ```
 
+
+
+
+
 ### 6. Update Event Subscriptions
 
 #### 6.1 Observable-based Events
 
 **v16 Events (EventEmitter):**
-```ts
-translateService.onLangChange.subscribe((event: LangChangeEvent) => {
-  console.log('Language changed:', event.lang);
-});
-
-translateService.onDefaultLangChange.subscribe((event: DefaultLangChangeEvent) => {
-  console.log('Default language changed:', event.lang);
+```diff lang=ts
+-translateService.onDefaultLangChange.subscribe((event: DefaultLangChangeEvent) => {
+-  console.log('Default language changed:', event.lang);
++translateService.onFallbackLangChange.subscribe((event: FallbackLangChangeEvent) => {
++  console.log('Fallback language changed:', event.lang);
 });
 ```
-
-**v17 Events (Observable):**
-```ts
-translateService.onLangChange.subscribe((event: LangChangeEvent) => {
-  console.log('Language changed:', event.lang);
-});
-
-translateService.onFallbackLangChange.subscribe((event: FallbackLangChangeEvent) => {
-  console.log('Fallback language changed:', event.lang);
-});
-```
-
-### 7. Migration Checklist
-
-Use this checklist to ensure complete migration:
-
-#### Configuration Updates
-- [ ] Replace `TranslateModule.forRoot()` with `provideTranslateService()` (standalone)
-- [ ] Update HTTP loader from factory function to `provideTranslateHttpLoader()`
-- [ ] Change `defaultLanguage` to `fallbackLang`
-- [ ] Remove `useDefaultLang` property (always enabled with `fallbackLang`)
-
-#### Method Updates
-- [ ] Replace `setDefaultLang()` with `setFallbackLang()`
-- [ ] Replace `getDefaultLang()` with `getFallbackLang()`
-- [ ] Update property access to use getter methods
-- [ ] Handle Observable return values from `setFallbackLang()`
-
-#### Component Updates
-- [ ] Update injection patterns to use `inject()` function
-- [ ] Update event subscriptions to use new Observable events
-- [ ] Replace `onDefaultLangChange` with `onFallbackLangChange`
-
-#### Testing Updates
-- [ ] Update unit tests to use new provider functions
-- [ ] Test Observable-based event handling
-- [ ] Verify HTTP loader configuration works correctly
-
-### 8. Common Migration Issues
-
-#### Issue 1: Provider Pattern Understanding
-
-**Problem:** Not understanding that `provideXXX(YYY)` is a direct replacement for `{provide: XXX, useClass: YYY}`.
-
-**Solution:** In NGX-Translate v17, the provider function pattern replaces the traditional Angular provider syntax:
-
-```ts
-// ❌ Old Angular provider syntax
-{ provide: TranslateLoader, useClass: CustomLoader }
-
-// ✅ New provider function syntax
-provideTranslateLoader(CustomLoader)
-```
-
-These provider functions should always be used within the `provideTranslateService` configuration:
-
-```typescript
-// ✅ CORRECT USAGE
-provideTranslateService({
-  loader: provideTranslateLoader(CustomLoader),
-  compiler: provideTranslateCompiler(CustomCompiler)
-})
-```
-
-This is because `provideTranslateService` loads default implementations for any providers not explicitly included in its configuration object. If you provide these services separately, they won't be used by the TranslateService.
-
-#### Issue 2: Provider Usage Location
-
-**Problem:** Using provider functions outside of `provideTranslateService` configuration.
-
-**Solution:** Always use provider functions within the `provideTranslateService` configuration object:
-```ts
-// ❌ INCORRECT USAGE - Will not work as expected
-[
-  provideTranslateService(),
-  provideTranslateLoader(CustomLoader),  // This won't be used by TranslateService
-  provideTranslateCompiler(CustomCompiler)  // This won't be used by TranslateService
-]
-
-// ✅ CORRECT USAGE
-provideTranslateService({
-  loader: provideTranslateLoader(CustomLoader),
-  compiler: provideTranslateCompiler(CustomCompiler)
-})
-```
-
-This is because `provideTranslateService` loads default implementations for any providers not explicitly included in its configuration object. If you provide these services separately, they won't be used by the TranslateService.
-
-#### Issue 3: Configuration Not Working
-
-**Problem:** Old factory function approach not working with v17.
-
-**Solution:** Use the new provider functions:
-```ts
-// ❌ v16 approach (won't work in v17)
-{
-  loader: {
-    provide: TranslateLoader,
-    useFactory: httpLoaderFactory,
-    deps: [HttpClient],
-  }
-}
-
-// ✅ v17 approach
-{
-  loader: provideTranslateHttpLoader({
-    prefix: '/assets/i18n/',
-    suffix: '.json',
-    enforceLoading: false,
-    useHttpBackend: false
-  })
-}
-```
-
-#### Issue 4: Method Return Types Changed
-
-**Problem:** `setFallbackLang()` now returns Observable, breaking existing code.
-
-**Solution:** Handle the Observable return value:
-```ts
-// ❌ v16 approach
-translateService.setDefaultLang('en');
-
-// ✅ v17 approach
-translateService.setFallbackLang('en').subscribe();
-```
-
-#### Issue 5: Event Subscription Errors
-
-**Problem:** Event subscriptions failing due to Observable changes.
-
-**Solution:** Update event names and ensure proper Observable handling:
-```ts
-// ❌ v16 approach
-translateService.onDefaultLangChange.subscribe(event => {
-  // Handle event
-});
-
-// ✅ v17 approach
-translateService.onFallbackLangChange.subscribe(event => {
-  // Handle event
-});
-```
-
-### 9. Testing Your Migration
-
-After completing the migration:
-
-1. **Build your application** to check for TypeScript errors
-2. **Run unit tests** to ensure all functionality works
-3. **Test language switching** to verify Observable events work correctly
-4. **Verify HTTP loader** loads translation files properly
-5. **Check fallback behavior** when translations are missing
-
----
-
-## v15 → v16
-
-### Key Highlights
-
-1. **Support for Angular Standalone Components**:<br/>
-    v16 adds full support for Angular's standalone components, simplifying the integration of `ngx-translate` in modern Angular applications.
-2. **Bug Fixes and Performance Enhancements**:<br/>
-    Several bugs have been fixed, improving overall stability and performance across various scenarios. These fixes ensure smoother operation in multilingual projects.
-3. **Code Quality Improvements**:<br/>
-    v16 introduces specific types for interfaces, reducing reliance on `any` and improving type safety.
-    Additionally, numerous ESLint warnings have been resolved, resulting in cleaner and more maintainable code.
-4. **Improved Documentation**: <br/>
-    This release introduces a new structured documentation system, moving away from
-    the basic GitHub README. This provides a clearer, more detailed reference guide
-    for users, making it easier to navigate and find necessary information.
-5. **License Included in NPM Package**: <br/>
-    The MIT license is now included directly in the npm package, ensuring full
-    transparency and compliance for users. This allows developers to clearly understand
-    the terms of use when installing and using `@ngx-translate/core`.
-
-By migrating to `@ngx-translate/core`, you can ensure your project stays up-to-date, secure, and compatible with the latest Angular features, while benefiting from these new improvements in v16.
-
-
-### 1. Update @ngx-translate/core to the new release
-
-Start by updating to the newest version of @ngx-translate/core:
-
-<PackageManagers type="add" pkg="@ngx-translate/core@^16" />
-
-If you are also using @ngx-translate/http-loader, update that one too.
-With this release, we are now keeping the versions of both modules in sync, making it less
-confusing:
-
-<PackageManagers type="add" pkg="@ngx-translate/http-loader@^16" />
-
-
-## 2. Update Components and Code
-
-### 2.1 Standalone Components Support
-
-**Action**: <Badge text="Recommended" variant="caution" /> when using Standalone Components
-
-If your project uses Angular's standalone components, ensure you're utilizing the
-latest features of `@ngx-translate/core`. Refer to the updated documentation
-for detailed instructions on how to integrate translations with standalone components.
-
-Here's a quick overview what you should change.
-
-##### Configuring ngx-translate
-
-Update your configuration in the **app.config.ts**. Instead of using `importProvidersFrom()`,
-you can now use [`provideTranslateService()`](/reference/configuration/) with the same configuration.
-
-~~~ts title="app.config.ts" del={9,16} ins={1,10,17}
-import {provideTranslateService} from "@ngx-translate/core";
-
-...
-
-export const appConfig: ApplicationConfig = {
-  providers: [
-    provideZoneChangeDetection({ eventCoalescing: true }),
-    provideHttpClient(),
-    importProvidersFrom([TranslateModule.forRoot({
-    provideTranslateService({
-      loader: {
-        provide: TranslateLoader,
-        useFactory: httpLoaderFactory,
-        deps: [HttpClient],
-      },
-    })])
-    })
-  ],
-};
-~~~
-
-#### Updating your standalone components
-
-In your component, instead of importing the `TranslateModule`,
-import the `TranslatePipe` or `TranslateDirective` as used in your code.
-
-~~~ts title="my.component.ts" del={2,8} ins={3,9}
-import {Component} from "@angular/core";
-import {TranslateModule} from "@ngx-translate/core";
-import {TranslatePipe, TranslateDirective} from "@ngx-translate/core";
-
-@Component({
-  selector: 'app-root',
-  standalone: true,
-  imports: [TranslateModule],
-  imports: [TranslatePipe, TranslateDirective],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.scss'
-})
-export class MyComponent {
-  ...
-}
-~~~
-
-
-### 2.2 Update Types
-
-**Action**: <Badge text="Optional" variant="success" />
-
-We’ve introduced types to enhance type checking in `ngx-translate`, such as
-`Translation` and `TranslationObject` for several functions. However, due to
-limitations in TypeScript's handling of recursively defined types, we are still
-forced to include `any` in certain parts of these types. As a result, the impact
-on your existing code should be minimal.
-
-You can optionally update your code to use these specific types instead of `any`
-for better type safety:
-
-~~~ts del={3} ins={4}
-const subscription = translateService
-    .getStreamOnTranslationChange('hello.world')
-    .subscribe((res: any) => {
-    .subscribe((res: Translation) => {
-        console.log(res);
-     });
-~~~
-
-Switching to `Translation` type will improve type checking without drastically
-affecting your current implementation.
-
-
-### 2.3 Using the ngx-translate `_()` Marker Function
-
-**Action**: <Badge text="Optional" variant="success" />
-
-If you're extracting translations directly from your code using a marker function,
-you can now use the built-in `_()` function provided by `ngx-translate`.
-
-This function helps
-mark strings for automated extractions, e.g. when using [BabelEdit](https://www.codeandweb.com/babeledit)
-or the ngx-translate-extract plugin.
-
-Here’s an example of how to use it:
-
-~~~ts
-import {_} from "@ngx-translate/core";
-
-const text = translateService.instant(_("hello.world"));
-~~~
-
-
-### 2.4 TranslateParser: getValue()
-
-**Action**: <Badge text="Low Impact" variant="tip" />.
-
-This is only relevant if
-you implemented a custom parser and/or use the `getValue()` function.
-
-We’ve removed the need to manually implement the `getValue()` function in your
-custom `TranslateParser`. In fact, the implementation in the parser itself
-is not used anymore.
-
-The `getValue()` function is now directly available from `ngx-translate` as
-an import, making it easier to use without additional implementation.
-
-If you were previously using the `getValue()` function from the default parser,
-update your code to use the new direct import:
-
-~~~ts del={5} ins={1,6}
-import {getValue} from "@ngx-translate/core";
-
-...
-
-const text = parser.getValue({ hello: { world: 'Hello World!' }}, 'hello.world');
-const text = getValue({ hello: { world: 'Hello World!' }}, 'hello.world');
-~~~
-
-### 2.5 TranslateService: Deprecated `getTranslation()`
-
-**Action**: <Badge text="Low Impact" variant="tip" />
-
-The `getTranslation()` function, which returned all translations for the given
-language in an internal state, has been deprecated. When using a custom
-`TranslateCompiler`, this function might not only return text nodes but also
-functions used for text interpolation.
-
-We do not see a practical use case for continuing to rely on this function.
-
-To retrieve translated text, use functions like `get()` or `instant()` to
-access the specific translations you need.
-
-
-
-
-## 4. Review Behaviour Changes
-
-### `use()`
-
-Previously, the `use()` function relied on the order in which translation files
-were loaded from the server, making it non-deterministic when rapidly switching
-languages. This could result in earlier language files overriding later selections.
-
-We’ve updated the `use()` function to ensure consistent behavior.
-
-- **First Call**: When calling `use()` for the first time, it now immediately
-sets the current language and begins loading the language file.
-
-- **Successive Calls**: For multiple successive calls, the function will
-trigger the loading of each requested language. However, the current language
-will always switch to the language selected by the **most recent call**,
-regardless of the order in which the translation files finish loading.
-
-This change ensures that even when making rapid language changes, the most
-recent language selection is applied correctly.
-
-
-### Interpolations in nested Translation Objects
-
-Starting with `ngx-translate` 16, all translation functions now apply interpolations
-to **nested translation objects**, addressing a limitation present in previous versions.
-
-**Example:**
-
-When using a key like `main` that contains translations for subkeys such as
-`main.title`, and `main.text` the returned object will include
-the keys `title` and  `text`.
-
-~~~json title="en.json"
-{
-  "main": {
-    "title": "Hello {name},",
-    "text": "nice to see you again!"
-  }
-}
-~~~
-
-~~~ts
-translateService.instant('main')
-~~~
-
-**In versions up to `ngx-translate` 15**: <Badge text="old" variant="danger" />
-
-- **Issue**: Parameters inside nested translation objects were **not interpolated**.
-- **Result**: The placeholders (e.g., `{name}`) remained as-is, and the returned object looked like this:
-
-    ~~~ts
-    {
-      "title": "Hello {name},",
-      "text": "nice to see you again!"
-    }
-    ~~~
-
-**In `ngx-translate` 16**: <Badge text="new" variant="success" />
-
-- **Improvement**: Parameters inside nested translation objects are **now fully interpolated**.
-- **Result**: The placeholders are replaced with actual values, producing the following output:
-
-    ~~~ts
-    {
-      "title": "Hello John,",
-      "text": "nice to see you again!"
-    }
-    ~~~
-
-## 3. Run and Test Your Application
-
-After making the changes, run your application to verify that everything works as expected.
-Make sure all translations are loading correctly and there are no errors related to the library.
-
-
-
-## 4. Stay Updated
-
-Keep track of updates and improvements by following the library on GitHub:
-[GitHub repository](https://github.com/codeandweb/ngx-translate).
-
-We welcome any feedback or issues you encounter during the migration process.
