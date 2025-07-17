@@ -742,17 +742,9 @@ translate.onDefaultLangChange.subscribe((event: DefaultLangChangeEvent) => {
 
 ## Deprecations
 
-### Methods
+### getDefaultLang
 
-The following methods are deprecated and should be replaced with their modern equivalents.
-The functionality is the same.
-
-
-#### getDefaultLang
-
-<Badge text="Deprecated" variant="danger" />
-
-We've deprecated this method because the *default* caused confusion with the users.
+**Reason**: We've deprecated this method because the *default* caused confusion with the users.
 This *fallback* describes way better what it does.
 
 Use [`getFallbackLang()`](#getfallbacklang) instead:
@@ -770,11 +762,9 @@ returned `undefined` or `null`.
 
 
 
-#### setDefaultLang
+### setDefaultLang
 
-<Badge text="Deprecated" variant="danger" />
-
-We've deprecated this method because the *default* caused confusion with the users.
+**Reason**: We've deprecated this method because the *default* caused confusion with the users.
 This *fallback* describes way better what it does.
 
 Use [`setFallbackLang()`](#setfallbacklang) instead:
@@ -785,12 +775,10 @@ Use [`setFallbackLang()`](#setfallbacklang) instead:
 ~~~
 
 
-#### getTranslation
+### getTranslation
 
-<Badge text="Deprecated" variant="danger" />
-
-The `getTranslation()` function, which returned an object containing all translations
-for a given language, has been deprecated. This function might return not only text
+**Reason**: The `getTranslation()` function, which returned an object containing all translations
+for a given language in a raw state, has been deprecated. This function might return not only text
 nodes but also functions (when using a custom `TranslateCompiler`) for text interpolation.
 
 We no longer see a practical use case for relying on this function.
@@ -803,18 +791,56 @@ To retrieve specific translations, use functions like [`get()`](#get) or
 This provides more control and efficiency in handling translation retrieval.
 
 
+#### langs
 
-### Properties
+**Reason**: The properties and methods implemented exactly the same functionality.
 
-<Badge text="Deprecated" variant="danger" />
+The `langs` property provided direct access to the list of available languages.
+Use [`getLangs()`](#getlangs) method instead:
 
-We've deprecated the use of these properties because they duplicate functionality that is also
-available as methods.
+~~~ diff lang=ts
+-const availableLanguages = translate.langs;
++const availableLanguages = translate.getLangs();
+~~~
 
-| Property                                     | Description                                               |
-|---------------------------------------------------------|-----------------------------------------------------------|
-| `langs`                                   | List of languages. Use `getLangs()` instead.      <br /> `readonly string[]`                         |
-| `currentLang`                                   | The language currently in use. Access the current language through this property.     <br /> `string`                         |
-| `defaultLang`                               | The fallback language. Use `getFallbackLang()` instead.   <br /> `string | null`                           |
-| `onDefaultLangChange`  | Observable that emits when the fallback language changes. Use `onFallbackLangChange` instead. <br /> `Observable<DefaultLangChangeEvent>`|
+#### currentLang
+
+**Reason**: The properties and methods implemented exactly the same functionality.
+
+The `currentLang` property provided direct access to the currently active
+language. Use [`getCurrentLang()`](#getcurrentlang) method instead:
+
+~~~ diff lang=ts
+-const current = translate.currentLang;
++const current = translate.getCurrentLang();
+~~~
+
+#### defaultLang
+
+**Reason**: The properties and methods implemented exactly the same functionality.
+We've deprecated this method because the *default* caused confusion with the users.
+This *fallback* describes way better what it does.
+
+The `defaultLang` property provided direct access to the fallback
+language. Use [`getFallbackLang()`](#getfallbacklang) method instead:
+
+~~~ diff lang=ts
+-const fallback = translate.defaultLang;
++const fallback = translate.getFallbackLang();
+~~~
+
+#### onDefaultLangChange
+
+**Reason**: We've deprecated this method because the *default* caused confusion with the users.
+This *fallback* describes way better what it does.
+
+The `onDefaultLangChange` observable has been renamed for clarity.
+Use [`onFallbackLangChange`](#onfallbacklangchange) instead:
+
+~~~ diff lang=ts
+-translate.onDefaultLangChange.subscribe((event) => {
++translate.onFallbackLangChange.subscribe((event) => {
+  console.log('Fallback language changed:', event.lang);
+});
+~~~
 
