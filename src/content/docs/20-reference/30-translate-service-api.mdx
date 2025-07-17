@@ -7,6 +7,21 @@ slug: reference/translate-service-api
 import { Aside } from '@astrojs/starlight/components';
 import { Badge } from '@astrojs/starlight/components';
 
+## Accessing the TranslateService
+
+To use the TranslateService in your components, inject it using Angular's `inject()` function:
+
+```ts
+import { inject } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
+
+export class MyComponent {
+  private translate = inject(TranslateService);
+  
+  // Now you can use this.translate to access the service methods
+}
+```
+
 ## Methods
 
 ##### Setting the current and fallback language
@@ -51,8 +66,6 @@ addLangs(langs: string[])
 
 Add new languages to the list. This does **not** invoke the loader to retrieve the languages.
 
-
-
 ### get
 
 ~~~ts
@@ -85,7 +98,7 @@ consider using [`stream()`](#stream)  instead.
 Getting a single translation
 
 ~~~ts
-translateService.get('HELLO')
+translate.get('HELLO')
     .subscribe((res: string) => {
         console.log(res);  // Output: 'Hello'
     });
@@ -94,7 +107,7 @@ translateService.get('HELLO')
 Getting multiple translations
 
 ~~~ts
-translateService.get(['HELLO', 'WELCOME'])
+translate.get(['HELLO', 'WELCOME'])
     .subscribe((translations: { [key: string]: string }) => {
         console.log(translations);
         // Output: { HELLO: 'Hello', WELCOME: 'Welcome' }
@@ -104,7 +117,7 @@ translateService.get(['HELLO', 'WELCOME'])
 Using interpolateParams
 
 ~~~ts
-translateService.get('WELCOME_USER', { username: 'John' })
+translate.get('WELCOME_USER', { username: 'John' })
     .subscribe((res: string) => {
         console.log(res); // Output: 'Welcome, John!'
     });
@@ -129,7 +142,7 @@ it cannot be determined.
 ##### Example
 
 ~~~ts
-const lang = translateService.getBrowserCultureLang();
+const lang = translate.getBrowserCultureLang();
 console.log(lang); // Output: "de-DE"
 ~~~
 
@@ -150,7 +163,7 @@ it cannot be determined.
 ##### Example
 
 ~~~ts
-const lang = translateService.getBrowserLang();
+const lang = translate.getBrowserLang();
 console.log(lang); // Output: "de"
 ~~~
 
@@ -207,40 +220,6 @@ const currentLang = translateService.getCurrentLang();
 console.log('Current language:', currentLang);
 // Output: 'en'
 ~~~
-
-### getDefaultLang
-
-<Badge text="Deprecated" variant="danger" />
-
-~~~ts
-getDefaultLang(): string | null
-~~~
-
-Returns the fallback language code that has been set as the fallback language.
-
-:::caution
-This method is deprecated in v17. Use [`getFallbackLang()`](#getfallbacklang) instead.
-:::
-
-##### Returns
-
-string | null: The language code of the fallback language, or `null` if none is set.
-
-##### Description
-
-The `getDefaultLang()` method retrieves the fallback language that has been set
-using the [`setFallbackLang()`](#setfallbacklang) method. This is the language code that the `TranslateService`
-uses as a fallback when a translation key is missing in the current language.
-
-##### Example
-
-~~~ts
-const defaultLang = translateService.getDefaultLang();
-console.log('Default language:', defaultLang);
-// Output: 'en'
-~~~
-
-
 
 
 
@@ -321,27 +300,6 @@ const subscription = translateService
 // Remember to unsubscribe when done
 subscription.unsubscribe();
 ~~~
-
-
-### getTranslation
-
-<Badge text="Deprecated" variant="danger" />
-
-The `getTranslation()` function, which returned an object containing all translations
-for a given language, has been deprecated. This function might return not only text
-nodes but also functions (when using a custom `TranslateCompiler`) for text interpolation.
-
-We no longer see a practical use case for relying on this function.
-
-#### Alternative Approach:
-
-To retrieve specific translations, use functions like [`get()`](#get) or
-[`instant()`](#instant) to access the translations you need directly.
-
-This provides more control and efficiency in handling translation retrieval.
-
-
-
 
 
 ### instant
@@ -545,44 +503,6 @@ translateService.setFallbackLang("en").subscribe((translations) => {
 });
 ~~~
 
-### setDefaultLang
-
-<Badge text="Deprecated" variant="danger" />
-
-~~~ts
-setDefaultLang(lang: string): Observable<InterpolatableTranslationObject>
-~~~
-
-Sets the fallback language to be used when a translation is missing in the current language.
-
-:::caution
-This method is deprecated in v17. Use [`setFallbackLang()`](#setfallbacklang) instead.
-:::
-
-##### Parameters
-- `lang`: A string representing the language code to set as the fallback language.
-
-##### Returns
-An `Observable` that emits the translations object for the specified language and
-completes when the loading is finished.
-
-##### Description
-
-The `setDefaultLang()` method specifies the fallback language that the `TranslateService`
-will use to look up translations when a key is not found in the current language.
-
-This ensures that your application can gracefully display translations from a fallback language rather than showing missing keys.
-
-##### Example
-
-~~~ts
-translateService.setDefaultLang("en").subscribe((translations) => {
-    console.log('Fallback language set to English');
-});
-~~~
-
-
-
 
 ### setTranslation
 
@@ -733,15 +653,6 @@ The `TranslateService` exposes the following properties:
 | `onTranslationChange`  | Observable that emits when the translations change.  <br /> `Observable<TranslationChangeEvent>`   |
 | `onFallbackLangChange`  | Observable that emits when the fallback language changes. <br /> `Observable<FallbackLangChangeEvent>`|
 
-### Deprecated properties
-
-| Property                                     | Description                                               |
-|---------------------------------------------------------|-----------------------------------------------------------|
-| `langs` <Badge text="Deprecated" variant="danger" />                                  | List of languages. Use `getLangs()` instead.      <br /> `readonly string[]`                         |
-| `currentLang` <Badge text="Deprecated" variant="danger" />                                  | The language currently in use. Access the current language through this property.     <br /> `string`                         |
-| `defaultLang` <Badge text="Deprecated" variant="danger" />                                | The fallback language. Use `getFallbackLang()` instead.   <br /> `string | null`                           |
-| `onDefaultLangChange` <Badge text="Deprecated" variant="danger" />  | Observable that emits when the fallback language changes. Use `onFallbackLangChange` instead. <br /> `Observable<DefaultLangChangeEvent>`|
-
 
 ## Event Observables
 
@@ -824,7 +735,86 @@ A `DefaultLangChangeEvent` object is emitted, containing the following propertie
 Example:
 
 ~~~ts
-translateService.onDefaultLangChange.subscribe((event: DefaultLangChangeEvent) => {
+translate.onDefaultLangChange.subscribe((event: DefaultLangChangeEvent) => {
     console.log('Fallback language changed to:', event.lang);
 });
 ~~~
+
+## Deprecations
+
+### Methods
+
+The following methods are deprecated and should be replaced with their modern equivalents.
+The functionality is the same.
+
+
+#### getDefaultLang
+
+<Badge text="Deprecated" variant="danger" />
+
+We've deprecated this method because the *default* caused confusion with the users.
+This *fallback* describes way better what it does.
+
+Use [`getFallbackLang()`](#getfallbacklang) instead:
+
+~~~ diff lang=ts
+-const lang = translate.getDefaultLang()
++const lang = translate.getFallbackLang()
+~~~
+
+v17 also corrects the API.
+- The `getDefaultLang()` on older versions returned a `string`, which
+was practically not true if no default lang was set - in this case, it silently
+returned `undefined` or `null`.
+- `getFallbackLang()` returns a `Language` (which is an alias for `string`) or null if not set.
+
+
+
+#### setDefaultLang
+
+<Badge text="Deprecated" variant="danger" />
+
+We've deprecated this method because the *default* caused confusion with the users.
+This *fallback* describes way better what it does.
+
+Use [`setFallbackLang()`](#setfallbacklang) instead:
+
+~~~ diff lang=ts
+-translate.setDefaultLang('en');
++translate.setFallbackLang('en');
+~~~
+
+
+#### getTranslation
+
+<Badge text="Deprecated" variant="danger" />
+
+The `getTranslation()` function, which returned an object containing all translations
+for a given language, has been deprecated. This function might return not only text
+nodes but also functions (when using a custom `TranslateCompiler`) for text interpolation.
+
+We no longer see a practical use case for relying on this function.
+
+#### Alternative Approach:
+
+To retrieve specific translations, use functions like [`get()`](#get) or
+[`instant()`](#instant) to access the translations you need directly.
+
+This provides more control and efficiency in handling translation retrieval.
+
+
+
+### Properties
+
+<Badge text="Deprecated" variant="danger" />
+
+We've deprecated the use of these properties because they duplicate functionality that is also
+available as methods.
+
+| Property                                     | Description                                               |
+|---------------------------------------------------------|-----------------------------------------------------------|
+| `langs`                                   | List of languages. Use `getLangs()` instead.      <br /> `readonly string[]`                         |
+| `currentLang`                                   | The language currently in use. Access the current language through this property.     <br /> `string`                         |
+| `defaultLang`                               | The fallback language. Use `getFallbackLang()` instead.   <br /> `string | null`                           |
+| `onDefaultLangChange`  | Observable that emits when the fallback language changes. Use `onFallbackLangChange` instead. <br /> `Observable<DefaultLangChangeEvent>`|
+
