@@ -65,7 +65,7 @@ translations are stored in the `public` folder. You can configure this using the
 import {ApplicationConfig, provideZoneChangeDetection} from "@angular/core";
 import {provideHttpClient} from "@angular/common/http";
 import {provideTranslateService, provideTranslateLoader} from "@ngx-translate/core";
-import {TranslateHttpLoader} from '@ngx-translate/http-loader';
+import {provideTranslateHttpLoader} from '@ngx-translate/http-loader';
 
 export const appConfig: ApplicationConfig = {
   providers: [
