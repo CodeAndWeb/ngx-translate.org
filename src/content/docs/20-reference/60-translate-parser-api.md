@@ -4,8 +4,8 @@ description: Reference documentation of the TranslateParser API for ngx-translat
 slug: reference/translate-parser-api
 ---
 
-The `TranslateParser` is responsible for formatting the translated messages
-and using parameters that are passed in.
+The `TranslateParser` is responsible for formatting your translated messages
+and using parameters that you pass in.
 
 Usually, you would not use the `TranslateParser` directly. It's called in the
 background when a translation string is requested in your app.
@@ -40,8 +40,8 @@ parser.interpolate((params) => `This is a ${params.key}`, {key: 'banana'})
 
 If you are not using a [compiler](/reference/translate-compiler-api/), you can expect `expr` to be a `string`.
 
-The `TranslateParser` is called every time a translation is requested with a given set of interpolation parameters.
-If parsing these messages is too complex, we recommend using a compiler to pre-process the messages.
+The `TranslateParser` is called every time you request a translation with a given set of interpolation parameters.
+If parsing these messages is too complex, we recommend using a compiler to pre-process your messages.
 
 ## Custom Parser Implementation
 

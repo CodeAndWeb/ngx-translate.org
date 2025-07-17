@@ -8,29 +8,29 @@ import {Tabs, TabItem, CardGrid, LinkCard} from "@astrojs/starlight/components";
 import { PackageManagers } from 'starlight-package-managers'
 
 For detailed information about compatibility with different Angular versions,
-see the [Angular Compatibility](/getting-started/angular-compatibility/) documentation.
+you can check out the [Angular Compatibility](/getting-started/angular-compatibility/) documentation.
 
-Start by adding the npm module:
+You can start by adding the npm module to your project:
 
 <PackageManagers pkg="@ngx-translate/core @ngx-translate/http-loader" />
 
 
-`@ngx-translate/http-loader` is optional. It allows loading translation files on demand from the server.
+`@ngx-translate/http-loader` is optional. You can use it to load translation files on demand from your server.
 
 ## Setup
 
-ngx-translate works with Angular's modern standalone components. If you're using NgModules, see the [NgModules Support](/reference/ngmodules/) documentation.
+ngx-translate works great with Angular's modern standalone components. If you're using NgModules, you can check out the [NgModules Support](/reference/ngmodules/) documentation.
 
 
 :::note
-For comprehensive information about using ngx-translate with NgModules, see the [NgModules Support](/reference/ngmodules/) documentation.
+For comprehensive information about using ngx-translate with NgModules, you can refer to the [NgModules Support](/reference/ngmodules/) documentation.
 :::
 
 ## Configuration
 
 ### Initialising the TranslateService
 
-To use ngx-translate in your project, use the `provideTranslateService()` function in `appConfig`:
+To use ngx-translate in your project, you'll need to use the `provideTranslateService()` function in your `appConfig`:
 
 #### Basic Setup
 
@@ -78,7 +78,7 @@ export const appConfig: ApplicationConfig = {
 :::caution
 **Important: Always Use Provider Functions Inside provideTranslateService**
 
-Provider functions should always be used within the `provideTranslateService` configuration object:
+You should always use provider functions within the `provideTranslateService` configuration object:
 
 ```typescript
 // CORRECT USAGE
@@ -97,13 +97,15 @@ provideTranslateService({
 ]
 ```
 
-This is because `provideTranslateService` loads default implementations for any providers not explicitly included in its configuration object. If you provide these services separately, they won't be used by the TranslateService.
+This is because `provideTranslateService` loads default implementations for any providers not
+explicitly included in its configuration object. If you provide these services separately,
+they might not be used by the TranslateService.
 :::
 
 
 ### Initialize the `TranslateService` for your application
 
-In your components, import `TranslatePipe` and `TranslateDirective` to your `imports`. You can access the
+In your components, you'll need to import `TranslatePipe` and `TranslateDirective` to your `imports`. You can access the
 TranslateService using the modern `inject()` function:
 
 ```ts {2-7,12,16-20} title="app.component.ts"

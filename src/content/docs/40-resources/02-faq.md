@@ -192,8 +192,8 @@ this.translate.onLangChange.subscribe(event => {
 
 ### I want to hot reload the translations in my application but `reloadLang` does not work
 
-If you want to reload the translations and see the update on all your components
-without reloading the page, you have to load the translations manually and call
+If you want to reload your translations and see the update on all your components
+without reloading the page, you need to load the translations manually and call the
 [`setTranslation`](/reference/translate-service-api/#settranslation) function, which
 triggers [`onTranslationChange`](/reference/translate-service-api/#ontranslationchange-event-emitter).
 
@@ -226,7 +226,7 @@ TestBed.configureTestingModule({
 
 ### Why am I getting deprecation warnings after upgrading to v17?
 
-v17 includes deprecation warnings for methods and properties that have been renamed or changed. These warnings help you identify code that needs updating:
+v17 includes helpful deprecation warnings for methods and properties that have been renamed or changed. These warnings help you identify code that needs updating:
 
 - Update `setDefaultLang()` to `setFallbackLang()`
 - Update `getDefaultLang()` to `getFallbackLang()`

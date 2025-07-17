@@ -6,9 +6,9 @@ slug: recipes/handle-missing-translations
 
 You can set up a provider for the [`MissingTranslationHandler`](/reference/missing-translation-handler-api/) in the
 bootstrap of your application (recommended), or in the `providers` property of a component. 
-It will be called when the requested translation is not available. The only required 
+It will be called when your requested translation is not available. The only required 
 method is `handle` where you can do whatever you want. If this method returns a value or 
-an observable (that should return a string), then this will be used. 
+an observable (that should return a string), then this will be used.
 
 You can use the `fallbackLang` configuration to decide whether fallback language string
 should be used when there is a missing translation in current language. If no fallback language is set,
@@ -38,7 +38,7 @@ export class MyMissingTranslationHandler implements MissingTranslationHandler {
 
 ## Registering a Custom Handler
 
-The recommended approach in v17 is to use the `provideMissingTranslationHandler()` function within `provideTranslateService()`:
+We recommend using the `provideMissingTranslationHandler()` function within `provideTranslateService()` in v17:
 
 ```ts title="app.config.ts"
 import {provideTranslateService, provideMissingTranslationHandler} from "@ngx-translate/core";
@@ -55,7 +55,7 @@ export const appConfig: ApplicationConfig = {
 };
 ```
 
-For handlers that need dependencies, use the traditional provider approach:
+If your handler needs dependencies, you can use the traditional provider approach:
 
 ```ts title="app.config.ts"
 import {ApplicationConfig} from "@angular/core";

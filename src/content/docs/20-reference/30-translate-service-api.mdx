@@ -9,7 +9,7 @@ import { Badge } from '@astrojs/starlight/components';
 
 ## Accessing the TranslateService
 
-To use the TranslateService in your components, inject it using Angular's `inject()` function:
+To use the TranslateService in your components, you can inject it using Angular's `inject()` function:
 
 ```ts
 import { inject } from '@angular/core';
@@ -64,7 +64,7 @@ export class MyComponent {
 addLangs(langs: string[])
 ~~~
 
-Add new languages to the list. This does **not** invoke the loader to retrieve the languages.
+You can add new languages to your list. This won't invoke the loader to retrieve them.
 
 ### get
 

@@ -9,15 +9,15 @@ import { PackageManagers } from 'starlight-package-managers'
 import { FileTree } from '@astrojs/starlight/components';
 import { Badge } from '@astrojs/starlight/components';
 
-**@ngx-translate/core** does not come with a loader. The reason for this is to keep the
+**@ngx-translate/core** doesn't come with a loader. The reason for this is to keep the
 module as small as possible and to make it adaptable to your needs.
 
-However, there's an official plugin called **`@ngx-translate/http-loader`** that implements
+However, there's an official plugin called **`@ngx-translate/http-loader`** that you can use to implement
 a dynamic loader.
 
 ## Static Translations via `import`
 
-The easy way to set translation data is using `import` and [`setTranslation()`](/reference/translate-service-api/#settranslation).
+The easiest way to set translation data is by using `import` and [`setTranslation()`](/reference/translate-service-api/#settranslation).
 
 ```ts {1,4} title="src/app/app.component.ts"
 import translationsEN from "../../public/i18n/en.json";
@@ -28,7 +28,7 @@ constructor(private translate: TranslateService) {
 }
 ```
 
-The advantage of this is, that the translations are available immediately when loading the app.
+The advantage of this approach is that your translations are available immediately when loading the app.
 The big disadvantage is that this binds all translations into your app. If you have many
 texts and languages, this might bloat your application and slow down startup time.
 
@@ -40,8 +40,8 @@ using `HttpClient`. To use it, you need to install the `http-loader` package fro
 
 <PackageManagers pkg={"@ngx-translate/http-loader"} />
 
-Here is how you would use the `TranslateHttpLoader` to load
-translations from `"/assets/i18n/[lang].json"`. `[lang]` is the lang that you're using, for english it could be `en`.
+Here's how you can use the `TranslateHttpLoader` to load
+translations from `"/assets/i18n/[lang].json"`. `[lang]` is the language that you're using, for English it could be `en`.
 
 The `TranslateHttpLoader` uses dependency injection and configuration through the `provideTranslateHttpLoader()` function. You can customize the paths by passing configuration options:
 
@@ -104,7 +104,7 @@ Starting with Angular 18+, the `assets` folder is no longer available, so use th
   * src/
 </FileTree>
 
-We recommend using an `i18n` folder within the `assets` or `public` folder to organize your translation files in one place.
+We recommend that you use an `i18n` folder within the `assets` or `public` folder to organize your translation files in one place.
 
 ## Translation file formats
 
