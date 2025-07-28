@@ -4,11 +4,11 @@
       "label": "Start here",
       "items": [
         {
-          "label": "Getting started/",
+          "label": "Getting started",
           "link": "/"
         },
         {
-          "label": "Installation/",
+          "label": "Installation",
           "link": "/getting-started/installation/"
         },
         {

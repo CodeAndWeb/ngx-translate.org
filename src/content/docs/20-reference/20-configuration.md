@@ -150,9 +150,6 @@ import {
 } from '@ngx-translate/core';
 ~~~
 
-:::caution
-**Important: Always Use Provider Functions Inside provideTranslateService**
-
 Provider functions should always be used within the `provideTranslateService` configuration object:
 
 ```typescript
@@ -164,16 +161,17 @@ provideTranslateService({
 ```
 
 ```typescript
-// INCORRECT USAGE - Will not work as expected
+// INCORRECT USAGE - might not work as expected
 [
   provideTranslateService(),
-  provideTranslateLoader(CustomLoader),  // This won't be used by TranslateService
-  provideTranslateCompiler(CustomCompiler)  // This won't be used by TranslateService
+  provideTranslateLoader(CustomLoader),  
+  provideTranslateCompiler(CustomCompiler)
 ]
 ```
 
-This is because `provideTranslateService` loads default implementations for any providers not explicitly included in its configuration object. If you provide these services separately, they won't be used by the TranslateService.
-:::
+This is because `provideTranslateService` loads default implementations for any providers not explicitly included in its 
+configuration object. If you provide these services separately, they won't be used by the TranslateService.
+
 
 #### provideTranslateLoader(loader: Type<TranslateLoader>)
 

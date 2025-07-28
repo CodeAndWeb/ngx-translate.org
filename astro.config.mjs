@@ -75,7 +75,7 @@ export default defineConfig({
                       link: "/"
                   },
                   {
-                      label: "Angular Compatibility",
+                      label: "Support & Compatibility",
                       link: "/getting-started/angular-compatibility/"
                   },
                   {
@@ -176,7 +176,8 @@ export default defineConfig({
               },
           ],
           components: {
-              PageFrame: "./src/components/PageFrameWithFooter.astro"
+              PageFrame: "./src/components/PageFrameWithFooter.astro",
+              Banner: "./src/components/VersionNotice.astro",
           },
           editLink: {
               baseUrl: 'https://github.com/CodeAndWeb/ngx-translate.org/edit/main/',

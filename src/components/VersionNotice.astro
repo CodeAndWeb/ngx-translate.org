@@ -1,0 +1,8 @@
+---
+const currentPath = Astro.url.pathname;
+const isOldVersion: boolean = currentPath.match(/\/v[0-9]+\//) !== null;
+---
+{isOldVersion && <div class="bg-red-700 text-white font-semibold py-2 px-4 text-center">
+    This version of ngx-translate is not supported anymore. For more information see <a href="/getting-started/angular-compatibility/" class="text-white font-bold">Support & Compatibility</a>
+</div>
+}
