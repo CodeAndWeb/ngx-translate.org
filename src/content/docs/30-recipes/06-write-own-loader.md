@@ -1,6 +1,6 @@
 ---
-title: Write & use your own loader
-description: Create our own loader for translation files for ngx-translate.
+title: How to Write a Custom Loader for ngx-translate
+description: Learn how to create your own custom loader for translation files in ngx-translate. Complete guide with code examples for Angular translation loading.
 slug: recipes/write-own-loader
 ---
 

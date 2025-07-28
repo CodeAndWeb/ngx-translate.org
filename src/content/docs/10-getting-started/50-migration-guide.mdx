@@ -257,14 +257,14 @@ also return `undefined` or `null` if no fallback language was configured.
 ```diff lang=ts
 +import { TranslateService } from '@ngx-translate/core';
 
-- translateService.setDefaultLang('en');
-+ translateService.setFallbackLang('en')
+- translate.setDefaultLang('en');
++ translate.setFallbackLang('en')
 
-- const defaultLang = translateService.getDefaultLang();
-+ const fallbackLang = translateService.getFallbackLang();
+- const defaultLang = translate.getDefaultLang();
++ const fallbackLang = translate.getFallbackLang();
 
--translateService.onDefaultLangChange.subscribe(event => {
-+translateService.onFallbackLangChange.subscribe(event => {
+-translate.onDefaultLangChange.subscribe(event => {
++translate.onFallbackLangChange.subscribe(event => {
   console.log('Default language changed:', event.lang);
 });
 ```
@@ -283,52 +283,26 @@ also return `undefined` or `null` if no fallback language was configured.
 ```diff lang=ts
 +import { TranslateService } from '@ngx-translate/core';
 
--const current = translateService.currentLang;
-+const current = translateService.getCurrentLang();
+-const current = translate.currentLang;
++const current = translate.getCurrentLang();
 
--const fallback = translateService.defaultLang;
-+const fallback = translateService.getFallbackLang();
+-const fallback = translate.defaultLang;
++const fallback = translate.getFallbackLang();
 
--const languages = translateService.langs;
-+const languages = translateService.getLangs();
+-const languages = translate.langs;
++const languages = translate.getLangs();
 ```
 
-## 4. Update Component Injection
+## 4. Update Event Subscriptions <Badge text="Required" variant="caution" />
 
-#### 4.1 Modern Injection Pattern
-<Badge text="Optional" variant="success" />
+Use `onFallbackLangChange` instead of `onDefaultLangChange`:
 
-
-```diff lang=ts
--import { Component } from '@angular/core';
-+import { Component, inject } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
-
-@Component({
-  selector: 'app-example',
-  template: `{{ 'HELLO' | translate }}`
-})
-export class ExampleComponent {
--  constructor(private translate: TranslateService) {
-+  private translate = inject(TranslateService);
-+
-+  constructor() {
-    this.translate.setFallbackLang('en');
-  }
-}
-```
-
-## 5. Update Event Subscriptions <Badge text="Required" variant="caution" />
-
-#### 5.1 Observable-based Events
-
-**v16 Events (EventEmitter):**
 ```diff lang=ts
 +import { TranslateService, DefaultLangChangeEvent, FallbackLangChangeEvent } from '@ngx-translate/core';
 
--translateService.onDefaultLangChange.subscribe((event: DefaultLangChangeEvent) => {
+-translate.onDefaultLangChange.subscribe((event: DefaultLangChangeEvent) => {
 -  console.log('Default language changed:', event.lang);
-+translateService.onFallbackLangChange.subscribe((event: FallbackLangChangeEvent) => {
++translate.onFallbackLangChange.subscribe((event: FallbackLangChangeEvent) => {
 +  console.log('Fallback language changed:', event.lang);
 });
 ```

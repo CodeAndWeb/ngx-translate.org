@@ -1,6 +1,6 @@
 ---
-title: TranslateService API
-description: Reference documentation of the TranslateService API for ngx-translate.
+title: ngx-translate TranslateService API Reference
+description: Complete TranslateService API reference for ngx-translate. Learn all methods for Angular translation including get(), stream(), instant(), use(), and more with examples.
 slug: reference/translate-service-api
 ---
 
@@ -192,7 +192,7 @@ uses as a fallback when a translation key is missing in the current language.
 ##### Example
 
 ~~~ts
-const fallbackLang = translateService.getFallbackLang();
+const fallbackLang = translate.getFallbackLang();
 console.log('Fallback language:', fallbackLang);
 // Output: 'en'
 ~~~
@@ -216,7 +216,7 @@ The `getCurrentLang()` method retrieves the language code that is currently bein
 ##### Example
 
 ~~~ts
-const currentLang = translateService.getCurrentLang();
+const currentLang = translate.getCurrentLang();
 console.log('Current language:', currentLang);
 // Output: 'en'
 ~~~
@@ -269,7 +269,7 @@ You should unsubscribe to prevent memory leaks when the stream is no longer need
 
 Subscribing to a single translation key
 ~~~ts
-const subscription = translateService
+const subscription = translate
     .getStreamOnTranslationChange('HELLO')
     .subscribe((res: string) => {
         console.log(res);
@@ -279,7 +279,7 @@ const subscription = translateService
 
 Subscribing to multiple translation keys
 ~~~ts
-const subscription = translateService
+const subscription = translate
     .getStreamOnTranslationChange(['HELLO', 'WELCOME'])
     .subscribe((translations: { [key: string]: string }) => {
         console.log(translations);
@@ -290,7 +290,7 @@ const subscription = translateService
 
 Using interpolateParams
 ~~~ts
-const subscription = translateService
+const subscription = translate
     .getStreamOnTranslationChange('WELCOME_USER', { username: 'John' })
     .subscribe((res: string) => {
         console.log(res);
@@ -332,14 +332,14 @@ waits for the translations to load.
 Translating a single translation key
 
 ~~~typescript
-const res = translateService.instant('HELLO');
+const res = translate.instant('HELLO');
 console.log(res);
 // Output: 'Hello' (if translation is already loaded)
 ~~~
 
 Translating multiple keys
 ~~~ts
-const res = translateService.instant(['HELLO', 'WELCOME']);
+const res = translate.instant(['HELLO', 'WELCOME']);
 console.log(res);
 // Output: { HELLO: 'Hello', WELCOME: 'Welcome' }
 // (if translation is already loaded)
@@ -347,7 +347,7 @@ console.log(res);
 
 Translating a key with interpolation
 ~~~ts
-const res = translateService.instant('WELCOME_USER', { username: 'John' });
+const res = translate.instant('WELCOME_USER', { username: 'John' });
 console.log(res);
 // Output: 'Welcome, John!' (if translation is already loaded)
 ~~~
@@ -373,7 +373,7 @@ An `Observable` that completes after the translations are loaded.
 ##### Examples
 
 ~~~ts
-translateService.reloadLang('es').subscribe((translations) => {
+translate.reloadLang('es').subscribe((translations) => {
   console.log('Spanish translations reloaded:', translations);
   // Output: Spanish translations reloaded:
   // { 'HELLO': 'Hola', 'GOODBYE': 'Adiós', ... }
@@ -402,7 +402,7 @@ reload and retrieve the translations.
 ##### Examples
 
 ~~~ts
-translateService.resetLang('es');
+translate.resetLang('es');
 ~~~
 
 
@@ -454,12 +454,12 @@ merging nested structures.
 
 Setting a single translation for the default language
 ~~~ts
-translateService.set('HELLO.WORLD', "Hallo World!");
+translate.set('HELLO.WORLD', "Hallo World!");
 ~~~
 
 Setting a translation for German:
 ~~~ts
-translateService.set('HELLO.WORLD', "Hallo Welt!", "de");
+translate.set('HELLO.WORLD', "Hallo Welt!", "de");
 ~~~
 
 
@@ -497,7 +497,7 @@ Calling this method will:
 ##### Example
 
 ~~~ts
-translateService.setFallbackLang("en").subscribe((translations) => {
+translate.setFallbackLang("en").subscribe((translations) => {
     console.log('Fallback language set to English');
     console.log('English translations:', translations);
 });
@@ -549,8 +549,7 @@ You should unsubscribe to prevent memory leaks when the stream is no longer need
 Subscribing to a single translation key
 
 ~~~ts
-const subscription = translateService
-    .stream('HELLO')
+const subscription = translate.stream('HELLO')
     .subscribe((res: string) => {
         console.log(res);
         // Output: 'Hello' (and updates if the translation changes)
@@ -560,8 +559,7 @@ const subscription = translateService
 Subscribing to multiple translation keys
 
 ~~~ts
-const subscription = translateService
-    .stream(['HELLO', 'WELCOME'])
+const subscription = translate.stream(['HELLO', 'WELCOME'])
     .subscribe((translations: { [key: string]: string }) => {
         console.log(translations);
         // Output: { HELLO: 'Hello', WELCOME: 'Welcome' }
@@ -572,8 +570,7 @@ const subscription = translateService
 Using parameter interpolation:
 
 ~~~ts
-const subscription = translateService
-    .stream('WELCOME_USER', { username: 'John' })
+const subscription = translate.stream('WELCOME_USER', { username: 'John' })
     .subscribe((res: string) => {
         console.log(res);
         // Output: 'Welcome, John!' (and updates if translations change)
@@ -633,25 +630,12 @@ Afterward, it is only updated once the translation file for the most recent call
 
 ~~~ts
 // Switch to French language
-translateService.use('fr').subscribe((translations) => {
+translate.use('fr').subscribe((translations) => {
     console.log('Current language is now French.');
     console.log('French translations:', translations);
     // Output: French translations: { 'HELLO': 'Bonjour', 'GOODBYE': 'Au revoir', ... }
 });
 ~~~
-
-
-
-
-## Properties
-
-The `TranslateService` exposes the following properties:
-
-| Property                                     | Description                                               |
-|---------------------------------------------------------|-----------------------------------------------------------|
-| `onLangChange`          | Observable that emits when the language changes.     <br /> `Observable<LangChangeEvent>`     |
-| `onTranslationChange`  | Observable that emits when the translations change.  <br /> `Observable<TranslationChangeEvent>`   |
-| `onFallbackLangChange`  | Observable that emits when the fallback language changes. <br /> `Observable<FallbackLangChangeEvent>`|
 
 
 ## Event Observables
@@ -669,7 +653,7 @@ object is emitted, containing the following properties:
 Example:
 
 ~~~typescript
-translateService.onLangChange.subscribe((event: LangChangeEvent) => {
+translate.onLangChange.subscribe((event: LangChangeEvent) => {
     console.log('Language changed to:', event.lang);
     console.log('Translations:', event.translations);
 });
@@ -689,7 +673,7 @@ A `TranslationChangeEvent` object is emitted, containing the following propertie
 Example:
 
 ~~~ts
-translateService.onTranslationChange.subscribe((event: TranslationChangeEvent) => {
+translate.onTranslationChange.subscribe((event: TranslationChangeEvent) => {
     console.log('Translations changed for language:', event.lang);
     console.log('Updated translations:', event.translations);
 });
@@ -709,7 +693,7 @@ A `FallbackLangChangeEvent` object is emitted, containing the following properti
 Example:
 
 ~~~ts
-translateService.onFallbackLangChange.subscribe((event: FallbackLangChangeEvent) => {
+translate.onFallbackLangChange.subscribe((event: FallbackLangChangeEvent) => {
     console.log('Fallback language changed to:', event.lang);
     console.log('Fallback translations:', event.translations);
 });

@@ -1,6 +1,6 @@
 ---
-title: FAQ
-description: Frequently asked questions.
+title: ngx-translate FAQ - Frequently Asked Questions
+description: Find answers to common questions about ngx-translate, Angular translation, internationalization, migration, licensing, and troubleshooting issues.
 slug: resources/faq
 ---
 
