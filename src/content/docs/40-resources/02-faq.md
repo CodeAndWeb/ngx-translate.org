@@ -195,7 +195,7 @@ this.translate.onLangChange.subscribe(event => {
 If you want to reload your translations and see the update on all your components
 without reloading the page, you need to load the translations manually and call the
 [`setTranslation`](/reference/translate-service-api/#settranslation) function, which
-triggers [`onTranslationChange`](/reference/translate-service-api/#ontranslationchange-event-emitter).
+triggers [`onTranslationChange`](/reference/translate-service-api/#ontranslationchange).
 
 ### How do I test components with the new provider functions?
 

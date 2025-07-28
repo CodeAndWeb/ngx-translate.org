@@ -12,7 +12,7 @@ For comprehensive information about using ngx-translate with NgModules,
 see the [NgModules Support](/reference/ngmodules/) documentation.
 
 
-### provideTranslateService(config: [RootTranslateServiceConfig](#roottranslateserviceconfig))
+### provideTranslateService(config: RootTranslateServiceConfig)
 
 Use the `provideTranslateService()` function in your `appConfig` to configure the service. 
 
@@ -75,7 +75,7 @@ Always provide all custom services (loader, compiler, parser, missingTranslation
 | `defaultLanguage`  | `string`  | **Deprecated**: Use `fallbackLang` instead. The fallback language used when a translation is missing in the current language.                                                  |
 
 
-### provideChildTranslateService(config: [ChildTranslateServiceConfig](#childtranslateserviceconfig))
+### provideChildTranslateService(config: ChildTranslateServiceConfig
 
 Use this function in child injectors or lazy-loaded components when using standalone components.
 This child service is directly connected with the parent `TranslateService`. Language changes to any of the

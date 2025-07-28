@@ -98,7 +98,7 @@ export class AppComponent {
         this.translate.use('en');
     }
 }
-~~~
+```
 
 Now, skip the next chapter:
 
@@ -136,7 +136,7 @@ import {TranslateModule} from '@ngx-translate/core';
     bootstrap: [AppComponent]
 })
 export class AppModule { }
-~~~
+```
 
 ### Usage with SharedModules
 
@@ -186,7 +186,7 @@ different loader/compiler/parser/handler even if you don't isolate the service).
     ]
 })
 export class LazyLoadedModule { }
-~~~
+```
 
 ### Initialize the `TranslateService` for your application
 
@@ -208,7 +208,7 @@ export class AppComponent {
         translate.use('en');
     }
 }
-~~~
+```
 
 [`setDefaultLang()`](/v15/reference/translate-service-api/#setdefaultlang) sets the default language. The default language is used
 as a fall-back if no translation is found in the currently selected language.
