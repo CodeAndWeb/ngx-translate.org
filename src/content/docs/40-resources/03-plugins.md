@@ -24,6 +24,7 @@ Use these plugins to enhance ngx-translate with additional functionality:
 * [browser.i18n Loader](https://github.com/pearnaly/ngx-translate-browser-i18n-loader) by @pearnaly: loader for native translation files of browser extensions.
 * [ngx-translate-multi-http-loader](https://github.com/denniske/ngx-translate-multi-http-loader) by @denniske: Fetch multiple translation files with ngx-translate.
 * [ngx-translate-module-loader](https://github.com/larscom/ngx-translate-module-loader) by @larscom: Fetch multiple translation files (http) with ngx-translate. Each translation file gets it's own namespace out of the box and the configuration is very flexible.
+* [ngx-translate-toolkit](https://github.com/robmanganelly/ngx-translate-toolkit) by @robmanganelly: Extend ngx capabilities with http-based loader or fetch-based loader (does not need HttpClient/Backend). It comes with utils to enforce type safety and modularization of translations in large projects, particularly useful on multi app projects/monorepos. Explore [Documentation](https://robmanganelly.github.io/ngx-translate-toolkit/) in Github pages.
 
 ## Routing
 
