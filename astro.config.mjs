@@ -162,6 +162,7 @@ export default defineConfig({
           components: {
               PageFrame: "./src/components/PageFrameWithFooter.astro",
               Banner: "./src/components/VersionNotice.astro",
+              PageSidebar: "./src/components/PageSidebar.astro",
           },
           editLink: {
               baseUrl: 'https://github.com/CodeAndWeb/ngx-translate.org/edit/main/',
