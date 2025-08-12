@@ -204,7 +204,7 @@ triggers [`onTranslationChange`](/reference/translate-service-api/#ontranslation
 TestBed.configureTestingModule({
   providers: [
     provideTranslateService({
-      loader: provideTranslateLoader(() => new FakeLoader())
+      loader: provideTranslateLoader(FakeLoader)
     })
   ]
 });
