@@ -46,7 +46,7 @@ All properties are optional.
 |--------------------|-----------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `fallbackLang`     | `string`  | The fallback language used when a translation is missing in the current language.                                                                                            |
 | `lang`             | `string`  | The initial language to set on startup.                                                                                                                                      |
-| `extend`           | `boolean` | Default: `false`. When loading additional translations, merges the translations with the already loaded instread of replacing them.                                          |
+| `extend`           | `boolean` | Default: `true`. When loading additional translations, merges the translations with the already loaded instread of replacing them.                                          |
 | `loader`           | `Provider`| Provides a [`TranslateLoader`](/reference/translate-loader-api/) to load translations. If not using a loader, you can provide translations useing the `setTranslation()` method. |
 | `compiler`         | `Provider`| Provides a [`TranslateCompiler`](/reference/translate-compiler-api/) to prepare translations after loading.                                                                  |
 | `parser`           | `Provider`| Provides a [`TranslateParser`](/reference/translate-parser-api/) that interpolates parameters in translations.                                                               |
