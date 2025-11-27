@@ -161,7 +161,7 @@ export default defineConfig({
           ],
           components: {
               PageFrame: "./src/components/PageFrameWithFooter.astro",
-              Banner: "./src/components/VersionNotice.astro",
+              Banner: "./src/components/CawBanner.astro",
               PageSidebar: "./src/components/PageSidebar.astro",
           },
           editLink: {
