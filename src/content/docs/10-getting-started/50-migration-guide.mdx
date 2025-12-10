@@ -245,7 +245,7 @@ provideTranslateHttpLoader({
 | `setDefaultLang(lang)` | `setFallbackLang(lang)` | Returns Observable |
 | `getDefaultLang()` | `getFallbackLang()` | Returns `Language \| null` |
 | `onDefaultLangChange` | `onFallbackLangChange` | Now Observable |
-
+| `getParsedResult` | - | Signature changed. This method is not part of the official interface - it has to be public to be available from the directive and pipe. |
 
 <Badge text="Breaking change" variant="danger" />: `getDefaultLang()` in v16 returned a `string` - which was not always true since it could
 also return `undefined` or `null` if no fallback language was configured.
@@ -306,3 +306,17 @@ Use `onFallbackLangChange` instead of `onDefaultLangChange`:
 +  console.log('Fallback language changed:', event.lang);
 });
 ```
+
+## 5. Renamed internal classes
+
+We renamed some internal classes to make their names more consistent with the rest of the library.
+
+
+| v16 Class | v17 Class | Notes |
+|------------|------------|-------|
+| `FakeMissingTranslationHandler` | `DefaultMissingTranslationHandler` | 
+| `TranslateFakeCompiler` | `TranslateNoOpCompiler` | 
+| `TranslateFakeLoader` | `TranslateNoOpLoader` | 
+
+
+
