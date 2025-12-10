@@ -1,0 +1,81 @@
+<div id="support-variant-a" style="display: none;">
+    <div
+        class="bg-accent-100 text-accent-900
+          dark:bg-accent-800 dark:text-accent-100
+            w-full rounded shadow text-sm mt-4 py-2 px-4"
+    >
+        <div class="font-bold text-base">ngx-translate is free!</div>
+        <p class="my-2 font-semibold">
+            Support the project by buying a license for{" "}
+            <a
+                href="https://www.codeandweb.com/babeledit?mtm_campaign=ngx-sidebar:support-ngx-translate"
+                class="underline dark:text-accent-100 text-accent-800 inline"
+            >
+                BabelEdit
+            </a>{" "}
+            – the translation editor made for your ngx-translate projects!
+        </p>
+        <ul class="list-disc pl-4">
+            <li>Edit all languages side by side</li>
+            <li>Auto-translate with DeepL or Google Translate</li>
+            <li>Works perfectly with ngx-translate</li>
+        </ul>
+        <a
+            href="https://www.codeandweb.com/babeledit?mtm_campaign=ngx-sidebar:support-ngx-translate"
+            class="bg-accent-600 text-accent-100 hover:bg-accent-700 hover:text-white
+     dark:bg-accent-400 dark:hover:bg-accent-500 dark:hover:text-accent-100
+     rounded text-center py-2 px-4 font-bold text-base mt-4 mb-2"
+        >
+            Support ngx-translate
+        </a>
+    </div>
+</div>
+
+<div id="support-variant-b" style="display: none;">
+    <div
+        class="bg-accent-100 text-accent-900
+      dark:bg-accent-800 dark:text-accent-100
+        w-full rounded shadow text-sm mt-4 py-2 px-4"
+    >
+        <div class="font-bold text-base">
+            Managing your JSON files manually?
+        </div>
+        <p class="my-2 font-semibold">
+            Save time and reduce errors with <a
+                href="https://www.codeandweb.com/babeledit?mtm_campaign=ngx-sidebar:support-try-babeledit"
+                class="underline dark:text-accent-100 text-accent-800 inline"
+                >BabelEdit</a
+            > – the translation editor made for your ngx-translate projects!
+        </p>
+        <ul class="list-disc pl-4">
+            <li>Edit all languages side by side</li>
+            <li>Auto-translate with DeepL or Google Translate</li>
+            <li>Works perfectly with ngx-translate</li>
+        </ul>
+        <a
+            href="https://www.codeandweb.com/babeledit?mtm_campaign=ngx-sidebar:support-try-babeledit"
+            class="bg-accent-600 text-accent-100 hover:bg-accent-700 hover:text-white
+                     dark:bg-accent-400 dark:hover:bg-accent-500 dark:hover:text-accent-100
+                     rounded text-center py-2 px-4 font-bold text-base mt-4 mb-2"
+            >Try BabelEdit</a
+        >
+    </div>
+</div>
+
+<script is:inline>
+    (function () {
+        var STORAGE_KEY = "support_split_test_variant";
+        var variant = localStorage.getItem(STORAGE_KEY);
+
+        if (!variant) {
+            variant = Math.random() < 0.5 ? "a" : "b";
+            localStorage.setItem(STORAGE_KEY, variant);
+        }
+
+        var elementId = "support-variant-" + variant;
+        var element = document.getElementById(elementId);
+        if (element) {
+            element.style.display = "block";
+        }
+    })();
+</script>
