@@ -214,7 +214,10 @@ TestBed.configureTestingModule({
 ```typescript
 const mockTranslateService: Partial<TranslateService> = {
   get: jasmine.createSpy().and.returnValue(of('translated')),
-  instant: jasmine.createSpy().and.returnValue('translated')
+  instant: jasmine.createSpy().and.returnValue('translated'),
+  onTranslationChange = new EventEmitter();
+  onLangChange = new EventEmitter();
+  onFallbackLangChange = new EventEmitter();
 };
 
 TestBed.configureTestingModule({
