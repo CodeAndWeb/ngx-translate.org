@@ -315,9 +315,9 @@ Retrieves the translated value(s) for a key (or an array of keys) instantly.
 - `interpolateParams` (optional): An object containing parameters to interpolate within the translation strings.
 
 ##### Returns
-An `Observable` that emits the translated string(s):
-- If a single key is provided, it emits the translated message as `Translation`.
-- If an array of keys is provided, it emits an object `{ [key: string]: Translation }` mapping each key to its translated string.
+The translated value(s), returned synchronously:
+- If a single key is provided, returns the translated message as `Translation`.
+- If an array of keys is provided, returns an object `{ [key: string]: Translation }` mapping each key to its translated string.
 - If a translation for a given key is not found or not yet loaded, the key itself is returned (unless a fallback mechanism is configured).
 
 :::caution
