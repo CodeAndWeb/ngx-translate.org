@@ -148,22 +148,6 @@ private translate = inject(TranslateService);
 
 Yes! The traditional `TranslateModule.forRoot()` configuration still works in v17. The new provider functions are recommended for standalone components, but both approaches are supported.
 
-### How do I configure a custom loader with the new provider system?
-
-**Using provider functions:**
-```typescript
-provideTranslateService({
-  loader: provideTranslateLoader(() => new MyCustomLoader())
-})
-```
-
-**With dependencies:**
-```typescript
-provideTranslateService({
-  loader: provideTranslateLoader((http: HttpClient) => new MyCustomLoader(http), [HttpClient])
-})
-```
-
 ### What's the difference between RootTranslateServiceConfig and ChildTranslateServiceConfig?
 
 - **RootTranslateServiceConfig**: Used with `provideTranslateService()` for the root service
@@ -198,17 +182,6 @@ without reloading the page, you need to load the translations manually and call 
 triggers [`onTranslationChange`](/reference/translate-service-api/#ontranslationchange).
 
 ### How do I test components with the new provider functions?
-
-**Testing with v17 providers:**
-```typescript
-TestBed.configureTestingModule({
-  providers: [
-    provideTranslateService({
-      loader: provideTranslateLoader(() => new FakeLoader())
-    })
-  ]
-});
-```
 
 **Mock service approach:**
 ```typescript
