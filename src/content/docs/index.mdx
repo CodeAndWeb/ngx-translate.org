@@ -17,6 +17,29 @@ import { PackageManagers } from 'starlight-package-managers'
 
 ![ngx-translate i18n library for Angular](/images/opengraph.jpg)
 
+## What's new in v18
+
+v18 rebuilds ngx-translate on Angular Signals and ships a smaller, more focused API
+surface. The peer dependency is **Angular 18+**. Highlights:
+
+* **`currentLang()` is a Signal** — read it directly in templates, `computed()`, and
+  `effect()`. No manual subscriptions for language changes.
+* **Standalone [`translate()`](/getting-started/translating-your-components/#standalone-translate-function) function** — returns a `Signal<Translation>`,
+  perfect for component fields outside an injection context.
+* **`*translateBlock` structural directive** — translates a region with a typed `t()`
+  function and replaces the deprecated content-as-key pattern.
+* **Multi-resource HTTP loader** — a built-in `resources: [...]` array on
+  [`provideTranslateHttpLoader()`](/getting-started/translation-files/#loading-multiple-resources),
+  with later entries overwriting earlier ones.
+* **`failOnError` permissive default** — a 404 now resolves to an empty object so the app
+  keeps working; opt into strict v17 behavior with `failOnError: true`.
+* **NgModule removed** — `TranslateModule.forRoot/forChild` are gone; use
+  [`provideTranslateService()`](/getting-started/installation/) and
+  `provideChildTranslateService()` instead.
+
+Upgrading from v17? See the [Migration Guide](/getting-started/migration-guide/).
+Still on v17? The previous docs remain available at [/v17/](/v17/).
+
 ## Why ngx-translate is the Best Localization Library for Angular
 
 ngx-translate is widely regarded as the leading localization library for Angular

@@ -4,10 +4,11 @@ description: How to load and use translation files with @ngx-translate/core
 slug: getting-started/translation-files
 ---
 
-import {Tabs, TabItem, CardGrid, LinkCard} from "@astrojs/starlight/components";
+import {Tabs, TabItem, CardGrid, LinkCard, Aside} from "@astrojs/starlight/components";
 import { PackageManagers } from 'starlight-package-managers'
 import { FileTree } from '@astrojs/starlight/components';
 import { Badge } from '@astrojs/starlight/components';
+import BabelEditCallout from "../../../components/BabelEditCallout.astro";
 
 **@ngx-translate/core** doesn't come with a loader. The reason for this is to keep the
 module as small as possible and to make it adaptable to your needs.
@@ -31,6 +32,18 @@ constructor(private translate: TranslateService) {
 The advantage of this approach is that your translations are available immediately when loading the app.
 The big disadvantage is that this binds all translations into your app. If you have many
 texts and languages, this might bloat your application and slow down startup time.
+
+:::tip[setCompiledTranslation()]
+If you already hold a translation object in its final, interpolator-ready form — for example
+build-time precompiled interpolation functions, or a single in-memory key you want to inject
+without going through the configured `TranslateCompiler` — use
+`setCompiledTranslation(lang, translations, shouldMerge?)`.
+It stores the data directly and skips the compiler.
+
+```ts
+translate.setCompiledTranslation('en', { app: { title: precompiledTitleFn } }, true);
+```
+:::
 
 ## Loading translations dynamically
 
@@ -82,6 +95,42 @@ export const appConfig: ApplicationConfig = {
 
 For comprehensive information about using ngx-translate with NgModules, see the [NgModules Support](/reference/ngmodules/) documentation.
 
+### Loading multiple resources
+
+In v18, the HTTP loader has built-in support for multi-resource loading — useful when you want
+a shared dictionary plus per-feature overrides. Pass a `resources` array to
+`provideTranslateHttpLoader()`. Each entry can be a string (prefix) or a
+`{ prefix, suffix }` object. All entries are fetched in parallel and **deep-merged in order,
+so later entries overwrite earlier ones**:
+
+~~~ts
+provideTranslateHttpLoader({
+  resources: [
+    "/assets/i18n/common/",                              // shared dictionary
+    { prefix: "/assets/i18n/feature/", suffix: ".json" } // feature-specific overrides
+  ],
+})
+~~~
+
+This replaces the standalone `@codeandweb/ngx-translate-multi-http-loader` package — the same
+behavior is now built into `@ngx-translate/http-loader`.
+
+### Error handling: permissive vs strict
+
+By default the v18 HTTP loader is **permissive**: a failed request (e.g. a 404 for a
+missing language file or one resource in a multi-resource setup) is caught, logged
+as a `console.warn`, and replaced with an empty object. Other resources still contribute
+their keys, so your app keeps working with partial translations.
+
+To restore the v17 fail-fast behavior — useful when a missing translation file should fail
+a deploy rather than serve partial translations — opt in with `failOnError: true`:
+
+~~~ts
+provideTranslateHttpLoader({
+  prefix: "/assets/i18n/",
+  failOnError: true,
+})
+~~~
 
 ngx-translate uses JSON translation files by default when using the `TranslateHttpLoader`.
 These files have the added benefit of being easily embedded directly into your application
@@ -140,9 +189,7 @@ this can lead to confusion and inconsistency in your translation files.
 
 ## Managing Translations
 
-We highly recommend using [BabelEdit](https://www.codeandweb.com/babeledit) to manage your translations.
-BabelEdit allows you to edit all JSON translation files at once, ensuring consistency across them.
-Features like PreTranslate also provide a fast preview of your application in other languages.
+<BabelEditCallout variant="workflow" />
 
 ## Why Use Contextual IDs like `app.title`?
 

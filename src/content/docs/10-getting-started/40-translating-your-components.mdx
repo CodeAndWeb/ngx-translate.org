@@ -5,8 +5,18 @@ slug: getting-started/translating-your-components
 ---
 
 import { Aside, Tabs, TabItem} from "@astrojs/starlight/components";
+import BabelEditCallout from "../../../components/BabelEditCallout.astro";
 
 ngx-translate allows you to easily integrate Angular translation functionality into both your component templates and your TypeScript code, making it simple to build multilingual Angular applications.
+
+## A quick note on Angular Signals
+
+ngx-translate v18 is built on [Angular Signals](https://angular.dev/guide/signals).
+Signals are reactive values you call as a function to read the current value
+(e.g. `currentLang()`). Reads inside templates, `computed()`, and `effect()` are tracked
+automatically, so the UI updates whenever the underlying signal changes — no subscriptions,
+no manual change detection. If you're new to Signals, the [official Angular guide](https://angular.dev/guide/signals)
+is a 5-minute read and covers everything you need to follow the examples below.
 
 
 ## Using Translations in Templates
@@ -81,11 +91,41 @@ This is how you use the **directive**:
 <div [translate]="'app.hello'" [translateParams]="{name: 'John'}"></div>
 ~~~
 
-Or even simpler using the content of your element as a key:
+<Aside type="caution" title="Element text as the translation key is deprecated">
+  Using the element's text content as the key — `<div translate>HELLO</div>` —
+  is deprecated in v18 and **will be removed in v19**. v18 logs a console
+  warning at runtime for each offending element.
+
+  Two equivalent upgrade paths:
+
+  * Switch to an explicit key on the element:
+
+    ~~~html
+    <div [translate]="'HELLO'" [translateParams]="{name: 'John'}"></div>
+    ~~~
+
+  * Or wrap a block in the new [`*translateBlock`](#translateblock-structural-directive)
+    structural directive (auto-keying is disabled inside the block; you write
+    explicit keys via the exposed `t()` function).
+</Aside>
+
+### `*translateBlock` structural directive
+
+`*translateBlock` is a new structural directive in v18 that exposes a typed `t()`
+function to a template block. It's the cleanest way to translate several keys in one
+place — and the recommended replacement for the deprecated content-as-key pattern:
 
 ~~~html
-<div translate [translateParams]="{name: 'John'}">HELLO</div>
+<ng-container *translateBlock="let t">
+  <h1>{{ t('app.title') }}</h1>
+  <p>{{ t('app.hello', { name: userName }) }}</p>
+</ng-container>
 ~~~
+
+Internally `t()` delegates to `TranslateService.instant()`, so signal tracking keeps the
+block up to date when the language changes or translations are reloaded. A full cookbook
+of patterns will follow — for now this minimal example is enough to migrate off
+content-as-key.
 
 ### Using HTML Tags in Translations
 
@@ -155,6 +195,70 @@ the translation instantly but only works if the translation file is already
 loaded or if translations have been manually set using
 [`setTranslation()`](/reference/translate-service-api/#settranslation).
 
+### Reacting to the current language with `currentLang()`
+
+In v18 `TranslateService.currentLang` is a `Signal<Language | null>` — call it as a function
+to read the active language. It works directly in templates, `computed()`, and `effect()`,
+so the UI tracks language changes without manual subscriptions:
+
+~~~html title=app.template.html
+<p>Current language: {{ translate.currentLang() }}</p>
+~~~
+
+~~~ts title=app.component.ts
+import { Component, computed, effect, inject } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
+
+@Component({ /* ... */ })
+export class AppComponent {
+  translate = inject(TranslateService);
+
+  // Derive a value from the current language
+  isGerman = computed(() => this.translate.currentLang() === 'de');
+
+  constructor() {
+    // React to language changes
+    effect(() => {
+      console.log('Language switched to', this.translate.currentLang());
+    });
+  }
+}
+~~~
+
+### Standalone `translate()` function
+
+v18 adds a standalone `translate()` function for use inside an injection context (such as a
+component class field). It returns a `Signal<Translation>` that updates automatically on
+language changes or translation reloads — no subscription, no cleanup:
+
+~~~ts
+import { Component } from '@angular/core';
+import { translate } from '@ngx-translate/core';
+
+@Component({ /* ... */ })
+export class MyComponent {
+  greeting = translate('app.hello', { name: 'World' });
+}
+~~~
+
+Each parameter (`key`, `params`, `lang`) accepts a plain value, an arrow function, or a
+Signal — signal reads inside the function are tracked automatically.
+
+### Requesting a translation in a specific language
+
+`get()`, `instant()`, `stream()`, and the standalone `translate()` function all accept an
+optional third `lang` parameter that bypasses the current/fallback chain. Use it to fetch a
+specific language without changing the active one:
+
+~~~ts
+// Always returns the German text, regardless of the current language
+const greetingDe = this.translate.instant('app.hello', { name: 'Welt' }, 'de');
+
+this.translate.get('app.hello', { name: 'John' }, 'fr').subscribe(text => {
+  console.log(text); // French
+});
+~~~
+
 ## Using Dynamic Ids
 
 You can construct the translation keys dynamically by using simple string concatenation inside the template:
@@ -210,3 +314,5 @@ will match the following translation:
   }
 }
 ~~~
+
+<BabelEditCallout variant="translate" />
