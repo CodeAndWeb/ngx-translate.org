@@ -1,0 +1,37 @@
+---
+import { Aside } from '@astrojs/starlight/components';
+
+type Variant = 'workflow' | 'translate';
+
+interface Props {
+    variant: Variant;
+}
+
+const { variant } = Astro.props as Props;
+
+const copy: Record<Variant, { title: string; body: string }> = {
+    workflow: {
+        title: 'Recommended workflow with BabelEdit',
+        body: "BabelEdit, from the maintainers of ngx-translate, helps you edit every language side-by-side, keep your JSON files in sync, and pre-translate with DeepL or Google Translate.",
+    },
+    translate: {
+        title: 'Translating with BabelEdit',
+        body: "BabelEdit, from the maintainers of ngx-translate, understands ngx-translate's JSON files natively — edit all languages at once and spot missing keys instantly.",
+    },
+};
+
+const tutorialUrl = `https://www.codeandweb.com/babeledit/tutorials/how-to-translate-your-angular-app-with-ngx-translate?mtm_campaign=ngx-callout-${variant}`;
+const productUrl = `https://www.codeandweb.com/babeledit?mtm_campaign=ngx-callout-${variant}`;
+const { title, body } = copy[variant];
+---
+
+<div class="not-content print:hidden">
+    <Aside type="tip" title={title}>
+        <p>{body}</p>
+        <p>
+            <a href={tutorialUrl} rel="nofollow sponsored">Read the Angular tutorial</a>
+            {' · '}
+            <a href={productUrl} rel="nofollow sponsored">Visit BabelEdit</a>
+        </p>
+    </Aside>
+</div>

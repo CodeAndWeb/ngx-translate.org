@@ -128,9 +128,14 @@ export default defineConfig({
               starlightLinksValidator({exclude: ["/"] }),
               starlightVersions({
                   current: {
-                      label: "v17"
+                      label: "v18"
                   },
                   versions: [
+                      {
+                          slug: 'v17',
+                          label: 'v17',
+                          redirect: "root",
+                      },
                       {
                         slug: 'v16',
                         label: 'v16',

@@ -1,0 +1,138 @@
+---
+title: Install ngx-translate in Angular - Setup Guide
+description: Learn how to install and configure ngx-translate in your Angular
+  project. Complete setup guide with code examples for Angular translation and
+  internationalization.
+slug: v17/getting-started/installation
+---
+
+import {Tabs, TabItem, CardGrid, LinkCard} from "@astrojs/starlight/components";
+import { PackageManagers } from 'starlight-package-managers'
+
+For detailed information about compatibility with different Angular versions,
+you can check out the [Angular Compatibility](/v17/getting-started/angular-compatibility/) documentation.
+
+To get started with Angular translation and internationalization (i18n), you can add the ngx-translate npm modules to your project:
+
+<PackageManagers pkg="@ngx-translate/core @ngx-translate/http-loader" />
+
+`@ngx-translate/http-loader` is optional. You can use it to load translation files on demand from your server.
+
+## Setup
+
+ngx-translate works great with Angular's modern standalone components for building multilingual applications. If you're using NgModules, you can check out the [NgModules Support](/v17/reference/ngmodules/) documentation.
+
+:::note
+For comprehensive information about using ngx-translate with NgModules, you can refer to the [NgModules Support](/v17/reference/ngmodules/) documentation.
+:::
+
+## Configuration
+
+### Initialising the TranslateService
+
+To use ngx-translate for Angular translation in your project, you'll need to use the `provideTranslateService()` function in your `appConfig`:
+
+#### Basic Setup
+
+```ts {2, 7-9} title="app.config.ts"
+import {ApplicationConfig, provideZoneChangeDetection} from "@angular/core";
+import {provideTranslateService} from "@ngx-translate/core";
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideZoneChangeDetection({ eventCoalescing: true }),
+    provideTranslateService({
+      fallbackLang: 'en',
+      lang: 'en'
+    })
+  ],
+};
+```
+
+#### Setup with HTTP Loader
+
+For most applications, you'll want to load translations from JSON files. The HTTP loader makes this easy:
+
+```ts {2-3, 9-15} title="app.config.ts"
+import {ApplicationConfig, provideZoneChangeDetection} from "@angular/core";
+import {provideTranslateService, provideTranslateLoader} from "@ngx-translate/core";
+import {provideTranslateHttpLoader} from "@ngx-translate/http-loader";
+import {provideHttpClient} from "@angular/common/http";
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideZoneChangeDetection({ eventCoalescing: true }),
+    provideHttpClient(),
+    provideTranslateService({
+      loader: provideTranslateHttpLoader({
+        prefix: '/assets/i18n/',
+        suffix: '.json'
+      }),
+      fallbackLang: 'en',
+      lang: 'en'
+    })
+  ],
+};
+```
+
+:::caution
+**Important: Always Use Provider Functions Inside provideTranslateService**
+
+You should always use provider functions within the `provideTranslateService` configuration object:
+
+```typescript
+// CORRECT USAGE
+provideTranslateService({
+  loader: provideTranslateLoader(CustomLoader),
+  compiler: provideTranslateCompiler(CustomCompiler)
+})
+```
+
+```typescript
+// INCORRECT USAGE - Will not work as expected
+[
+  provideTranslateService(),
+  provideTranslateLoader(CustomLoader),  // This won't be used by TranslateService
+  provideTranslateCompiler(CustomCompiler)  // This won't be used by TranslateService
+]
+```
+
+This is because `provideTranslateService` loads default implementations for any providers not
+explicitly included in its configuration object. If you provide these services separately,
+they might not be used by the TranslateService.
+:::
+
+### Initialize the `TranslateService` for your application
+
+In your components, you'll need to import `TranslatePipe` and `TranslateDirective` to your `imports`. You can access the
+TranslateService using the modern `inject()` function:
+
+```ts {2-7,12,16-20} title="app.component.ts"
+import { Component, inject } from '@angular/core';
+import {
+    TranslateService,
+    TranslatePipe,
+    TranslateDirective
+} from "@ngx-translate/core";
+
+@Component({
+    selector: 'app-root',
+    standalone: true,
+    imports: [TranslatePipe, TranslateDirective],
+    templateUrl: './app.component.html',
+    styleUrls: ['./app.component.scss']
+})
+export class AppComponent {
+    private translate = inject(TranslateService);
+
+    constructor() {
+        this.translate.addLangs(['de', 'en']);
+        this.translate.setFallbackLang('en');
+        this.translate.use('en');
+    }
+}
+```
+
+Now, skip the next chapter:
+
+<LinkCard title="Loading translation files" href="/getting-started/translation-files/" />
