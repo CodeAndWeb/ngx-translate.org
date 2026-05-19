@@ -14,8 +14,8 @@ ngx-translate allows you to easily integrate Angular translation functionality i
 ngx-translate v18 is built on [Angular Signals](https://angular.dev/guide/signals).
 Signals are reactive values you call as a function to read the current value
 (e.g. `currentLang()`). Reads inside templates, `computed()`, and `effect()` are tracked
-automatically, so the UI updates whenever the underlying signal changes — no subscriptions,
-no manual change detection. If you're new to Signals, the [official Angular guide](https://angular.dev/guide/signals)
+automatically, so the UI updates whenever the underlying signal changes, with no subscriptions
+and no manual change detection. If you're new to Signals, the [official Angular guide](https://angular.dev/guide/signals)
 is a 5-minute read and covers everything you need to follow the examples below.
 
 
@@ -92,7 +92,7 @@ This is how you use the **directive**:
 ~~~
 
 <Aside type="caution" title="Element text as the translation key is deprecated">
-  Using the element's text content as the key — `<div translate>HELLO</div>` —
+  Using the element's text content as the key (`<div translate>HELLO</div>`)
   is deprecated in v18 and **will be removed in v19**. v18 logs a console
   warning at runtime for each offending element.
 
@@ -113,7 +113,7 @@ This is how you use the **directive**:
 
 `*translateBlock` is a new structural directive in v18 that exposes a typed `t()`
 function to a template block. It's the cleanest way to translate several keys in one
-place — and the recommended replacement for the deprecated content-as-key pattern:
+place, and the recommended replacement for the deprecated content-as-key pattern:
 
 ~~~html
 <ng-container *translateBlock="let t">
@@ -122,10 +122,10 @@ place — and the recommended replacement for the deprecated content-as-key patt
 </ng-container>
 ~~~
 
+Add `TranslateBlockDirective` to your component's `imports` array.
+
 Internally `t()` delegates to `TranslateService.instant()`, so signal tracking keeps the
-block up to date when the language changes or translations are reloaded. A full cookbook
-of patterns will follow — for now this minimal example is enough to migrate off
-content-as-key.
+block up to date when the language changes or translations are reloaded.
 
 ### Using HTML Tags in Translations
 
@@ -197,7 +197,7 @@ loaded or if translations have been manually set using
 
 ### Reacting to the current language with `currentLang()`
 
-In v18 `TranslateService.currentLang` is a `Signal<Language | null>` — call it as a function
+In v18 `TranslateService.currentLang` is a `Signal<Language | null>`. Call it as a function
 to read the active language. It works directly in templates, `computed()`, and `effect()`,
 so the UI tracks language changes without manual subscriptions:
 
@@ -228,8 +228,9 @@ export class AppComponent {
 ### Standalone `translate()` function
 
 v18 adds a standalone `translate()` function for use inside an injection context (such as a
-component class field). It returns a `Signal<Translation>` that updates automatically on
-language changes or translation reloads — no subscription, no cleanup:
+component class field). It returns a `Signal<Translation>` for a single key, or a
+`Signal<TranslationObject>` for an array of keys, and updates automatically on language
+changes or translation reloads. No subscription, no cleanup:
 
 ~~~ts
 import { Component } from '@angular/core';
@@ -242,7 +243,7 @@ export class MyComponent {
 ~~~
 
 Each parameter (`key`, `params`, `lang`) accepts a plain value, an arrow function, or a
-Signal — signal reads inside the function are tracked automatically.
+Signal. Signal reads inside the function are tracked automatically.
 
 ### Requesting a translation in a specific language
 
