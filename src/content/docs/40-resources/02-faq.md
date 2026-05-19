@@ -26,7 +26,7 @@ a pain. So we created a tool to help with this:
 ### How is developing for this library financed?
 
 It's easy to start a library like ngx-translate, but maintaining and supporting it
-long-term requires time and effort — or, in other words, some form of funding.
+long-term requires time and effort, or in other words, some form of funding.
 
 For us, this comes from [BabelEdit](https://www.codeandweb.com/babeledit).
 You are not required to use it, of course, but we would be happy if you give it a try.
@@ -60,7 +60,7 @@ We welcome contributions from the community and encourage you to participate in 
 the library. Your feedback helps us make `ngx-translate` better for everyone!
 
 Please read [What's the future of this library?](#whats-the-future-of-this-library) to
-understand our plans for the library &mdash; especially when it comes to feature requests.
+understand our plans for the library, especially when it comes to feature requests.
 
 
 
@@ -144,9 +144,9 @@ constructor(private translate: TranslateService) {}
 private translate = inject(TranslateService);
 ```
 
-### Can I still use NgModule configuration in v17?
+### Can I still use NgModule configuration in v18?
 
-Yes! The traditional `TranslateModule.forRoot()` configuration still works in v17. The new provider functions are recommended for standalone components, but both approaches are supported.
+No. `TranslateModule` and `TranslateModule.forRoot()` / `forChild()` are removed in v18. Use `provideTranslateService()` and `provideChildTranslateService()` instead. See the [Migration Guide](/getting-started/migration-guide/) for details.
 
 ### What's the difference between RootTranslateServiceConfig and ChildTranslateServiceConfig?
 

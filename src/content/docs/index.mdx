@@ -1,6 +1,6 @@
 ---
-title: ngx-translate — Angular i18n Library
-description: Official documentation for @ngx-translate/core — the powerful translation and internationalization (i18n) library for Angular.
+title: ngx-translate - Angular i18n Library
+description: Official documentation for @ngx-translate/core, the powerful translation and internationalization (i18n) library for Angular.
 head:
   - tag: meta
     attrs:
@@ -22,18 +22,18 @@ import { PackageManagers } from 'starlight-package-managers'
 v18 rebuilds ngx-translate on Angular Signals and ships a smaller, more focused API
 surface. The peer dependency is **Angular 18+**. Highlights:
 
-* **`currentLang()` is a Signal** — read it directly in templates, `computed()`, and
+* **`currentLang()` is a Signal**. Read it directly in templates, `computed()`, and
   `effect()`. No manual subscriptions for language changes.
-* **Standalone [`translate()`](/getting-started/translating-your-components/#standalone-translate-function) function** — returns a Signal you can read in templates,
+* **Standalone [`translate()`](/getting-started/translating-your-components/#standalone-translate-function) function**. Returns a Signal you can read in templates,
   perfect for component fields outside an injection context.
-* **`*translateBlock` structural directive** — translates a region with a typed `t()`
+* **`*translateBlock` structural directive**. Translates a region with a typed `t()`
   function and replaces the deprecated content-as-key pattern.
-* **Multi-resource HTTP loader** — a built-in `resources: [...]` array on
+* **Multi-resource HTTP loader**. A built-in `resources: [...]` array on
   [`provideTranslateHttpLoader()`](/getting-started/translation-files/#loading-multiple-resources),
   with later entries overwriting earlier ones.
-* **`failOnError` permissive default** — a 404 now resolves to an empty object so the app
+* **`failOnError` permissive default**. A 404 now resolves to an empty object so the app
   keeps working; opt into strict v17 behavior with `failOnError: true`.
-* **NgModule removed** — `TranslateModule.forRoot/forChild` are gone; use
+* **NgModule removed**. `TranslateModule.forRoot/forChild` are gone; use
   [`provideTranslateService()`](/getting-started/installation/) and
   `provideChildTranslateService()` instead.
 

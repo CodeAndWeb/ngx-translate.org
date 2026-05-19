@@ -47,9 +47,9 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     // Set the static translations for immediate availability
     this.translate.setTranslation('en', defaultTranslations);
-    
-    // Set the default language - translations are already available
-    this.translate.setDefaultLang('en');
+
+    // Set the fallback language - translations are already available
+    this.translate.setFallbackLang('en');
     this.translate.use('en');
   }
 }
@@ -117,9 +117,9 @@ export class AppComponent implements OnInit {
   constructor(private translate: TranslateService) {}
 
   ngOnInit() {
-    // Set default language and wait for translations to load
-    this.translate.setDefaultLang('en');
-    
+    // Set fallback language and wait for translations to load
+    this.translate.setFallbackLang('en');
+
     // Use the language and wait for the observable to resolve
     this.translate.use('en').subscribe({
       next: () => {
@@ -172,8 +172,8 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideHttpClient(),
     provideTranslateService({
-      defaultLanguage: 'en',
-      missingTranslationHandler: 
+      fallbackLang: 'en',
+      missingTranslationHandler:
         provideMissingTranslationHandler(EmptyMissingTranslationHandler)
     })
   ],
@@ -196,7 +196,7 @@ export class AppComponent implements OnInit {
   constructor(private translate: TranslateService) {}
 
   ngOnInit() {
-    this.translate.setDefaultLang('en');
+    this.translate.setFallbackLang('en');
     this.translate.use('en');
   }
 }

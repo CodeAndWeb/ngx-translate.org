@@ -66,7 +66,7 @@ If your build or runtime breaks, find the message below.
 | TS: `Module '"@ngx-translate/core"' has no exported member 'TranslateModule'.` | Remove module imports. Use `provideTranslateService()` and import `TranslatePipe` / `TranslateDirective` directly in component `imports`. |
 | TS: `'defaultLanguage' does not exist in type 'RootTranslateServiceConfig'` | Rename the config key to `fallbackLang`. |
 | TS: `'useDefaultLang' does not exist in type 'RootTranslateServiceConfig'` | Remove it. `fallbackLang` is enough. |
-| TS: `'extend' does not exist in type 'ChildTranslateServiceConfig'` | Move to `provideChildTranslateService()` (where it is no longer needed — connected children are the default). |
+| TS: `'extend' does not exist in type 'ChildTranslateServiceConfig'` | Move to `provideChildTranslateService()` (where it is no longer needed, since connected children are the default). |
 | TS: `'langs' does not exist on type 'TranslateService'` | Use `translate.getLangs()`. |
 | TS: `Argument of type 'string' is not assignable to parameter of type 'string \| null'` on `getCurrentLang()` return | `getCurrentLang()` now returns `Language \| null`. Add a null check or default. |
 | TS: `Cannot find name 'DefaultLangChangeEvent'` | Use `FallbackLangChangeEvent`. |
@@ -143,7 +143,7 @@ A child with `extend: true` was a connected child sharing the parent's translati
 export class FeatureModule {}
 ```
 
-**Symptom:** The `TranslateModule` import itself fails to resolve (`Module '"@ngx-translate/core"' has no exported member 'TranslateModule'.`), so there is no specific error for `extend: true` — the whole `forChild` call is gone. Any code still importing `TranslateModule` won't compile.
+**Symptom:** The `TranslateModule` import itself fails to resolve (`Module '"@ngx-translate/core"' has no exported member 'TranslateModule'.`), so there is no specific error for `extend: true`. The whole `forChild` call is gone. Any code still importing `TranslateModule` won't compile.
 
 **Fix (v18), route-level providers:**
 
@@ -187,7 +187,7 @@ An isolated child was a fully independent service with its own language state. I
 export class FeatureModule {}
 ```
 
-**Symptom:** As above, the `TranslateModule` import fails to resolve, so `isolate: true` has no dedicated error — the whole `forChild` call needs to be replaced.
+**Symptom:** As above, the `TranslateModule` import fails to resolve, so `isolate: true` has no dedicated error. The whole `forChild` call needs to be replaced.
 
 **Fix (v18):**
 
