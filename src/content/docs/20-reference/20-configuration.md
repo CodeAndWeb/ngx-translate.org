@@ -1,252 +1,245 @@
 ---
 title: Configuration
-description: Reference documentation for configuring ngx-translate v17.
+description: Reference documentation for configuring ngx-translate v18 — provider functions, plugin helpers, and the HTTP loader.
 slug: reference/configuration
 ---
 
-ngx-translate is configured using provider functions in Angular applications with standalone components.
+ngx-translate is configured using standalone provider functions. The legacy
+`TranslateModule.forRoot/forChild` API was removed in v18; see
+[NgModules Support](/reference/ngmodules/) for the transition stub.
 
-For detailed information about Angular version compatibility, see the [Angular Compatibility](/getting-started/angular-compatibility/) documentation.
+For Angular version compatibility, see
+[Angular Compatibility](/getting-started/angular-compatibility/).
 
-For comprehensive information about using ngx-translate with NgModules, 
-see the [NgModules Support](/reference/ngmodules/) documentation.
+## `provideTranslateService` / `provideChildTranslateService` config
 
+Both provider functions accept the same plugin slots (`loader`, `compiler`,
+`parser`, `missingTranslationHandler`); the root variant adds language fields
+(`fallbackLang`, `lang`). The plugin slots accept the **`TranslateProvider`**
+shape — a regular Angular `Provider` object, the matching `provideTranslate*`
+helper, a bare class, or a bare factory function. Bare classes and factories
+are auto-wrapped under the correct DI token (see
+[Bare-class auto-wrap warning](/reference/translate-service-api/#bare-class-auto-wrap-warning)).
+
+:::note
+`TranslateProvider` is a **type** (alias for `Provider | (() => unknown)`), not
+a callable function. Where older docs spoke of a "TranslateProvider shape",
+that means the union of accepted forms above.
+:::
 
 ### provideTranslateService(config: RootTranslateServiceConfig)
 
-Use the `provideTranslateService()` function in your `appConfig` to configure the service. 
-
-This root `TranslateService` manages the translations and language changes.
-You can attach children using the `provideChildTranslateService()` in components that there
-the same settings.
-
-You can also provide multiple independent instances of `TranslateService` using `provideTranslateService()`.
-With this, it's possible to use different languages in parts of your application.
+Configures the root `TranslateService` at app bootstrap. Use it once in
+`appConfig` (or in `bootstrapApplication` providers).
 
 ~~~ts title="app.config.ts"
-import { provideTranslateService } from '@ngx-translate/core';
+import { ApplicationConfig } from '@angular/core';
+import { provideHttpClient } from '@angular/common/http';
+import { provideTranslateService, provideTranslateLoader } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 
 export const appConfig: ApplicationConfig = {
-    providers: [
-        provideTranslateService({
-            loader: provideTranslateHttpLoader({prefix:"/i18n/app/"}),
-            fallbackLang: 'en',
-            lang: 'de'
-        })
-    ],
+  providers: [
+    provideHttpClient(),
+    provideTranslateService({
+      loader: provideTranslateHttpLoader({ prefix: '/assets/i18n/' }),
+      fallbackLang: 'en',
+      lang: 'de',
+    }),
+  ],
 };
 ~~~
 
 #### Configuration
 
-All properties are optional.
+All properties are optional. Plugin slots fall back to no-op / default
+implementations when omitted.
 
-| Name               | Type      | Description                                                                                                                                                                  |
-|--------------------|-----------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `fallbackLang`     | `string`  | The fallback language used when a translation is missing in the current language.                                                                                            |
-| `lang`             | `string`  | The initial language to set on startup.                                                                                                                                      |
-| `extend`           | `boolean` | Default: `false`. When loading additional translations, merges the translations with the already loaded instread of replacing them.                                          |
-| `loader`           | `Provider`| Provides a [`TranslateLoader`](/reference/translate-loader-api/) to load translations. If not using a loader, you can provide translations useing the `setTranslation()` method. |
-| `compiler`         | `Provider`| Provides a [`TranslateCompiler`](/reference/translate-compiler-api/) to prepare translations after loading.                                                                  |
-| `parser`           | `Provider`| Provides a [`TranslateParser`](/reference/translate-parser-api/) that interpolates parameters in translations.                                                               |
-| `missingTranslationHandler` | `Provider`| Provides a [`MissingTranslationHandler`](/reference/missing-translation-handler-api/) that handles missing translations.                                                     |
+| Name                        | Type                  | Description                                                                                                                                                       |
+|-----------------------------|-----------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `fallbackLang`              | `string`              | Fallback language used when a translation is missing in the current language.                                                                                     |
+| `lang`                      | `string`              | Initial active language on startup.                                                                                                                               |
+| `loader`                    | `TranslateProvider`   | Provides a [`TranslateLoader`](/reference/translate-loader-api/). Defaults to a no-op loader; provide `setTranslation()`-loaded data if you don't use one.        |
+| `compiler`                  | `TranslateProvider`   | Provides a [`TranslateCompiler`](/reference/translate-compiler-api/) that pre-processes translations after loading. Defaults to a no-op.                          |
+| `parser`                    | `TranslateProvider`   | Provides a [`TranslateParser`](/reference/translate-parser-api/) that interpolates `{{ placeholder }}` values. Defaults to the bundled `TranslateDefaultParser`.  |
+| `missingTranslationHandler` | `TranslateProvider`   | Provides a [`MissingTranslationHandler`](/reference/missing-translation-handler-api/). Defaults to returning the key.                                             |
 
-If `fallbackLang` is set, ngx-translate uses that language in case no translation is found in the current language.
-If it's not set, the `missingTranslationHandler` is called.
+If `fallbackLang` is unset and a key is missing in the current language, the
+`missingTranslationHandler` is invoked directly.
 
 :::caution
-**Provider Precedence and Overwrites**
+**Provider precedence**
 
-When using `provideTranslateService`, any services (like loader, compiler, parser, or missingTranslationHandler) not explicitly provided in the configuration object will be set to their default implementations. If you later provide a custom service elsewhere (e.g., in a feature module or component), it may overwrite the default or previously configured provider, potentially leading to unexpected behavior.
-
-**Best Practice:**  
-Always provide all custom services (loader, compiler, parser, missingTranslationHandler) directly in the configuration object passed to `provideTranslateService` at the root level. This ensures your intended services are used and avoids accidental overwrites or conflicts with defaults.
+Anything passed in the config object is bound under the correct DI token by
+`provideTranslateService()`. Top-level `provideTranslate*` calls in the same
+`providers` array are **not** picked up — the defaults installed by
+`provideTranslateService()` win. Always nest plugin helpers inside the config
+object.
 :::
 
+### provideChildTranslateService(config: ChildTranslateServiceConfig)
 
+Creates a connected child service with its own store and (optionally) its own
+loader. Child services delegate `currentLang` / `fallbackLang` to the root and
+walk up the parent chain when a key isn't found locally. Use this inside route
+or component providers — typically for lazy-loaded features.
 
-
-#### Deprecated Properties
-
-| Name               | Type      | Description                                                                                                                                                                      |
-|--------------------|-----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `useDefaultLang`   | `boolean` | **Deprecated**: Use `fallbackLang` instead. If `true`, shows text from the fallback language if a translation ID is not found.                                                 |
-| `defaultLanguage`  | `string`  | **Deprecated**: Use `fallbackLang` instead. The fallback language used when a translation is missing in the current language.                                                  |
-
-
-### provideChildTranslateService(config: ChildTranslateServiceConfig
-
-Use this function in child injectors or lazy-loaded components when using standalone components.
-This child service is directly connected with the parent `TranslateService`. Language changes to any of the
-services are reflected in all services.
-
-The parent and all children share the same translations. By default, loading new translations in a component 
-adds the new translations to the parent `TranslateService`.
+For an **isolated** child (no parent fallback, own language state), use
+`provideTranslateService()` again on the route instead.
 
 ~~~ts title="feature.routes.ts"
+import { Routes } from '@angular/router';
 import { provideChildTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 
 export const routes: Routes = [
-    {
-        path: 'feature',
-        providers: [
-            provideChildTranslateService({
-                loader: provideTranslateHttpLoader({prefix:"/i18n/feature/"}),
-            })
-        ],
-        loadChildren: () => import('./feature/feature.routes')
-    }
+  {
+    path: 'feature',
+    providers: [
+      provideChildTranslateService({
+        loader: provideTranslateHttpLoader({ prefix: '/assets/i18n/feature/' }),
+      }),
+    ],
+    loadChildren: () => import('./feature/feature.routes'),
+  },
 ];
 ~~~
 
 #### Configuration
 
-Configuration interface for `provideChildTranslateService()`.  All properties are optional.
+| Name                        | Type                | Description                                                                                                       |
+|-----------------------------|---------------------|-------------------------------------------------------------------------------------------------------------------|
+| `loader`                    | `TranslateProvider` | Override the loader for this child only.                                                                          |
+| `compiler`                  | `TranslateProvider` | Override the compiler for this child only.                                                                        |
+| `parser`                    | `TranslateProvider` | Override the parser for this child only.                                                                          |
+| `missingTranslationHandler` | `TranslateProvider` | Override the handler for this child only.                                                                         |
 
-| Name               | Type      | Description                                                                                                                      |
-|--------------------|-----------|----------------------------------------------------------------------------------------------------------------------------------|
-| `extend`           | `boolean` | Default: `true`. When loading translations, merge the translations with the parent `TranslateService` instead of replacing them. |
-| `loader`           | `Provider`| Provides a [`TranslateLoader`](/reference/translate-loader-api/) to load translations.                                           |
-| `compiler`         | `Provider`| Provides a [`TranslateCompiler`](/reference/translate-compiler-api/) to prepare translations after loading.                      |
-| `parser`           | `Provider`| Provides a [`TranslateParser`](/reference/translate-parser-api/) that interpolates parameters in translations.                   |
-| `missingTranslationHandler` | `Provider`| Provides a [`MissingTranslationHandler`](/reference/missing-translation-handler-api/) that handles missing translations.         |
+Unspecified slots use the parent service's plugins. Most child services only
+override `loader` to point at a feature-specific translation file. See
+[Concepts → Hierarchical Services](/reference/concepts/#hierarchical-services)
+for the chain semantics.
 
-If `loader`, `compiler`, `parser` or `missingTranslationHandler` is not provided, `TranslateService` uses the ones provided in the parent `TranslateService`.
+## Provider helpers
 
-:::note
-You usually might want to use the `compiler`, `parser` and `missingTranslationHandler` from the parent `TranslateService` and only provide
-a new `loader` with a new path to load additional translations for this component.
-:::
-
-
-
-
-## Provider Functions
-
-### Individual Provider Functions
-
-NGX-Translate v17 uses a modern provider function pattern that replaces the traditional Angular provider syntax. For a conceptual overview, see the [Provider Functions section in Concepts](/reference/concepts/#provider-functions).
-
-**Traditional Angular provider syntax:**
-```typescript
-{ provide: TranslateLoader, useClass: CustomLoader }
-```
-
-**NGX-Translate provider function syntax:**
-```typescript
-provideTranslateLoader(CustomLoader)
-```
-
-This pattern applies to all provider functions in ngx-translate:
+Each plugin ships with a `provideTranslate*` helper. The helpers accept either
+a class **or** a factory function:
 
 ~~~ts
-import { 
-    provideTranslateLoader,
-    provideTranslateCompiler,
-    provideTranslateParser,
-    provideMissingTranslationHandler
+import {
+  provideTranslateLoader,
+  provideTranslateCompiler,
+  provideTranslateParser,
+  provideMissingTranslationHandler,
 } from '@ngx-translate/core';
 ~~~
 
-Provider functions should always be used within the `provideTranslateService` configuration object:
+### Class form
 
-```typescript
-// CORRECT USAGE
-provideTranslateService({
-  loader: provideTranslateLoader(CustomLoader),
-  compiler: provideTranslateCompiler(CustomCompiler)
-})
-```
-
-```typescript
-// INCORRECT USAGE - might not work as expected
-[
-  provideTranslateService(),
-  provideTranslateLoader(CustomLoader),  
-  provideTranslateCompiler(CustomCompiler)
-]
-```
-
-This is because `provideTranslateService` loads default implementations for any providers not explicitly included in its 
-configuration object. If you provide these services separately, they won't be used by the TranslateService.
-
-
-#### provideTranslateLoader(loader: Type\<TranslateLoader\>)
-
-Provides a custom loader implementation.
+Use the class form when Angular's constructor DI can satisfy every dependency
+of your plugin.
 
 ~~~ts title="app.config.ts"
-import { provideTranslateLoader } from '@ngx-translate/core';
-
-export const appConfig: ApplicationConfig = {
-    providers: [
-        provideTranslateService({
-            loader: provideTranslateLoader(MyTranslateLoader)
-        })
-    ],
-};
-~~~
-
-#### provideTranslateCompiler(compiler: Type\<TranslateCompiler\>)
-
-Provides a custom compiler implementation.
-
-~~~ts
 provideTranslateService({
-    compiler: provideTranslateCompiler(MyCompiler)
+  loader: provideTranslateLoader(MyTranslateLoader),
+  compiler: provideTranslateCompiler(MyCompiler),
+  parser: provideTranslateParser(MyParser),
+  missingTranslationHandler: provideMissingTranslationHandler(MyHandler),
 })
 ~~~
 
-#### provideTranslateParser(parser: Type\<TranslateParser\>)
+### Factory form
 
-Provides a custom parser implementation.
-
-~~~ts
-provideTranslateService({
-    parser: provideTranslateParser(MyParser)
-})
-~~~
-
-#### provideMissingTranslationHandler(handler: Type\<MissingTranslationHandler\>)
-
-Provides a custom missing translation handler implementation.
+Use the factory form when your plugin needs runtime arguments (e.g. a custom
+path) or values that come from `inject()`. New in v18.
 
 ~~~ts
 provideTranslateService({
-    missingTranslationHandler: provideMissingTranslationHandler(MyHandler)
+  loader: provideTranslateLoader(() => new MyLoader(inject(HttpClient), '/i18n')),
+  compiler: provideTranslateCompiler(() => new MyCompiler({ icu: true })),
 })
 ~~~
+
+The factory runs inside Angular's injection context, so you can call
+`inject()` freely.
 
 ## HTTP Loader Configuration
 
-### provideTranslateHttpLoader(config?: Partial\<TranslateHttpLoaderConfig\>)
+### provideTranslateHttpLoader(config?)
 
-The HTTP loader now uses a configuration-based approach:
+The HTTP loader fetches JSON translation files. v18 adds built-in multi-resource
+support — pass a `resources` array to load and deep-merge several sources per
+language.
+
+#### Single-source form
 
 ~~~ts title="app.config.ts"
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 
-export const appConfig: ApplicationConfig = {
-    providers: [
-        provideTranslateService({
-            loader: provideTranslateHttpLoader({
-                prefix: '/assets/i18n/',
-                suffix: '.json',
-                enforceLoading: false,
-                useHttpBackend: false
-            })
-        })
-    ],
-};
+provideTranslateService({
+  loader: provideTranslateHttpLoader({
+    prefix: '/assets/i18n/',
+    suffix: '.json',
+    enforceLoading: false,
+    useHttpBackend: false,
+  }),
+})
 ~~~
 
-#### TranslateHttpLoaderConfig
+| Name             | Type      | Default          | Description                                                                                                  |
+|------------------|-----------|------------------|--------------------------------------------------------------------------------------------------------------|
+| `prefix`         | `string`  | `/assets/i18n/`  | URL prefix. Final URL = `${prefix}${lang}${suffix}`.                                                         |
+| `suffix`         | `string`  | `.json`          | URL suffix.                                                                                                  |
+| `enforceLoading` | `boolean` | `false`          | If `true`, appends a cache-busting `?enforceLoading=<timestamp>` query string to bypass HTTP caches.         |
+| `useHttpBackend` | `boolean` | `false`          | If `true`, bypasses HTTP interceptors by using `HttpBackend` directly.                                       |
+| `failOnError`    | `boolean` | `false`          | See [failOnError](#failonerror) below.                                                                       |
 
-| Name               | Type      | Default              | Description                                                                                                                                                            |
-|--------------------|-----------|----------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `prefix`           | `string`  | `/assets/i18n/`      | The prefix for translation file URLs.                                                                                                                                  |
-| `suffix`           | `string`  | `.json`              | The suffix for translation file URLs.                                                                                                                                  |
-| `enforceLoading`   | `boolean` | `false`              | If `true`, adds a cache-busting timestamp to requests. This ensures that the translations are always fetched from the server instead of using a version from the cache |
-| `useHttpBackend`   | `boolean` | `false`              | If `true`, bypasses HTTP interceptors by using `HttpBackend` directly.                                                                                                 |
+#### Multi-resource HTTP loader
+
+Pass `resources` instead of `prefix`/`suffix` to load and deep-merge several
+sources per language. Each entry can be a bare prefix string, or a
+`{ prefix, suffix }` object. All resources are fetched in parallel; results
+are **deep-merged in order**, so later entries overwrite earlier entries on
+key collisions.
+
+~~~ts
+provideTranslateHttpLoader({
+  resources: [
+    '/assets/i18n/common/',                                // shared dictionary
+    { prefix: '/assets/i18n/feature/', suffix: '.json' },  // feature overrides
+  ],
+})
+~~~
+
+| Name             | Type                                          | Default        | Description                                                                              |
+|------------------|-----------------------------------------------|----------------|------------------------------------------------------------------------------------------|
+| `resources`      | `(string \| { prefix: string; suffix?: string })[]` | required       | Resources to load and merge per language. Later entries overwrite earlier on collision. |
+| `enforceLoading` | `boolean`                                     | `false`        | Cache-busting query string, as above.                                                    |
+| `useHttpBackend` | `boolean`                                     | `false`        | Bypass interceptors via `HttpBackend`.                                                   |
+| `failOnError`    | `boolean`                                     | `false`        | See [failOnError](#failonerror) below.                                                   |
+
+`provideTranslateMultiHttpLoader()` is also exported as an explicit alias of
+the multi-resource form.
+
+This built-in support replaces the standalone
+`@codeandweb/ngx-translate-multi-http-loader` package.
+
+#### failOnError
+
+By default the HTTP loader is **permissive** (`failOnError: false`): a failed
+request — for example a 404 on a missing language file — is caught
+per-resource, replaced with an empty object, and logged via
+`console.warn(@ngx-translate/http-loader: error loading translation for <lang>: ...)`.
+Other resources still contribute their keys, and the app keeps rendering with
+partial translations.
+
+Pass `failOnError: true` to restore the v17 fail-fast behavior. Any per-resource
+failure then propagates and fails the whole language load. Use this when a
+missing translation file should fail a deploy rather than silently serve a
+partial dictionary.
+
+~~~ts
+provideTranslateHttpLoader({
+  prefix: '/assets/i18n/',
+  failOnError: true,
+})
+~~~

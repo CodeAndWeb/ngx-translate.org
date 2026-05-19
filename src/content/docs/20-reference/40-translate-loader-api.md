@@ -1,24 +1,27 @@
 ---
 title: TranslateLoader API
-description: Reference documentation of the TranslateLoader API for ngx-translate.
+description: Reference documentation of the TranslateLoader API for ngx-translate v18.
 slug: reference/translate-loader-api
 ---
 
-The loader is responsible for providing translations to your application.
-It can deliver either embedded translations or load them from a server.
+The loader is responsible for providing translations to your application. It
+can deliver embedded translations or load them from a server.
 
 ## API
 
 ~~~ts
 export abstract class TranslateLoader {
-  abstract getTranslation(lang: string): Observable<any>;
+  abstract getTranslation(lang: string): Observable<TranslationObject>;
 }
 ~~~
 
+The matching provider helper is `provideTranslateLoader()` — see
+[Configuration → Provider helpers](/reference/configuration/#provider-helpers).
+
 ## API Description
 
-The `getTranslation()` method receives the language code as input and
-needs to return an Observable that resolves to a translation object.
+`getTranslation()` receives the language code and returns an `Observable` that
+resolves to a translation object:
 
 ~~~json
 {
@@ -26,15 +29,42 @@ needs to return an Observable that resolves to a translation object.
 }
 ~~~
 
-There are several loaders already available as plugins. So in most
-cases, you'll not need to create your own. See [Installation](/getting-started/installation/)
-on how to use the default loader `@ngx-translate/http-loader`.
+In most cases you do not need to write your own loader. The bundled
+`@ngx-translate/http-loader` covers HTTP-based JSON loading and ships built-in
+multi-resource support — see
+[Configuration → HTTP Loader](/reference/configuration/#http-loader-configuration).
 
-You might also find 3rd party loaders in the [plugins section](/resources/plugins/).
+Third-party loaders are listed in the [plugins section](/resources/plugins/).
+
+## Registering a Custom Loader
+
+Pass the loader class (or a factory) to `provideTranslateLoader()`, then nest
+it inside `provideTranslateService()`:
+
+~~~ts title="app.config.ts"
+import { provideTranslateService, provideTranslateLoader } from '@ngx-translate/core';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideTranslateService({
+      loader: provideTranslateLoader(MyTranslateLoader),
+    }),
+  ],
+};
+~~~
+
+For loaders that need runtime arguments or values from `inject()`, use the
+factory form:
+
+~~~ts
+provideTranslateService({
+  loader: provideTranslateLoader(() => new MyLoader(inject(HttpClient), '/i18n')),
+})
+~~~
+
+You can also pass a bare class directly — it is auto-wrapped — but doing so
+emits a [bare-class auto-wrap warning](/reference/translate-service-api/#bare-class-auto-wrap-warning).
 
 ## How to Build a Custom Loader
 
-For detailed examples and step-by-step instructions on building and registering custom loaders, see [Write & use your own loader](/recipes/write-own-loader/).
-
-You can [configure](/reference/configuration/) ngx-translate with 
-a loader that loads translation files at runtime.
+For a step-by-step guide see [Write & use your own loader](/recipes/write-own-loader/).

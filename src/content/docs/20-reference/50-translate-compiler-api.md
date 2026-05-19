@@ -1,13 +1,17 @@
 ---
 title: TranslateCompiler API
-description: Reference documentation of the TranslateCompiler API for ngx-translate.
+description: Reference documentation of the TranslateCompiler API for ngx-translate v18.
 slug: reference/translate-compiler-api
 ---
 
-After a translation file is loaded using the [`TranslateLoader`](/reference/translate-loader-api/), it is passed
-through the `TranslateCompiler`. The compiler's job is to prepare the translation files for faster
-processing later. E.g. the `ngx-translate-messageformat-compiler` plugin makes use of this API to support
-ICU formatted messages.
+After translations are loaded by the [`TranslateLoader`](/reference/translate-loader-api/),
+they are passed through the `TranslateCompiler`. The compiler prepares each
+message for faster lookup at translate time — for example,
+`ngx-translate-messageformat-compiler` uses this API to compile ICU
+MessageFormat strings into interpolation functions.
+
+The matching provider helper is `provideTranslateCompiler()` — see
+[Configuration → Provider helpers](/reference/configuration/#provider-helpers).
 
 ## API
 
@@ -20,30 +24,51 @@ export abstract class TranslateCompiler {
 
 ## API Description
 
-* `compile()` is designed to compile a single translation.
-* `compileTranslations()` is designed to iterate over all translations of a file using the `compile()` method.
+* `compile()` compiles a single translation value.
+* `compileTranslations()` iterates over a full translation object, calling
+  `compile()` on each value.
 
-When translating a single message, the [`TranslateParser`](/reference/translate-parser-api/) uses the
-result of that function to interpolate the result string. You can provide your own `TranslateParser` that works with your custom data.
+When a single message is requested, the
+[`TranslateParser`](/reference/translate-parser-api/) consumes the compiler's
+result. The default parser behaves differently depending on the result type:
 
-The default parser works differently, depending on the result of each compiled message.
-
-If the result is a `string`, it replaces all occurrences of a parameter enclosed in curly braces (`{{parameter}}`) with
-the parameter value.
-
-If the result is a `Function`, it calls the function with the given translation parameters. The function is expected to
-accept an object and return a string:
+* `string` → standard `{{placeholder}}` substitution.
+* `Function` → called with the interpolation parameters; expected to return a
+  string:
 
 ~~~ts
-// Example of compiled translations with function
 const compiledTranslations = {
-  hello: function(params: any) { 
-    return `Hello ${params.name}!`; 
-  }
+  hello: (params: any) => `Hello ${params.name}!`,
 };
+~~~
+
+If you ship translations that are already in their final interpolator-ready
+form (e.g. emitted by a build step), store them with
+[`setCompiledTranslation()`](/reference/translate-service-api/#setcompiledtranslation)
+to bypass the compiler.
+
+## Registering a Custom Compiler
+
+~~~ts title="app.config.ts"
+import { provideTranslateService, provideTranslateCompiler } from '@ngx-translate/core';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideTranslateService({
+      compiler: provideTranslateCompiler(MyCompiler),
+    }),
+  ],
+};
+~~~
+
+The factory form is also supported:
+
+~~~ts
+provideTranslateService({
+  compiler: provideTranslateCompiler(() => new MyCompiler({ icu: true })),
+})
 ~~~
 
 ## How to Build a Custom Compiler
 
-For detailed examples and step-by-step instructions on building and registering custom compilers, see [Custom Translation Compilers](/recipes/custom-compiler-guide/).
-
+For a step-by-step guide see [Custom Translation Compilers](/recipes/custom-compiler-guide/).

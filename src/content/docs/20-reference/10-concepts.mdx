@@ -1,113 +1,145 @@
 ---
 title: Concepts
-description: ngx-translate uses translation files in JSON format. They can
-  either be nested or flat.
+description: How ngx-translate v18 is wired together — service hierarchy, plugin
+  system, and template translation APIs.
 slug: reference/concepts
 ---
 
-ngx-translate offers several customizable classes, making it highly adaptable
-to virtually any localization requirement.
+ngx-translate v18 is fully standalone, built on Angular Signals, and ships a
+small set of customizable plugins. This page summarizes the moving parts so
+the per-API reference pages can stay focused.
 
 ## Core Components
 
 * [**TranslateService**](/reference/translate-service-api/)
-  The central service: It provides the API for interacting with your
-  application, enabling you to load translations, switch languages, and
-  retrieve translated messages.
+  The central service. Manages language state, loads translations, and exposes
+  the API used by the pipe, directive, standalone `translate()` function, and
+  by your own component code.
+
+* **TranslatePipe** and **TranslateDirective**
+  Template-side translation. Both are standalone and imported directly into a
+  component's `imports` array. They are signal-driven in v18, so they react to
+  language changes automatically without manual subscriptions.
+
+* **`translate()` standalone function**
+  A functional API that returns a `Signal<Translation>`. Useful for component
+  class fields where you want a reactive value without subscribing. Must be
+  called inside an Angular injection context. The same surface is available as
+  `TranslateService.translate(key, params?, lang?)` for use outside an
+  injection context.
+
+* **`*translateBlock` directive**
+  Exposes a typed `t(key, params?)` function to a template region. Cleaner
+  than chaining pipes when several keys appear together. Delegates to
+  `TranslateService.instant()` internally.
 
 ## Configuration
 
-ngx-translate is configured using provider functions in Angular applications:
+ngx-translate is configured using standalone provider functions:
 
 * [**provideTranslateService**](/reference/configuration/#providetranslateserviceconfig-roottranslateserviceconfig)
-  The main provider function for configuring ngx-translate in Angular applications.
-  It sets up the TranslateService and all its dependencies.
+  Root provider — call once at app bootstrap. Sets up the `TranslateService`,
+  default plugins, and any plugin overrides you pass in.
 
 * [**provideChildTranslateService**](/reference/configuration/#providechildtranslateserviceconfig-childtranslateserviceconfig)
-  Provider function for child components or lazy-loaded modules that need to extend or customize
-  the parent TranslateService.
+  Child provider — call inside route or component providers to create a child
+  service with its own store. Child translations are checked first, then the
+  parent chain provides fallbacks.
 
-For applications using NgModules, see the [NgModules Support](/reference/ngmodules/) documentation for configuration with **TranslateModule**.
+`TranslateModule` was removed in v18. See [NgModules Support](/reference/ngmodules/)
+for the v17 → v18 transition.
 
-## Provider Functions
+## Hierarchical Services
 
-NGX-Translate v17 uses a modern provider function pattern that replaces the traditional Angular provider syntax. For detailed configuration options, see the [Provider Functions section in Configuration](/reference/configuration/#provider-functions).
+v18 uses a parent-chain model. Translation lookups walk from the local store
+upward to the parent until a key resolves. Sibling subtrees cannot see each
+other's translations.
+
+```
+Root injector
+  └─ provideTranslateService()      ← root TranslateService + root store
+       │
+       ├─ /feature
+       │    └─ provideChildTranslateService()
+       │         ↑ parent chain — keys resolve child-first, then root
+       │
+       └─ /other
+            └─ provideTranslateService()
+                 ↑ isolated subtree root — does NOT fall back to outer root,
+                   own language state and store
+```
+
+Reading top to bottom:
+
+* The outer `provideTranslateService()` creates the application root.
+* `provideChildTranslateService()` on a route attaches a **connected** child:
+  it has its own store and loader, but it delegates `currentLang` /
+  `fallbackLang` to the root and walks up the parent chain when a key isn't
+  found locally.
+* A nested `provideTranslateService()` on another route creates an **isolated**
+  subtree root with its own language state and store. It does not fall back to
+  the outer root.
+
+To introspect the chain at runtime use
+[`TranslateService.getParent()`](/reference/translate-service-api/#getparent),
+which returns `null` for any service that terminates the chain (top-level root
+or isolated subtree root).
+
+## Customizable Plugins
+
+Each plugin has an abstract base class **and** a `provideTranslate*` helper.
+Default implementations are registered automatically when you call
+`provideTranslateService()` — only override the ones you need.
+
+* [**TranslateLoader**](/reference/translate-loader-api/)
+  Loads translation data for a given language. The default `TranslateNoOpLoader`
+  returns an empty object; `@ngx-translate/http-loader` ships an HTTP-backed
+  implementation with built-in multi-resource support.
+
+* [**TranslateCompiler**](/reference/translate-compiler-api/)
+  Pre-processes translations after they are loaded — useful for ICU
+  MessageFormat or other one-time work. The default is a no-op.
+
+* [**TranslateParser**](/reference/translate-parser-api/)
+  Interpolates `{{ placeholder }}` values at translation time. Called on every
+  lookup, so keep it lightweight. The default replaces `{{name}}` with
+  `params.name`.
+
+* [**MissingTranslationHandler**](/reference/missing-translation-handler-api/)
+  Decides what to return when a key is missing in the current and fallback
+  languages. The default returns the key itself.
+
+## Provider Function Pattern
+
+Provider functions are the canonical way to wire plugins. Each plugin slot on
+`provideTranslateService()` / `provideChildTranslateService()` accepts the
+matching `provideTranslate*` helper, an Angular `Provider` object, a bare
+class, or a bare factory function — see
+[Configuration](/reference/configuration/) for the full shape.
 
 ```typescript
-// Traditional Angular provider syntax
-{ provide: TranslateLoader, useClass: CustomLoader }
-
-// NGX-Translate provider function syntax
-provideTranslateLoader(CustomLoader)
-
-// Complete example with context
-import { provideTranslateService, provideTranslateLoader } from '@ngx-translate/core';
+import {
+  provideTranslateService,
+  provideTranslateLoader,
+  provideTranslateCompiler,
+} from '@ngx-translate/core';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideTranslateService({
-      loader: provideTranslateLoader(CustomLoader),
-      fallbackLang: 'en'
-    })
+      loader: provideTranslateLoader(MyLoader),
+      compiler: provideTranslateCompiler(MyCompiler),
+      fallbackLang: 'en',
+    }),
   ],
 };
 ```
 
-These provider functions should always be used within the `provideTranslateService` configuration:
-
-```typescript
-// CORRECT USAGE
-provideTranslateService({
-  loader: provideTranslateLoader(CustomLoader),
-  compiler: provideTranslateCompiler(CustomCompiler)
-})
-```
-
-```typescript
-// INCORRECT USAGE - Will not work as expected
-[
-  provideTranslateService(),
-  provideTranslateLoader(CustomLoader),
-  provideTranslateCompiler(CustomCompiler)
-]
-```
-
 :::caution
-**Important: Always Use Provider Functions Inside provideTranslateService**
+**Always nest `provideTranslate*` helpers inside `provideTranslateService`.**
 
-Provider functions should always be used within the `provideTranslateService` configuration object.
-`provideTranslateService()` provides default implementation for all required modules if they are not
-specified.
-If you provide these services separately, a duplicated configuration exists which might lead
-to unwanted behaviour.
+`provideTranslateService()` installs default implementations for every plugin
+slot you don't pass. If you place `provideTranslateLoader(...)` at the top
+level of `providers`, the default loader from `provideTranslateService()` wins
+and your override is silently ignored.
 :::
-
-## Customizable Components
-
-* [**TranslateLoader**](/reference/translate-loader-api/)
-  Handles the loading of translation files. It can either statically import translation data into the app
-  or dynamically fetch it from a server, based on your configuration. Multiple loaders are available as plugins.
-  The default loader, for example, retrieves JSON-formatted translation files from the assets folder at runtime.
-  It is also possible to load other file formats such as .po files.
-
-* **TranslatePipe** and **TranslateDirective**
-  These allow you to use translated texts directly within your templates. Both automatically
-  update the UI when the language is switched at runtime.
-
-* [**MissingTranslationHandler**](/reference/missing-translation-handler-api/)
-  By default, if a translation ID is missing, ngx-translate serves the translation from the fallback language,
-  or if unavailable, returns the ID itself. The MissingTranslationHandler allows you to customize this behavior,
-  providing flexibility in how missing translations are handled.
-
-* [**TranslateCompiler**](/reference/translate-compiler-api/)
-  The compiler pre-processes translations after loading, allowing for
-  performance-intensive operations to be executed once per message. The results
-  are then cached for efficiency. It is commonly used to handle tasks like
-  compiling ICU-formatted messages for advanced localization scenarios.
-
-* [**TranslateParser**](/reference/translate-parser-api/)
-  Injects parameters into translation strings, allowing dynamic content such as
-  usernames in greetings or other variable elements in your messages. This is
-  called each time a translation message is requested and should only perform
-  lightweight operations. The default implementation simply replaces all
-  strings in `{{...}}` with the matching provided parameter.

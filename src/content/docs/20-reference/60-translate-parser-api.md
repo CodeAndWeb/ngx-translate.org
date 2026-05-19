@@ -1,14 +1,15 @@
 ---
 title: TranslateParser API
-description: Reference documentation of the TranslateParser API for ngx-translate.
+description: Reference documentation of the TranslateParser API for ngx-translate v18.
 slug: reference/translate-parser-api
 ---
 
-The `TranslateParser` is responsible for formatting your translated messages
-and using parameters that you pass in.
+The `TranslateParser` is responsible for interpolating translated messages
+with the parameters you pass in. You usually do not call it directly — it runs
+in the background each time a translation is requested.
 
-Usually, you would not use the `TranslateParser` directly. It's called in the
-background when a translation string is requested in your app.
+The matching provider helper is `provideTranslateParser()` — see
+[Configuration → Provider helpers](/reference/configuration/#provider-helpers).
 
 ## API
 
@@ -20,31 +21,52 @@ export abstract class TranslateParser {
 
 ## API Description
 
-The `interpolate()` method is the core of the parser. It receives either a string or function expression and optional parameters, then returns the interpolated string.
+The `interpolate()` method takes either a string or a function expression and
+optional parameters, and returns the interpolated string.
 
-### Default Parser Behavior
-
-The default parser's `interpolate` method works as follows:
+### Default parser behavior
 
 **With string expressions:**
 ~~~ts
-parser.interpolate('This is a {{key}}!', {key: 'banana'})
-// Returns: "This is a banana!"
+parser.interpolate('This is a {{key}}!', { key: 'banana' });
+// 'This is a banana!'
 ~~~
 
 **With function expressions:**
 ~~~ts
-parser.interpolate((params) => `This is a ${params.key}`, {key: 'banana'})
-// Returns: "This is a banana!"
+parser.interpolate((params) => `This is a ${params.key}`, { key: 'banana' });
+// 'This is a banana!'
 ~~~
 
-If you are not using a [compiler](/reference/translate-compiler-api/), you can expect `expr` to be a `string`.
+If you are not using a [compiler](/reference/translate-compiler-api/), `expr`
+is always a `string`.
 
-The `TranslateParser` is called every time you request a translation with a given set of interpolation parameters.
-If parsing these messages is too complex, we recommend using a compiler to pre-process your messages.
+The parser is invoked on every translation lookup, so keep it lightweight. If
+parsing logic is expensive, move it into a compiler that runs once at load
+time.
 
-## Custom Parser Implementation
+## Registering a Custom Parser
 
-To implement your own parser, create a class that extends the `TranslateParser` abstract class and implements the `interpolate()` method.
+~~~ts title="app.config.ts"
+import { provideTranslateService, provideTranslateParser } from '@ngx-translate/core';
 
-For a complete example of how to build and register a custom parser, see the [Write Your Own Parser](/recipes/write-own-parser/) recipe.
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideTranslateService({
+      parser: provideTranslateParser(MyParser),
+    }),
+  ],
+};
+~~~
+
+Factory form (e.g. when the parser needs configuration from `inject()`):
+
+~~~ts
+provideTranslateService({
+  parser: provideTranslateParser(() => new MyParser({ strict: true })),
+})
+~~~
+
+## How to Build a Custom Parser
+
+For a complete example see [Write Your Own Parser](/recipes/write-own-parser/).

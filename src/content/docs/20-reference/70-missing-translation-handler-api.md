@@ -1,16 +1,18 @@
 ---
 title: MissingTranslationHandler API
-description: Reference documentation of the MissingTranslationHandler API for ngx-translate.
+description: Reference documentation of the MissingTranslationHandler API for ngx-translate v18.
 slug: reference/missing-translation-handler-api
 ---
 
-Use the `MissingTranslationHandler` to customize what is happening in case
-a translation is missing.
+Use a `MissingTranslationHandler` to customize what happens when a translation
+key cannot be resolved.
 
-This is influenced by the `fallbackLang` configuration. If a fallback language is configured,
-ngx-translate will first try to find the translation ID in the fallback language.
-If this is not available, the `MissingTranslationHandler` is called. If no fallback language is set,
-the handler is called immediately.
+The `fallbackLang` configuration is consulted first: if a fallback language is
+set, ngx-translate tries the key there before invoking the handler. With no
+fallback, the handler is called immediately.
+
+The matching provider helper is `provideMissingTranslationHandler()` — see
+[Configuration → Provider helpers](/reference/configuration/#provider-helpers).
 
 ## API
 
@@ -28,21 +30,50 @@ export abstract class MissingTranslationHandler {
 
 ## API Description
 
-The `handle()` function is called for each missing translation. It receives a `MissingTranslationHandlerParams` object with the following properties:
+`handle()` is called once per missing translation with the following:
 
-* `key` - the ID of the translation that was not found
-* `translateService` - the current `TranslateService` object
-* `interpolateParams` - an object containing all parameters passed for the translation string
+* `key` — the translation ID that was not found.
+* `translateService` — the `TranslateService` instance making the lookup.
+* `interpolateParams` — the parameters passed by the caller (if any).
 
-The default `MissingTranslationHandler` returns the ID of the translated message.
+The default handler returns the key itself.
 
-Depending on the result of the function:
+Return value handling:
 
-* If it returns a value, then this value is used.
-* If it returns an observable, the value returned by this observable will be used (except if the translation
-  was done using [`instant()`](/reference/translate-service-api/#instant)).
-* If the result is `undefined` the key will be used as a value
+* If the handler returns a value, that value is used.
+* If it returns an `Observable`, the value emitted by the observable is used
+  — except when the lookup was via [`instant()`](/reference/translate-service-api/#instant),
+  which is synchronous and cannot wait for an observable.
+* If it returns `undefined`, the key is used as the value.
+
+## Registering a Custom Handler
+
+~~~ts title="app.config.ts"
+import {
+  provideTranslateService,
+  provideMissingTranslationHandler,
+} from '@ngx-translate/core';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideTranslateService({
+      missingTranslationHandler: provideMissingTranslationHandler(MyHandler),
+    }),
+  ],
+};
+~~~
+
+Factory form:
+
+~~~ts
+provideTranslateService({
+  missingTranslationHandler: provideMissingTranslationHandler(
+    () => new MyHandler({ reportTo: '/missing-keys' }),
+  ),
+})
+~~~
 
 ## How to Build a Custom Handler
 
-For detailed examples and step-by-step instructions on building and registering custom missing translation handlers, see [How to handle missing translations](/recipes/handle-missing-translations/).
+For a step-by-step example see
+[How to handle missing translations](/recipes/handle-missing-translations/).
