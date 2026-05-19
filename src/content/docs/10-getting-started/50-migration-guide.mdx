@@ -371,7 +371,7 @@ If your child needs to be fully independent (no parent fallback at all), use `pr
 translate.setTranslation("en", newTranslations);
 ```
 
-**Silent behavior change:** Existing `setTranslation(lang, translations)` calls now replace instead of merge. Pass `true` as the third argument if you depended on the v17 merge behavior.
+**Silent behavior change:** If your service was previously configured with `extend: true`, `setTranslation(lang, translations)` auto-merged. In v18, `extend: true` is gone and the call always replaces by default. Pass `true` as the third argument to keep the merge behavior.
 
 **Fix (v18):**
 
