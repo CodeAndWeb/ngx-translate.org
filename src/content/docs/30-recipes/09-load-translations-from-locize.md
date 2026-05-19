@@ -94,17 +94,25 @@ export class LocizeMissingTranslationHandler
 Register it next to the loader:
 
 ```ts title="app.config.ts"
-import { provideMissingTranslationHandler } from '@ngx-translate/core';
+import {
+  provideMissingTranslationHandler,
+  provideTranslateService,
+} from '@ngx-translate/core';
 import { LocizeMissingTranslationHandler } from './locize-missing-translation-handler';
 
-provideTranslateService({
-  loader: provideTranslateHttpLoader({ /* ... */ }),
-  missingTranslationHandler: provideMissingTranslationHandler(
-    LocizeMissingTranslationHandler,
-  ),
-  fallbackLang: 'en',
-  lang: 'en',
-})
+export const appConfig: ApplicationConfig = {
+  providers: [
+    ...
+    provideTranslateService({
+      loader: provideTranslateHttpLoader({ /* ... */ }),
+      missingTranslationHandler: provideMissingTranslationHandler(
+        LocizeMissingTranslationHandler,
+      ),
+      fallbackLang: 'en',
+      lang: 'en',
+    }),
+  ],
+};
 ```
 
 See [How to handle missing translations](/recipes/handle-missing-translations/)
