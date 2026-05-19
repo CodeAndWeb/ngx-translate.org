@@ -6,11 +6,11 @@ slug: reference/translate-compiler-api
 
 After translations are loaded by the [`TranslateLoader`](/reference/translate-loader-api/),
 they are passed through the `TranslateCompiler`. The compiler prepares each
-message for faster lookup at translate time — for example,
+message for faster lookup at translate time. For example,
 `ngx-translate-messageformat-compiler` uses this API to compile ICU
 MessageFormat strings into interpolation functions.
 
-The matching provider helper is `provideTranslateCompiler()` — see
+The matching provider helper is `provideTranslateCompiler()`. See
 [Configuration → Provider helpers](/reference/configuration/#provider-helpers).
 
 ## API

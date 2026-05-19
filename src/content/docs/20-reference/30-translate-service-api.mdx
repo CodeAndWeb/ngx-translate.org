@@ -4,9 +4,6 @@ description: Complete TranslateService API reference for ngx-translate v18. Sign
 slug: reference/translate-service-api
 ---
 
-import { Aside } from '@astrojs/starlight/components';
-import { Badge } from '@astrojs/starlight/components';
-
 ## Accessing the TranslateService
 
 Inject `TranslateService` using Angular's `inject()` function:
@@ -22,45 +19,45 @@ export class MyComponent {
 
 In v18 several language fields are now signals. Read them by calling the
 signal as a function (e.g. `translate.currentLang()`). Signal reads inside
-templates, `computed()`, and `effect()` are tracked automatically — no manual
+templates, `computed()`, and `effect()` are tracked automatically; no manual
 subscriptions needed.
 
 ## Methods
 
 ##### Reactive language state (Signals)
-- [currentLang](#currentlang) — `Signal<Language | null>` — current language as a reactive signal
-- [fallbackLang](#fallbacklang) — `Signal<Language | null>` — fallback language as a reactive signal
+- [currentLang](#currentlang): `Signal<Language | null>`, current language as a reactive signal
+- [fallbackLang](#fallbacklang): `Signal<Language | null>`, fallback language as a reactive signal
 
 ##### Setting the current and fallback language
-- [use](#use) — set the current language and load it if needed
-- [setFallbackLang](#setfallbacklang) — set and load the fallback language
-- [getFallbackLang](#getfallbacklang) — non-reactive snapshot of the fallback language
-- [getCurrentLang](#getcurrentlang) — non-reactive snapshot of the current language
-- [getLangs](#getlangs) — list loaded/registered languages
-- [addLangs](#addlangs) — register language codes without loading them
+- [use](#use): set the current language and load it if needed
+- [setFallbackLang](#setfallbacklang): set and load the fallback language
+- [getFallbackLang](#getfallbacklang): non-reactive snapshot of the fallback language
+- [getCurrentLang](#getcurrentlang): non-reactive snapshot of the current language
+- [getLangs](#getlangs): list loaded/registered languages
+- [addLangs](#addlangs): register language codes without loading them
 
 ##### Translating strings
-- [translate](#translate) — returns a `Signal<Translation>` (also available as standalone `translate()`)
-- [stream](#stream) — `Observable` that re-emits on language / translation changes
-- [instant](#instant) — synchronous lookup
-- [get](#get) — one-shot `Observable` once translations are loaded
-- [getStreamOnTranslationChange](#getstreamontranslationchange) — observable that re-emits on translation changes
-- [Per-call `lang` parameter](#per-call-lang) — applies to `translate`, `get`, `instant`, `stream`, `getStreamOnTranslationChange`, `getParsedResult`
+- [translate](#translate): returns a `Signal<Translation>` (also available as standalone `translate()`)
+- [stream](#stream): `Observable` that re-emits on language / translation changes
+- [instant](#instant): synchronous lookup
+- [get](#get): one-shot `Observable` once translations are loaded
+- [getStreamOnTranslationChange](#getstreamontranslationchange): observable that re-emits on translation changes
+- [Per-call `lang` parameter](#per-call-lang): applies to `translate`, `get`, `instant`, `stream`, `getStreamOnTranslationChange`, `getParsedResult`
 
 ##### Browser defaults
-- [getBrowserCultureLang](#getbrowserculturelang) — e.g. `"de-DE"`
-- [getBrowserLang](#getbrowserlang) — e.g. `"de"`
+- [getBrowserCultureLang](#getbrowserculturelang): e.g. `"de-DE"`
+- [getBrowserLang](#getbrowserlang): e.g. `"de"`
 
 ##### Managing stored translations
-- [set](#set) — set a single translation key
-- [setTranslation](#settranslation) — set a full language object (passes through the compiler)
-- [setCompiledTranslation](#setcompiledtranslation) — set an already-compiled language object (bypasses the compiler)
-- [getTranslations](#gettranslations) — read the stored translation object for a language
-- [reloadLang](#reloadlang) — reset and re-fetch a language
-- [resetLang](#resetlang) — remove a language from the store
+- [set](#set): set a single translation key
+- [setTranslation](#settranslation): set a full language object (passes through the compiler)
+- [setCompiledTranslation](#setcompiledtranslation): set an already-compiled language object (bypasses the compiler)
+- [getTranslations](#gettranslations): read the stored translation object for a language
+- [reloadLang](#reloadlang): reset and re-fetch a language
+- [resetLang](#resetlang): remove a language from the store
 
 ##### Service hierarchy
-- [getParent](#getparent) — returns the parent service, or `null` for a root / isolated subtree root
+- [getParent](#getparent): returns the parent service, or `null` for a root / isolated subtree root
 
 ##### Diagnostics
 - [Bare-class auto-wrap warning](#bare-class-auto-wrap-warning)
@@ -108,8 +105,8 @@ For a non-reactive snapshot, use [`getCurrentLang()`](#getcurrentlang).
 
 :::caution[v17 → v18: read site error]
 In v17, `currentLang` was a plain string getter. In v18 it is a
-`Signal<Language | null>`. Any code that treats it as a string will misbehave —
-typical symptoms after upgrading:
+`Signal<Language | null>`. Any code that treats it as a string will misbehave.
+Typical symptoms after upgrading:
 
 - TypeScript: `Type 'Signal<Language | null>' is not assignable to type 'string'.`
 - Runtime in templates that print `{{ translate.currentLang }}`: shows the
@@ -243,8 +240,8 @@ getParent(): TranslateService | null
 ~~~
 
 Returns the parent service this one inherits translations from. Returns `null`
-when the service is the terminus of its fallback chain — i.e. it is the
-top-level root or the root of an isolated subtree (a nested
+when the service is the terminus of its fallback chain (i.e. it is the
+top-level root or the root of an isolated subtree, a nested
 `provideTranslateService()`).
 
 Use it to introspect the chain at runtime without reaching into protected
@@ -272,7 +269,7 @@ getStreamOnTranslationChange(
 
 Like [`get()`](#get) but emits a new value whenever translations change
 (`setTranslation()`, `set()`, `reloadLang()`). Does not emit on plain language
-changes — use [`stream()`](#stream) for that.
+changes. Use [`stream()`](#stream) for that.
 
 `lang` is the same per-call language override documented in
 [Per-call `lang` parameter](#per-call-lang).
@@ -303,7 +300,7 @@ getTranslations(language: Language): DeepReadonly<InterpolatableTranslationObjec
 
 Returns the full stored translation object for a language as a deep-readonly
 snapshot. Useful for inspecting what has been loaded into the store. The
-underlying state is immutable — re-call `getTranslations(lang)` after a write
+underlying state is immutable; re-call `getTranslations(lang)` after a write
 to see updates.
 
 ~~~ts
@@ -326,7 +323,7 @@ Synchronous lookup. Returns the key itself if translations aren't loaded yet.
 ##### Parameters
 - `key`: single key or array.
 - `interpolateParams` (optional): interpolation values.
-- `lang` (optional, **new in v18**): per-call language override — see
+- `lang` (optional, **new in v18**): per-call language override. See
   [Per-call `lang` parameter](#per-call-lang). When provided, `instant()`
   bypasses the current/fallback chain and reads from that language directly.
   If the language hasn't been loaded, ngx-translate emits a one-shot
@@ -340,7 +337,7 @@ Synchronous lookup. Returns the key itself if translations aren't loaded yet.
 
 :::caution
 `instant()` is synchronous. With the default HTTP loader, translations load
-asynchronously — call `instant()` only after a load has finished, or use
+asynchronously. Call `instant()` only after a load has finished, or use
 [`get()`](#get) which waits.
 :::
 
@@ -364,11 +361,11 @@ translate.instant('HELLO', undefined, 'fr');
 ### onTranslationRefresh
 
 ~~~ts
-get onTranslationRefresh: Observable<void>
+get onTranslationRefresh(): Observable<void>
 ~~~
 
 Convenience observable that emits whenever displayed translations might need
-to refresh — merges:
+to refresh. Merges:
 
 - `onLangChange` (the current language changed)
 - `onFallbackLangChange` (the fallback language changed)
@@ -435,7 +432,7 @@ setCompiledTranslation(
 ~~~
 
 **New in v18.** Stores a translation object that is already in its
-interpolator-ready form — typically the output of a build-time compilation
+interpolator-ready form, typically the output of a build-time compilation
 step that emitted interpolation functions. Unlike [`setTranslation`](#settranslation),
 it bypasses the configured `TranslateCompiler`.
 
@@ -535,12 +532,12 @@ translate(
 ~~~
 
 **New in v18.** Returns a `Signal<Translation>` that updates automatically on
-language changes, translation reloads, and input signal changes — no
+language changes, translation reloads, and input signal changes, with no
 subscriptions or cleanup. Each parameter accepts a plain value, an arrow
 function, or a `Signal` (`Signal<T>` is callable, so it counts as a function).
 
 Also exported as a [standalone `translate()` function](/getting-started/translating-your-components/#standalone-translate-function)
-that calls `TranslateService.translate(...)` from an injection context — use
+that calls `TranslateService.translate(...)` from an injection context. Use
 that form for component field initializers.
 
 ~~~ts
@@ -558,7 +555,7 @@ use(lang: string): Observable<InterpolatableTranslationObject>
 
 Switches the current language. Loads the language if not already loaded.
 Returns an observable that completes when the load finishes; the current
-language is updated deterministically — when several `use()` calls happen in
+language is updated deterministically. When several `use()` calls happen in
 quick succession, the most recent call wins regardless of which load finishes
 first.
 
@@ -576,12 +573,12 @@ translate.use('fr').subscribe(() => {
 **New in v18.** Lookup methods accept an optional `lang` argument that
 bypasses the current/fallback chain and reads from a specific language:
 
-- [`translate(key, params?, lang?)`](#translate) — Signal-based
-- [`get(key, params?, lang?)`](#get) — `Observable`, completes once
-- [`instant(key, params?, lang?)`](#instant) — synchronous
-- [`stream(key, params?, lang?)`](#stream) — `Observable`, re-emits
-- [`getStreamOnTranslationChange(key, params?, lang?)`](#getstreamontranslationchange) — `Observable`, re-emits on translation changes
-- `getParsedResult(key, params?, lang?)` — protected, same shape
+- [`translate(key, params?, lang?)`](#translate): Signal-based
+- [`get(key, params?, lang?)`](#get): `Observable`, completes once
+- [`instant(key, params?, lang?)`](#instant): synchronous
+- [`stream(key, params?, lang?)`](#stream): `Observable`, re-emits
+- [`getStreamOnTranslationChange(key, params?, lang?)`](#getstreamontranslationchange): `Observable`, re-emits on translation changes
+- `getParsedResult(key, params?, lang?)`: protected, same shape
 
 Use it to display a phrase in a fixed language regardless of the active one
 (e.g. a brand name that always renders in English), or to look up data while a
@@ -630,7 +627,7 @@ language (via `setTranslation`, `set`, `reloadLang`).
 
 ### onTranslationRefresh
 
-See [`onTranslationRefresh`](#ontranslationrefresh) above — a merged stream of
+See [`onTranslationRefresh`](#ontranslationrefresh) above: a merged stream of
 the three events relevant to displayed text.
 
 ## Diagnostics
@@ -639,7 +636,7 @@ the three events relevant to displayed text.
 
 The four plugin slots on `provideTranslateService()` and
 `provideChildTranslateService()` (`loader`, `compiler`, `parser`,
-`missingTranslationHandler`) accept several shapes — a bare class, a bare
+`missingTranslationHandler`) accept several shapes: a bare class, a bare
 factory function, the matching `provideTranslate*` helper, or an explicit
 Angular `Provider` object. Bare classes and factories are auto-wrapped
 internally so they register under the correct DI token.
@@ -662,7 +659,7 @@ auto-wrapping with provideMissingTranslationHandler(). For clarity, prefer
 missingTranslationHandler: provideMissingTranslationHandler(MyHandler).
 ```
 
-Your app keeps working — the warning is informational. Bare factory functions
+Your app keeps working; the warning is informational. Bare factory functions
 (e.g. `loader: () => new MyLoader()`) pass through silently; they are the
 documented compact form.
 
@@ -692,7 +689,7 @@ Removed in v18. Use [`get()`](#get), [`instant()`](#instant), or
 
 ### setDefaultLang / getDefaultLang / defaultLang / onDefaultLangChange
 
-Removed in v18 — these were deprecated v17 aliases. Use the `fallback`
+Removed in v18. These were deprecated v17 aliases. Use the `fallback`
 equivalents:
 
 | v17                      | v18                                      |

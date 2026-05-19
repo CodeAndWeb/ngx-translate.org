@@ -1,6 +1,6 @@
 ---
 title: Configuration
-description: Reference documentation for configuring ngx-translate v18 — provider functions, plugin helpers, and the HTTP loader.
+description: Reference documentation for configuring ngx-translate v18, covering provider functions, plugin helpers, and the HTTP loader.
 slug: reference/configuration
 ---
 
@@ -16,7 +16,7 @@ For Angular version compatibility, see
 Both provider functions accept the same plugin slots (`loader`, `compiler`,
 `parser`, `missingTranslationHandler`); the root variant adds language fields
 (`fallbackLang`, `lang`). The plugin slots accept the **`TranslateProvider`**
-shape — a regular Angular `Provider` object, the matching `provideTranslate*`
+shape: a regular Angular `Provider` object, the matching `provideTranslate*`
 helper, a bare class, or a bare factory function. Bare classes and factories
 are auto-wrapped under the correct DI token (see
 [Bare-class auto-wrap warning](/reference/translate-service-api/#bare-class-auto-wrap-warning)).
@@ -72,7 +72,7 @@ If `fallbackLang` is unset and a key is missing in the current language, the
 
 Anything passed in the config object is bound under the correct DI token by
 `provideTranslateService()`. Top-level `provideTranslate*` calls in the same
-`providers` array are **not** picked up — the defaults installed by
+`providers` array are **not** picked up; the defaults installed by
 `provideTranslateService()` win. Always nest plugin helpers inside the config
 object.
 :::
@@ -82,7 +82,7 @@ object.
 Creates a connected child service with its own store and (optionally) its own
 loader. Child services delegate `currentLang` / `fallbackLang` to the root and
 walk up the parent chain when a key isn't found locally. Use this inside route
-or component providers — typically for lazy-loaded features.
+or component providers, typically for lazy-loaded features.
 
 For an **isolated** child (no parent fallback, own language state), use
 `provideTranslateService()` again on the route instead.
@@ -167,7 +167,7 @@ The factory runs inside Angular's injection context, so you can call
 ### provideTranslateHttpLoader(config?)
 
 The HTTP loader fetches JSON translation files. v18 adds built-in multi-resource
-support — pass a `resources` array to load and deep-merge several sources per
+support. Pass a `resources` array to load and deep-merge several sources per
 language.
 
 #### Single-source form
@@ -226,7 +226,7 @@ This built-in support replaces the standalone
 #### failOnError
 
 By default the HTTP loader is **permissive** (`failOnError: false`): a failed
-request — for example a 404 on a missing language file — is caught
+request (for example a 404 on a missing language file) is caught
 per-resource, replaced with an empty object, and logged via
 `console.warn(@ngx-translate/http-loader: error loading translation for <lang>: ...)`.
 Other resources still contribute their keys, and the app keeps rendering with

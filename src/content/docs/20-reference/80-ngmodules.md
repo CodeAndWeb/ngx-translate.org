@@ -8,10 +8,10 @@ slug: reference/ngmodules
 were **removed in v18**. ngx-translate is now configured exclusively through
 standalone provider functions:
 
-* `provideTranslateService()` — replaces `TranslateModule.forRoot(...)`
-* `provideChildTranslateService()` — replaces `TranslateModule.forChild({ extend: true })`
+* `provideTranslateService()`: replaces `TranslateModule.forRoot(...)`
+* `provideChildTranslateService()`: replaces `TranslateModule.forChild({ extend: true })`
   (connected child with parent fallback)
-* `provideTranslateService()` on a route — replaces `TranslateModule.forChild({ isolate: true })`
+* `provideTranslateService()` on a route: replaces `TranslateModule.forChild({ isolate: true })`
   (isolated subtree root, own language state)
 
 In templates, import `TranslatePipe` and `TranslateDirective` directly into

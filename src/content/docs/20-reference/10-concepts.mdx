@@ -1,7 +1,7 @@
 ---
 title: Concepts
-description: How ngx-translate v18 is wired together — service hierarchy, plugin
-  system, and template translation APIs.
+description: How ngx-translate v18 is wired together, covering service hierarchy,
+  plugin system, and template translation APIs.
 slug: reference/concepts
 ---
 
@@ -38,11 +38,11 @@ the per-API reference pages can stay focused.
 ngx-translate is configured using standalone provider functions:
 
 * [**provideTranslateService**](/reference/configuration/#providetranslateserviceconfig-roottranslateserviceconfig)
-  Root provider — call once at app bootstrap. Sets up the `TranslateService`,
+  Root provider. Call once at app bootstrap to set up the `TranslateService`,
   default plugins, and any plugin overrides you pass in.
 
 * [**provideChildTranslateService**](/reference/configuration/#providechildtranslateserviceconfig-childtranslateserviceconfig)
-  Child provider — call inside route or component providers to create a child
+  Child provider. Call inside route or component providers to create a child
   service with its own store. Child translations are checked first, then the
   parent chain provides fallbacks.
 
@@ -61,11 +61,11 @@ Root injector
        │
        ├─ /feature
        │    └─ provideChildTranslateService()
-       │         ↑ parent chain — keys resolve child-first, then root
+       │         ↑ parent chain: keys resolve child-first, then root
        │
        └─ /other
             └─ provideTranslateService()
-                 ↑ isolated subtree root — does NOT fall back to outer root,
+                 ↑ isolated subtree root: does NOT fall back to outer root,
                    own language state and store
 ```
 
@@ -89,7 +89,7 @@ or isolated subtree root).
 
 Each plugin has an abstract base class **and** a `provideTranslate*` helper.
 Default implementations are registered automatically when you call
-`provideTranslateService()` — only override the ones you need.
+`provideTranslateService()`. Only override the ones you need.
 
 * [**TranslateLoader**](/reference/translate-loader-api/)
   Loads translation data for a given language. The default `TranslateNoOpLoader`
@@ -97,8 +97,8 @@ Default implementations are registered automatically when you call
   implementation with built-in multi-resource support.
 
 * [**TranslateCompiler**](/reference/translate-compiler-api/)
-  Pre-processes translations after they are loaded — useful for ICU
-  MessageFormat or other one-time work. The default is a no-op.
+  Pre-processes translations after they are loaded (useful for ICU
+  MessageFormat or other one-time work). The default is a no-op.
 
 * [**TranslateParser**](/reference/translate-parser-api/)
   Interpolates `{{ placeholder }}` values at translation time. Called on every
@@ -114,7 +114,7 @@ Default implementations are registered automatically when you call
 Provider functions are the canonical way to wire plugins. Each plugin slot on
 `provideTranslateService()` / `provideChildTranslateService()` accepts the
 matching `provideTranslate*` helper, an Angular `Provider` object, a bare
-class, or a bare factory function — see
+class, or a bare factory function. See
 [Configuration](/reference/configuration/) for the full shape.
 
 ```typescript

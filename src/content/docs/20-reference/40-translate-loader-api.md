@@ -15,7 +15,7 @@ export abstract class TranslateLoader {
 }
 ~~~
 
-The matching provider helper is `provideTranslateLoader()` — see
+The matching provider helper is `provideTranslateLoader()`. See
 [Configuration → Provider helpers](/reference/configuration/#provider-helpers).
 
 ## API Description
@@ -31,7 +31,7 @@ resolves to a translation object:
 
 In most cases you do not need to write your own loader. The bundled
 `@ngx-translate/http-loader` covers HTTP-based JSON loading and ships built-in
-multi-resource support — see
+multi-resource support. See
 [Configuration → HTTP Loader](/reference/configuration/#http-loader-configuration).
 
 Third-party loaders are listed in the [plugins section](/resources/plugins/).
@@ -62,7 +62,7 @@ provideTranslateService({
 })
 ~~~
 
-You can also pass a bare class directly — it is auto-wrapped — but doing so
+You can also pass a bare class directly (it is auto-wrapped), but doing so
 emits a [bare-class auto-wrap warning](/reference/translate-service-api/#bare-class-auto-wrap-warning).
 
 ## How to Build a Custom Loader

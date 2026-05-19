@@ -5,10 +5,10 @@ slug: reference/translate-parser-api
 ---
 
 The `TranslateParser` is responsible for interpolating translated messages
-with the parameters you pass in. You usually do not call it directly — it runs
+with the parameters you pass in. You usually do not call it directly; it runs
 in the background each time a translation is requested.
 
-The matching provider helper is `provideTranslateParser()` — see
+The matching provider helper is `provideTranslateParser()`. See
 [Configuration → Provider helpers](/reference/configuration/#provider-helpers).
 
 ## API
