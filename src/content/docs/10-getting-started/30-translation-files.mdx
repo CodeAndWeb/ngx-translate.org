@@ -20,18 +20,26 @@ a dynamic loader.
 
 The easiest way to set translation data is by using `import` and [`setTranslation()`](/reference/translate-service-api/#settranslation).
 
-```ts {1,4} title="src/app/app.component.ts"
+```ts {1,4-8} title="src/app/app.component.ts"
 import translationsEN from "../../public/i18n/en.json";
 ...
-constructor(private translate: TranslateService) {
-    translate.setTranslation('en', translationsEN);
-    translate.setFallbackLang('en');
+private translate = inject(TranslateService);
+
+constructor() {
+    this.translate.setTranslation('en', translationsEN);
+    this.translate.setFallbackLang('en');
 }
 ```
 
 The advantage of this approach is that your translations are available immediately when loading the app.
 The big disadvantage is that this binds all translations into your app. If you have many
 texts and languages, this might bloat your application and slow down startup time.
+
+:::caution[v18: `setTranslation()` replaces by default]
+A second call to `setTranslation(lang, ...)` for the same language now **replaces** the
+stored translations rather than merging. To preserve and extend existing keys, pass `true`
+as the third argument: `setTranslation('en', extra, true)`.
+:::
 
 :::tip[setCompiledTranslation()]
 If you already hold a translation object in its final, interpolator-ready form (for example,
@@ -77,7 +85,7 @@ translations are stored in the `public` folder. You can configure this using the
 ```ts {2-4,9-14} title="app.config.ts"
 import {ApplicationConfig, provideZoneChangeDetection} from "@angular/core";
 import {provideHttpClient} from "@angular/common/http";
-import {provideTranslateService, provideTranslateLoader} from "@ngx-translate/core";
+import {provideTranslateService} from "@ngx-translate/core";
 import {provideTranslateHttpLoader} from '@ngx-translate/http-loader';
 
 export const appConfig: ApplicationConfig = {
@@ -153,7 +161,7 @@ Starting with Angular 18+, the `assets` folder is no longer available, so use th
   * src/
 </FileTree>
 
-We recommend that you use an `i18n` folder within the `assets` or `public` folder to organize your translation files in one place.
+We recommend that you use an `i18n` folder within the `public` folder to organize your translation files in one place.
 
 ## Translation file formats
 

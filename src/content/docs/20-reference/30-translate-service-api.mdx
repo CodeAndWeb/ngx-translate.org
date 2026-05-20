@@ -65,7 +65,7 @@ subscriptions needed.
 ### addLangs
 
 ~~~ts
-addLangs(langs: string[]): void
+addLangs(languages: Language[]): void
 ~~~
 
 Registers language codes without invoking the loader. Use it when you want a
@@ -138,8 +138,8 @@ For a non-reactive snapshot, use [`getFallbackLang()`](#getfallbacklang).
 ~~~ts
 get(
   key: string | string[],
-  interpolateParams?: object,
-  lang?: string,
+  interpolateParams?: InterpolationParameters,
+  lang?: Language,
 ): Observable<Translation | TranslationObject>
 ~~~
 
@@ -182,7 +182,7 @@ translate.get('HELLO', undefined, 'de').subscribe((res) => console.log(res));
 ### getBrowserCultureLang
 
 ~~~ts
-getBrowserCultureLang(): string | undefined
+getBrowserCultureLang(): Language | undefined
 ~~~
 
 Returns the browser's full culture language code (e.g. `"en-US"`), or
@@ -191,7 +191,7 @@ Returns the browser's full culture language code (e.g. `"en-US"`), or
 ### getBrowserLang
 
 ~~~ts
-getBrowserLang(): string | undefined
+getBrowserLang(): Language | undefined
 ~~~
 
 Returns the browser's language without region (e.g. `"de"`), or `undefined`.
@@ -262,8 +262,8 @@ See [Concepts → Hierarchical Services](/reference/concepts/#hierarchical-servi
 ~~~ts
 getStreamOnTranslationChange(
   key: string | string[],
-  interpolateParams?: object,
-  lang?: string,
+  interpolateParams?: InterpolationParameters,
+  lang?: Language,
 ): Observable<Translation | TranslationObject>
 ~~~
 
@@ -313,8 +313,8 @@ console.log(en.HELLO); // 'Hello'
 ~~~ts
 instant(
   key: string | string[],
-  interpolateParams?: object,
-  lang?: string,
+  interpolateParams?: InterpolationParameters,
+  lang?: Language,
 ): Translation | TranslationObject
 ~~~
 
@@ -396,7 +396,7 @@ configured loader.
 ### resetLang
 
 ~~~ts
-resetLang(lang: string): void
+resetLang(lang: Language): void
 ~~~
 
 Removes the stored translations for a language. Call [`use()`](#use) or
@@ -405,7 +405,7 @@ Removes the stored translations for a language. Call [`use()`](#use) or
 ### set
 
 ~~~ts
-set(key: string, translation: string | TranslationObject, lang?: string): void
+set(key: string, translation: string | TranslationObject, lang?: Language): void
 ~~~
 
 Sets a single translation value, compiling it through the configured
@@ -500,8 +500,8 @@ explicitly `true`. Pass `true` at the call site to keep the old behavior.
 ~~~ts
 stream(
   key: string | string[],
-  interpolateParams?: object,
-  lang?: string,
+  interpolateParams?: InterpolationParameters,
+  lang?: Language,
 ): Observable<Translation | TranslationObject>
 ~~~
 

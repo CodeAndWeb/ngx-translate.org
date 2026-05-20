@@ -17,8 +17,11 @@ The matching provider helper is `provideTranslateCompiler()`. See
 
 ~~~ts
 export abstract class TranslateCompiler {
-  abstract compile(value: string, lang: string): string | Function;
-  abstract compileTranslations(translations: any, lang: string): any;
+  abstract compile(value: string, lang: string): InterpolatableTranslation;
+  abstract compileTranslations(
+    translations: TranslationObject,
+    lang: string,
+  ): InterpolatableTranslationObject;
 }
 ~~~
 
@@ -33,8 +36,8 @@ When a single message is requested, the
 result. The default parser behaves differently depending on the result type:
 
 * `string` → standard `{{placeholder}}` substitution.
-* `Function` → called with the interpolation parameters; expected to return a
-  string:
+* `InterpolateFunction` → called with the interpolation parameters; expected
+  to return a string:
 
 ~~~ts
 const compiledTranslations = {

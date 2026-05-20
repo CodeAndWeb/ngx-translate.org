@@ -50,7 +50,7 @@ export class JsonFileLoader implements TranslateLoader {
 
 ## Registering a Custom Loader
 
-The recommended approach in v17 is to use the `provideTranslateLoader()` function:
+The recommended approach in v18 is to use the `provideTranslateLoader()` function:
 
 ```ts title="app.config.ts"
 import {provideTranslateService, provideTranslateLoader} from "@ngx-translate/core";

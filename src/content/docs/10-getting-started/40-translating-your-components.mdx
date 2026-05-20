@@ -77,9 +77,9 @@ name = "Andreas"
 
 In the language file, use `{{name}}` as placeholder:
 
-~~~json title=assets/i18n/en.json
+~~~json title=public/i18n/en.json
 {
-    'app.hello': "Hello {{name}}!"
+    "app.hello": "Hello {{name}}!"
 }
 ~~~
 
@@ -124,8 +124,40 @@ place, and the recommended replacement for the deprecated content-as-key pattern
 
 Add `TranslateBlockDirective` to your component's `imports` array.
 
-Internally `t()` delegates to `TranslateService.instant()`, so signal tracking keeps the
-block up to date when the language changes or translations are reloaded.
+Internally `t()` delegates to `TranslateService.instant()`. `instant()` reads the
+store's translations signal, which establishes Angular signal tracking during the
+block's template evaluation — so the block updates automatically when the language
+changes or translations are reloaded, with no subscription or `ChangeDetectorRef`
+work on your side.
+
+#### Recipes
+
+**Multiple keys in one block:**
+
+~~~html
+<ng-container *translateBlock="let t">
+  <h1>{{ t('page.title') }}</h1>
+  <p>{{ t('page.body') }}</p>
+  <button>{{ t('common.save') }}</button>
+  <button>{{ t('common.cancel') }}</button>
+</ng-container>
+~~~
+
+**With interpolation parameters:**
+
+~~~html
+<ng-container *translateBlock="let t">
+  <p>{{ t('greeting', { name: user.name }) }}</p>
+  <p>{{ t('items.count', { count: items.length }) }}</p>
+</ng-container>
+~~~
+
+**When to choose which form.** `*translateBlock` is the cleanest fit when you have
+three or more keys in one block, or when you want to pass `params` to several keys
+without repeating the pipe syntax. For a single key per element, the pipe
+(`{{ 'KEY' | translate }}`) or the `[translate]` attribute directive is shorter.
+For more details and the full comparison see
+[Concepts → Which API should I use?](/reference/concepts/#which-api-should-i-use).
 
 ### Using HTML Tags in Translations
 
@@ -225,6 +257,12 @@ export class AppComponent {
 }
 ~~~
 
+`fallbackLang` is the symmetric reactive Signal for the fallback language, with the same
+shape: `translate.fallbackLang(): Language | null`. Use it wherever you'd reach for
+`currentLang()` and want the fallback instead. For a non-reactive snapshot of either,
+use [`getCurrentLang()`](/reference/translate-service-api/#getcurrentlang) or
+[`getFallbackLang()`](/reference/translate-service-api/#getfallbacklang).
+
 ### Standalone `translate()` function
 
 v18 adds a standalone `translate()` function for use inside an injection context (such as a
@@ -266,9 +304,18 @@ You can construct the translation keys dynamically by using simple string concat
 
 ~~~html title=app.template.html
 <ul>
-  <li *ngFor="let language of languages">{{ 'languages.' + language | translate }}</li>
+  @for (language of languages; track language) {
+    <li>{{ ('languages.' + language) | translate }}</li>
+  }
 </ul>
 ~~~
+
+:::note[Pipe precedence]
+In Angular templates the pipe (`|`) has lower precedence than `+`, so
+`'languages.' + language | translate` parses as
+`('languages.' + language) | translate`. The behavior is the same with or
+without the parentheses, but writing them explicitly is easier to read.
+:::
 
 Where `languages` is an array member of your component:
 
@@ -278,12 +325,12 @@ languages = ['en', 'fr', 'de'];
 
 You language file would look like this;
 
-~~~json title=assets/i18n/en.json
+~~~json title=public/i18n/en.json
 {
-    'languages': {
-        'en': 'English',
-        'fr': 'French',
-        'de': 'German'
+    "languages": {
+        "en": "English",
+        "fr": "French",
+        "de": "German"
     }
 }
 ~~~

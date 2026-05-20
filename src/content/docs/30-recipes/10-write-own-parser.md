@@ -34,7 +34,7 @@ export class MyCustomParser extends TranslateParser {
 
 ## How to Register a Custom Parser
 
-The recommended approach in v17 is to use the `provideTranslateParser()` function within `provideTranslateService()`:
+The recommended approach in v18 is to use the `provideTranslateParser()` function within `provideTranslateService()`:
 
 ```ts {2,8} title="app.config.ts"
 import {provideTranslateService, provideTranslateParser} from "@ngx-translate/core";

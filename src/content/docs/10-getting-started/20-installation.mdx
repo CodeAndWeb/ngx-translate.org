@@ -60,7 +60,7 @@ For most applications, you'll want to load translations from JSON files. The HTT
 
 ```ts {2-3, 9-15} title="app.config.ts"
 import {ApplicationConfig, provideZoneChangeDetection} from "@angular/core";
-import {provideTranslateService, provideTranslateLoader} from "@ngx-translate/core";
+import {provideTranslateService} from "@ngx-translate/core";
 import {provideTranslateHttpLoader} from "@ngx-translate/http-loader";
 import {provideHttpClient} from "@angular/common/http";
 
@@ -110,7 +110,9 @@ they might not be used by the TranslateService.
 
 ### Initialize the `TranslateService` for your application
 
-In your components, you'll need to import `TranslatePipe` and `TranslateDirective` to your `imports`. You can access the
+In your components, you'll need to import `TranslatePipe` and `TranslateDirective` to your `imports`
+(v18 also ships [`TranslateBlockDirective`](/getting-started/translating-your-components/#translateblock-structural-directive)
+for the `*translateBlock` structural directive — import it when you need it). You can access the
 TranslateService using the modern `inject()` function:
 
 ```ts {2-7,12,16-20} title="app.component.ts"
@@ -132,9 +134,9 @@ export class AppComponent {
     private translate = inject(TranslateService);
 
     constructor() {
+        // `lang` and `fallbackLang` from provideTranslateService() are already applied;
+        // call addLangs() to register additional languages the user can switch to.
         this.translate.addLangs(['de', 'en']);
-        this.translate.setFallbackLang('en');
-        this.translate.use('en');
     }
 }
 ```

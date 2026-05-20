@@ -38,7 +38,7 @@ export class MyMissingTranslationHandler implements MissingTranslationHandler {
 
 ## Registering a Custom Handler
 
-We recommend using the `provideMissingTranslationHandler()` function within `provideTranslateService()` in v17:
+We recommend using the `provideMissingTranslationHandler()` function within `provideTranslateService()` in v18:
 
 ```ts title="app.config.ts"
 import {provideTranslateService, provideMissingTranslationHandler} from "@ngx-translate/core";

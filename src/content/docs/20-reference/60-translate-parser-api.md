@@ -15,7 +15,10 @@ The matching provider helper is `provideTranslateParser()`. See
 
 ```typescript
 export abstract class TranslateParser {
-  abstract interpolate(expr: string | Function, params?: any): string | undefined;
+  abstract interpolate(
+    expr: InterpolateFunction | string,
+    params?: InterpolationParameters,
+  ): string | undefined;
 }
 ```
 

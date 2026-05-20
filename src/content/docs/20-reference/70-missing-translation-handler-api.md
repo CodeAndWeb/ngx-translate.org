@@ -20,11 +20,13 @@ The matching provider helper is `provideMissingTranslationHandler()`. See
 export interface MissingTranslationHandlerParams {
   key: string;
   translateService: TranslateService;
-  interpolateParams?: Object;
+  interpolateParams?: object;
 }
 
 export abstract class MissingTranslationHandler {
-  abstract handle(params: MissingTranslationHandlerParams): any;
+  abstract handle(
+    params: MissingTranslationHandlerParams,
+  ): StrictTranslation | Observable<StrictTranslation>;
 }
 ~~~
 
