@@ -1,6 +1,7 @@
 ---
 title: Fail the build when a translation file is missing
 description: Use failOnError to make missing translation files break the deploy instead of silently serving partial content.
+slug: recipes/fail-on-missing-translation-file
 ---
 
 v18's HTTP loader is **permissive by default**: if a translation JSON 404s, the

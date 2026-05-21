@@ -1,6 +1,7 @@
 ---
 title: Pre-compile translations at build time
 description: Use setCompiledTranslation() to skip the runtime compiler for known translations.
+slug: recipes/precompile-translations
 ---
 
 `setTranslation()` runs the configured `TranslateCompiler` over the values

@@ -1,6 +1,7 @@
 ---
 title: React to any translation change
 description: Use onTranslationRefresh to update non-template UI (canvas, charts, third-party widgets) when translations change.
+slug: recipes/react-to-translation-refresh
 ---
 
 The pipe and `*translateBlock` directive handle re-rendering automatically.

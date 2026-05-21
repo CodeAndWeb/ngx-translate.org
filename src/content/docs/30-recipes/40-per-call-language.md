@@ -1,6 +1,7 @@
 ---
 title: Translate in a specific language (per-call `lang`)
 description: How to use the per-call `lang` parameter to fetch translations outside the active/fallback chain.
+slug: recipes/per-call-language
 ---
 
 `translate()`, `get()`, `instant()`, `stream()`, `getStreamOnTranslationChange()`,

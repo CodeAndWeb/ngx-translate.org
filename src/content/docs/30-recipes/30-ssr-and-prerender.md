@@ -1,6 +1,7 @@
 ---
 title: SSR and Angular Universal
 description: How ngx-translate v18 behaves under server-side rendering and prerendering.
+slug: recipes/ssr-and-prerender
 ---
 
 ngx-translate v18 works under Angular Universal / SSR with a few things to know.

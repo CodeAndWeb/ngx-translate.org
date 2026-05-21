@@ -1,6 +1,7 @@
 ---
 title: Testing components that use TranslateService
 description: How to mock or stub TranslateService in component tests using the ITranslateService interface.
+slug: recipes/testing-with-itranslateservice
 ---
 
 v18 exposes `ITranslateService` — an abstract class that declares the shape of

@@ -1,6 +1,7 @@
 ---
 title: Write to the root service from a child component
 description: Use getRoot() and getParent() to access the top-level TranslateService from a hierarchical child.
+slug: recipes/write-to-root-from-child
 ---
 
 In a hierarchical setup (`provideChildTranslateService()` for feature modules,
