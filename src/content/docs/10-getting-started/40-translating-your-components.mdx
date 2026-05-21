@@ -159,6 +159,36 @@ without repeating the pipe syntax. For a single key per element, the pipe
 For more details and the full comparison see
 [Concepts → Which API should I use?](/reference/concepts/#which-api-should-i-use).
 
+#### Side-by-side: pipe vs `*translateBlock`
+
+The same UI written two ways. With the pipe:
+
+~~~html
+<div class="card">
+  <h1>{{ 'card.title' | translate }}</h1>
+  <p>{{ 'card.body' | translate:{ name: user.name } }}</p>
+  <button>{{ 'common.save' | translate }}</button>
+  <button>{{ 'common.cancel' | translate }}</button>
+</div>
+~~~
+
+With `*translateBlock`:
+
+~~~html
+<ng-container *translateBlock="let t">
+  <div class="card">
+    <h1>{{ t('card.title') }}</h1>
+    <p>{{ t('card.body', { name: user.name }) }}</p>
+    <button>{{ t('common.save') }}</button>
+    <button>{{ t('common.cancel') }}</button>
+  </div>
+</ng-container>
+~~~
+
+Both produce identical output and identical reactivity. Pick `*translateBlock`
+when you have more than ~2 keys in one place, or when most translation calls
+in the block share parameters.
+
 ### Using HTML Tags in Translations
 
 You can easily use raw HTML tags within your translations.
