@@ -291,7 +291,7 @@ The `langs` getter has been removed. Use `getLangs()`.
 ### getParent
 
 ~~~ts
-getParent(): TranslateService | null
+getParent(): ITranslateService | null
 ~~~
 
 Returns the parent service this one inherits translations from. Returns `null`
@@ -317,7 +317,7 @@ For the topmost service in the chain (skipping the walk), use
 ### getRoot
 
 ~~~ts
-getRoot(): TranslateService
+getRoot(): ITranslateService
 ~~~
 
 Returns the topmost service in this service's hierarchy — the terminus of the
