@@ -28,4 +28,4 @@
 // Each file is re-exported from recipes/index.ts so Angular's compiler picks
 // it up during type checking.
 
-export {};
+export {}; // required: makes this a module so `export * from "./_template"` in index.ts resolves
