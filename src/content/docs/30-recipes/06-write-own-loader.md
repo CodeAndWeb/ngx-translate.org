@@ -10,6 +10,13 @@ extends `TranslateLoader`. The only required method is `getTranslation` that mus
 return an `Observable`. If your loader is synchronous, just use `of()` from RxJS to create
 an observable from your static value.
 
+:::tip[Most apps don't need a custom loader]
+v18's HTTP loader ships with built-in multi-resource support — see
+[Loading multiple resources](/getting-started/translation-files/#loading-multiple-resources).
+Write a custom loader only if you need a non-HTTP source (file system, database,
+gRPC) or non-standard URL composition.
+:::
+
 ## Building a Custom Loader
 
 To implement your own loader, create a class that extends the `TranslateLoader` abstract class and implements the `getTranslation()` method.
@@ -18,7 +25,7 @@ Here's an example of a custom loader that loads translations from local JSON fil
 
 ```ts
 import { Injectable } from '@angular/core';
-import { TranslateLoader } from '@ngx-translate/core';
+import { TranslateLoader, TranslationObject } from '@ngx-translate/core';
 import { Observable, of } from 'rxjs';
 
 // Import your translation files
@@ -28,20 +35,20 @@ import frTranslations from '../../public/i18n/fr.json';
 
 @Injectable()
 export class JsonFileLoader extends TranslateLoader {
-  private translations: { [key: string]: any } = {
+  private translations: { [key: string]: TranslationObject } = {
     'en': enTranslations,
     'de': deTranslations,
     'fr': frTranslations
   };
 
-  getTranslation(lang: string): Observable<any> {
+  getTranslation(lang: string): Observable<TranslationObject> {
     // Return the imported translations for the requested language
     const translation = this.translations[lang];
-    
+
     if (translation) {
       return of(translation);
     }
-    
+
     // Fallback to empty object if language not found
     return of({});
   }
@@ -65,6 +72,24 @@ export const appConfig: ApplicationConfig = {
     ],
 };
 ```
+
+:::caution[Don't pass the bare class]
+v18 emits a `console.warn` if you pass a bare class without `provideTranslateLoader()`:
+
+```ts
+// Don't:
+provideTranslateService({ loader: JsonFileLoader });
+
+// Do:
+provideTranslateService({
+    loader: provideTranslateLoader(JsonFileLoader),
+});
+```
+
+The bare-class form is auto-wrapped for backward compatibility, but the warning
+makes the intent explicit at the call site. This compatibility shim may be
+removed in a future major.
+:::
 
 ### Loaders that need runtime dependencies
 

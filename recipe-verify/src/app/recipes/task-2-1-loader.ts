@@ -14,9 +14,9 @@ import {
 // Stub: JSON files only exist in real user apps, not in recipe-verify.
 // The recipe imports them from public/i18n/; here we inline empty objects
 // so the compiler can resolve the references without real files.
-const enTranslations = {} as Record<string, unknown>;
-const deTranslations = {} as Record<string, unknown>;
-const frTranslations = {} as Record<string, unknown>;
+const enTranslations: TranslationObject = {};
+const deTranslations: TranslationObject = {};
+const frTranslations: TranslationObject = {};
 
 // Stub: MyHttpLoader is user-supplied in the recipe's appConfig example.
 // We define the minimal public shape required by the factory call.
@@ -33,13 +33,13 @@ class MyHttpLoader extends TranslateLoader {
 
 @Injectable()
 export class JsonFileLoader extends TranslateLoader {
-  private translations: { [key: string]: any } = {
+  private translations: { [key: string]: TranslationObject } = {
     'en': enTranslations,
     'de': deTranslations,
     'fr': frTranslations
   };
 
-  getTranslation(lang: string): Observable<any> {
+  getTranslation(lang: string): Observable<TranslationObject> {
     // Return the imported translations for the requested language
     const translation = this.translations[lang];
 
