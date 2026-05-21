@@ -84,7 +84,7 @@ Reading top to bottom:
 
 :::note[Language state is per-root, not per-service]
 `currentLang()` and `fallbackLang()` on a child service delegate to the
-top-level root. There is no per-feature active language: switching the language
+nearest root in its chain. There is no per-feature active language: switching the language
 on a child affects every connected service in the tree.
 
 If you need a feature subtree with independent language state, use
