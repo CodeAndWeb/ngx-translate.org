@@ -3,3 +3,4 @@
 export * from "./_template";
 export * from "./task-2-1-loader";
 export * from "./task-2-2-missing";
+export * from "./task-2-3-parser";
