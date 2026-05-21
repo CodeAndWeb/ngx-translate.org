@@ -10,3 +10,4 @@ export * from "./task-5-4-itranslate-testing";
 export * from "./task-5-5-7-compiler";
 export * from "./task-5-5-9-get-root";
 export * from "./task-5-5-10-fail-on-error";
+export * from "./task-5-5-11-precompile";
