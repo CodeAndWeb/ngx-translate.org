@@ -9,7 +9,8 @@
     "preview": "astro build && wrangler pages dev",
     "astro": "astro",
     "deploy": "astro build && wrangler pages deploy",
-    "cf-typegen": "wrangler types"
+    "cf-typegen": "wrangler types",
+    "verify-recipes": "cd recipe-verify && pnpm exec ng build --configuration=development"
   },
   "dependencies": {
     "@astrojs/check": "0.9.6",
