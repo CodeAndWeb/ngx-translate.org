@@ -190,7 +190,7 @@ get(
 ): Observable<Translation>
 ~~~
 
-> `Translation` is a union that already covers the single-key (`string`) and array-of-keys (`TranslationObject`) cases. At runtime, the return shape mirrors the input: a single key string yields a string; an array of keys yields an object keyed by each.
+> `Translation` is a union covering both output shapes: a single key yields a `string`; an array of keys yields a `TranslationObject` (keyed by each input key).
 
 Retrieves the translation(s) for the specified key(s). The `Observable` emits
 once translations have finished loading, then completes.
