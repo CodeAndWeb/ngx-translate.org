@@ -16,7 +16,7 @@ should be used when there is a missing translation in current language. If no fa
 
 ## Building a Custom Handler
 
-To implement your own handler, create a class that extends the `MissingTranslationHandler` abstract class and implements the `handle()` method.
+To implement your own handler, create a class that extends the `MissingTranslationHandler` abstract class and overrides the `handle()` method.
 
 Here's an example of a custom handler that logs missing translations and returns a formatted message:
 
@@ -25,7 +25,7 @@ import { Injectable } from '@angular/core';
 import { MissingTranslationHandler, MissingTranslationHandlerParams } from '@ngx-translate/core';
 
 @Injectable()
-export class MyMissingTranslationHandler implements MissingTranslationHandler {
+export class MyMissingTranslationHandler extends MissingTranslationHandler {
   handle(params: MissingTranslationHandlerParams): string {
     // Log the missing translation for debugging
     console.warn(`Missing translation for key: ${params.key}`);
@@ -55,23 +55,27 @@ export const appConfig: ApplicationConfig = {
 };
 ```
 
-If your handler needs dependencies, you can use the traditional provider approach:
+### Handlers that need runtime dependencies
+
+Use the factory form of `provideMissingTranslationHandler()` with `inject()`:
 
 ```ts title="app.config.ts"
-import {ApplicationConfig} from "@angular/core";
-import {provideTranslateService, MissingTranslationHandler} from "@ngx-translate/core";
-import {MyMissingTranslationHandler} from './my-missing-translation-handler';
+import { inject } from "@angular/core";
+import {
+    provideTranslateService,
+    provideMissingTranslationHandler,
+} from "@ngx-translate/core";
+import { LoggingService } from "./logging.service";
+import { MyMissingTranslationHandler } from "./my-missing-translation-handler";
 
 export const appConfig: ApplicationConfig = {
-  providers: [
-    ...
-    provideTranslateService({
-      missingTranslationHandler: {
-        provide: MissingTranslationHandler,
-        useFactory: () => new MyMissingTranslationHandler(),
-        deps: [],
-      }
-    })
-  ],
+    providers: [
+        provideTranslateService({
+            missingTranslationHandler: provideMissingTranslationHandler(
+                () => new MyMissingTranslationHandler(inject(LoggingService)),
+            ),
+            fallbackLang: "en",
+        }),
+    ],
 };
 ```
