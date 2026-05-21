@@ -61,6 +61,12 @@ subscriptions needed.
 - [getParent](#getparent): returns the parent service, or `null` for a root / isolated subtree root
 - [getRoot](#getroot): returns the topmost service in the chain (root of an isolated subtree, or top-level root)
 
+##### Events
+- [onLangChange](#onlangchange): emits when the current language changes
+- [onFallbackLangChange](#onfallbacklangchange): emits when the fallback language changes
+- [onTranslationChange](#ontranslationchange): emits when a translation object changes
+- [onTranslationRefresh](#ontranslationrefresh): merged stream of the three events relevant to displayed text
+
 ##### Diagnostics
 - [Bare-class auto-wrap warning](#bare-class-auto-wrap-warning)
 
