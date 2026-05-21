@@ -120,6 +120,13 @@ provideTranslateHttpLoader({
 })
 ~~~
 
+:::caution[Bare-string resources ignore the `suffix` option]
+When a `resources` entry is a plain string (e.g. `"/assets/i18n/common/"`),
+the loader assembles the URL as `<resource><lang>.json` — it does **not**
+apply your custom `suffix`. If you need a non-default suffix per resource,
+use the object form: `{ prefix: "/assets/i18n/common/", suffix: ".yaml" }`.
+:::
+
 This replaces the standalone `@codeandweb/ngx-translate-multi-http-loader` package: the same
 behavior is now built into `@ngx-translate/http-loader`.
 
