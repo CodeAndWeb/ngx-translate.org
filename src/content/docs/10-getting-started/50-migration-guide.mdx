@@ -224,16 +224,16 @@ export const routes: Routes = [
 
 Both config keys have been removed. Use `fallbackLang` only.
 
-**Old code (v17):**
+**Old code (v17 module config, or v17 provider after the deprecation alias):**
 
 ```ts
-provideTranslateService({
+TranslateModule.forRoot({
     defaultLanguage: "en",
     useDefaultLang: true,
 });
 ```
 
-**TypeScript error:** `Object literal may only specify known properties, and 'defaultLanguage' does not exist in type 'RootTranslateServiceConfig'`.
+**TypeScript error after upgrading:** `Object literal may only specify known properties, and 'defaultLanguage' does not exist in type 'RootTranslateServiceConfig'` — appears when v17 config keys are passed to v18's `provideTranslateService`.
 
 **Fix (v18):**
 
