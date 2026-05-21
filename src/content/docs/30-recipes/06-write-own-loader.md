@@ -22,12 +22,12 @@ import { TranslateLoader } from '@ngx-translate/core';
 import { Observable, of } from 'rxjs';
 
 // Import your translation files
-import enTranslations from '../assets/i18n/en.json';
-import deTranslations from '../assets/i18n/de.json';
-import frTranslations from '../assets/i18n/fr.json';
+import enTranslations from '../../public/i18n/en.json';
+import deTranslations from '../../public/i18n/de.json';
+import frTranslations from '../../public/i18n/fr.json';
 
 @Injectable()
-export class JsonFileLoader implements TranslateLoader {
+export class JsonFileLoader extends TranslateLoader {
   private translations: { [key: string]: any } = {
     'en': enTranslations,
     'de': deTranslations,
@@ -66,26 +66,34 @@ export const appConfig: ApplicationConfig = {
 };
 ```
 
-For loaders that need dependencies like `HttpClient`, use the traditional provider approach:
+### Loaders that need runtime dependencies
+
+If your loader needs services from Angular DI (like `HttpClient`), use the factory form of
+`provideTranslateLoader()` together with `inject()`:
 
 ```ts title="app.config.ts"
-import {ApplicationConfig} from "@angular/core";
-import {provideHttpClient} from "@angular/common/http";
-import {provideTranslateService, TranslateLoader} from "@ngx-translate/core";
-import {JsonFileLoader} from './json-file-loader';
+import { ApplicationConfig, inject } from "@angular/core";
+import { HttpClient } from "@angular/common/http";
+import { provideHttpClient } from "@angular/common/http";
+import {
+    provideTranslateService,
+    provideTranslateLoader,
+} from "@ngx-translate/core";
+import { MyHttpLoader } from "./my-http-loader";
 
 export const appConfig: ApplicationConfig = {
-  providers: [
-    ...
-    provideHttpClient(),
-    provideTranslateService({
-      loader: {
-        provide: TranslateLoader,
-        useClass: JsonFileLoader,
-        deps: [HttpClient],
-      }
-    })
-  ],
+    providers: [
+        provideHttpClient(),
+        provideTranslateService({
+            loader: provideTranslateLoader(
+                () => new MyHttpLoader(inject(HttpClient), "/i18n/"),
+            ),
+            fallbackLang: "en",
+        }),
+    ],
 };
 ```
+
+Signal-aware DI runs inside the factory, so `inject()` calls work the same as in
+component constructors.
 
