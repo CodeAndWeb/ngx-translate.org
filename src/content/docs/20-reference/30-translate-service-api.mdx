@@ -187,8 +187,10 @@ get(
   key: string | string[],
   interpolateParams?: InterpolationParameters,
   lang?: Language,
-): Observable<Translation | TranslationObject>
+): Observable<Translation>
 ~~~
+
+> `Translation` is a union that already covers the single-key (`string`) and array-of-keys (`TranslationObject`) cases. At runtime, the return shape mirrors the input: a single key string yields a string; an array of keys yields an object keyed by each.
 
 Retrieves the translation(s) for the specified key(s). The `Observable` emits
 once translations have finished loading, then completes.
@@ -336,7 +338,7 @@ getStreamOnTranslationChange(
   key: string | string[],
   interpolateParams?: InterpolationParameters,
   lang?: Language,
-): Observable<Translation | TranslationObject>
+): Observable<Translation>
 ~~~
 
 Like [`get()`](#get) but emits a new value whenever translations change
@@ -387,7 +389,7 @@ instant(
   key: string | string[],
   interpolateParams?: InterpolationParameters,
   lang?: Language,
-): Translation | TranslationObject
+): Translation
 ~~~
 
 Synchronous lookup. Returns the key itself if translations aren't loaded yet.
@@ -574,7 +576,7 @@ stream(
   key: string | string[],
   interpolateParams?: InterpolationParameters,
   lang?: Language,
-): Observable<Translation | TranslationObject>
+): Observable<Translation>
 ~~~
 
 Returns an `Observable` that emits a translation, then re-emits whenever the
