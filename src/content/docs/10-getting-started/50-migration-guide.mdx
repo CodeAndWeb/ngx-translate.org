@@ -384,6 +384,12 @@ In v17, an `extend: true` child shared the parent's `TranslateStore`. In v18, `p
 
 If your child needs to be fully independent (no parent fallback at all), use `provideTranslateService()` at the child level instead.
 
+**Loading state inherits downward.** v18 introduces `isLoading: Signal<boolean>` on
+every service in the hierarchy. A load triggered at the root marks the root and all
+descendants as loading; a load triggered at a child marks only that child's subtree.
+See [`isLoading`](/reference/translate-service-api/#isloading) and the
+[loading-indicator recipe](/recipes/show-language-loading-indicator/) for details.
+
 ### `setTranslation()` no longer auto-merges with `extend` (Impact: Low)
 
 `setTranslation(lang, translations)` no longer silently merges based on the v17 `extend: true` config (which is also gone). Pass `shouldMerge` explicitly.
