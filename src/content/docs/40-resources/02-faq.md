@@ -4,7 +4,7 @@ description: Find answers to common questions about ngx-translate, Angular trans
 slug: resources/faq
 ---
 
-## About the ngx-translate
+## About ngx-translate
 
 
 ### Who are you?
@@ -80,97 +80,86 @@ for our changes.
 
 Yes.
 
+## Migration
 
+### What are the main breaking changes in v18?
 
+The full list lives in the [Migration Guide](/getting-started/migration-guide/). The
+biggest pieces:
 
-
-
-
-
-## Migration to v17
-
-### What are the main breaking changes in v17?
-
-The main breaking changes in v17 include:
-
-1. **Provider System**: Complete overhaul with new provider functions like `provideTranslateService()`
-2. **Terminology Change**: "Default" language terminology changed to "Fallback" language
-3. **Modern Injection**: Components now use `inject()` function instead of constructor injection
-4. **Store Architecture**: EventEmitters replaced with Subjects and Observable getters
-5. **HTTP Loader**: New configuration-based approach with `provideTranslateHttpLoader()`
-
-See the [Migration Guide](/getting-started/migration-guide/) for detailed information.
-
-### How do I migrate from TranslateModule.forRoot() to the new provider functions?
-
-**v16 (old):**
-```typescript
-TranslateModule.forRoot({
-  loader: {
-    provide: TranslateLoader,
-    useFactory: (http: HttpClient) => new TranslateHttpLoader(http),
-    deps: [HttpClient]
-  },
-  defaultLanguage: 'en'
-})
-```
-
-**v17 (new):**
-```typescript
-provideTranslateService({
-  loader: provideTranslateHttpLoader(),
-  fallbackLang: 'en'
-})
-```
-
-### What happened to setDefaultLang() and getDefaultLang()?
-
-These methods have been renamed in v17:
-- `setDefaultLang()` → `setFallbackLang()`
-- `getDefaultLang()` → `getFallbackLang()`
-- `onDefaultLangChange` → `onFallbackLangChange`
-
-The old methods are deprecated but still work with deprecation warnings.
-
-### How do I use the new injection patterns in components?
-
-**v16 (old):**
-```typescript
-constructor(private translate: TranslateService) {}
-```
-
-**v17 (new):**
-```typescript
-private translate = inject(TranslateService);
-```
+1. **`TranslateModule` removed.** Use `provideTranslateService()` /
+   `provideChildTranslateService()` and import `TranslatePipe` / `TranslateDirective`
+   directly in component `imports`.
+2. **`currentLang` is a `Signal<Language | null>`.** Call it: `translate.currentLang()`.
+3. **`defaultLang` aliases removed.** `setDefaultLang`, `getDefaultLang`,
+   `defaultLang`, `onDefaultLangChange`, `defaultLanguage`, `useDefaultLang`,
+   `DefaultLangChangeEvent` are all gone. Use the `fallback`-named replacements.
+4. **HTTP loader is permissive by default.** A 404 now resolves to an empty object;
+   opt back into fail-fast with `failOnError: true`.
+5. **`setTranslation()` no longer auto-merges.** The third `shouldMerge` argument
+   is `false` by default. The v17 `extend: true` config that toggled the merge is gone.
 
 ### Can I still use NgModule configuration in v18?
 
 No. `TranslateModule` and `TranslateModule.forRoot()` / `forChild()` are removed in v18. Use `provideTranslateService()` and `provideChildTranslateService()` instead. See the [Migration Guide](/getting-started/migration-guide/) for details.
 
-### What's the difference between RootTranslateServiceConfig and ChildTranslateServiceConfig?
+### What's the difference between `RootTranslateServiceConfig` and `ChildTranslateServiceConfig`?
 
-- **RootTranslateServiceConfig**: Used with `provideTranslateService()` for the root service
-- **ChildTranslateServiceConfig**: Used with `provideChildTranslateService()` for child/isolated services
+- **`RootTranslateServiceConfig`** is used with `provideTranslateService()`. It accepts
+  the four plugin slots (`loader`, `compiler`, `parser`, `missingTranslationHandler`)
+  plus language fields (`fallbackLang`, `lang`).
+- **`ChildTranslateServiceConfig`** is used with `provideChildTranslateService()`. It
+  accepts the same four plugin slots; unspecified slots inherit the parent's plugins.
 
-Child services have additional options like `isolate` and `extend` for controlling inheritance behavior.
+`provideChildTranslateService()` always creates a **connected** child: its store is
+checked first, the parent chain provides fallback for missing keys. To create an
+**isolated** subtree with its own language state, call `provideTranslateService()`
+again on the route. The v17 `extend` / `isolate` flags are gone.
+
+### How do I register a custom loader (or compiler/parser/handler)?
+
+Use the matching `provideTranslate*` helper, nested inside `provideTranslateService()`:
+
+**Class form** — when Angular DI can satisfy every dependency:
+
+```typescript
+provideTranslateService({
+  loader: provideTranslateLoader(MyTranslateLoader),
+})
+```
+
+**Factory form** — when you need runtime arguments or `inject()`:
+
+```typescript
+provideTranslateService({
+  loader: provideTranslateLoader(
+    () => new MyLoader(inject(HttpClient), '/i18n'),
+  ),
+})
+```
+
+The same shape works for `provideTranslateCompiler`, `provideTranslateParser`, and
+`provideMissingTranslationHandler`. See
+[Configuration → Provider helpers](/reference/configuration/#provider-helpers).
+
+Bare classes (`loader: MyLoader`) are accepted and auto-wrapped, but emit a
+[bare-class auto-wrap warning](/reference/translate-service-api/#bare-class-auto-wrap-warning).
+Prefer the explicit helper.
 
 ### How do I handle the EventEmitter to Observable changes?
 
-In v17, properties like `onLangChange` are now Observables instead of EventEmitters:
+`onLangChange`, `onFallbackLangChange`, and `onTranslationChange` are Observables you
+subscribe to:
 
-**v16:**
 ```typescript
-this.translate.onLangChange.emit(event);
-```
-
-**v17:**
-```typescript
-// These are now read-only Observables
 this.translate.onLangChange.subscribe(event => {
   // Handle language change
 });
 ```
+
+For most reactive UI work in v18, reach for the `currentLang` / `fallbackLang`
+signals first — they compose with `computed()` and `effect()` without manual
+subscription cleanup.
 
 ## Technical
 
@@ -181,29 +170,32 @@ without reloading the page, you need to load the translations manually and call 
 [`setTranslation`](/reference/translate-service-api/#settranslation) function, which
 triggers [`onTranslationChange`](/reference/translate-service-api/#ontranslationchange).
 
+In v18, `setTranslation(lang, translations)` **replaces** the stored translations by
+default. To merge new keys on top of the existing dictionary (the v17 default), pass
+`true` as the third argument: `setTranslation(lang, translations, true)`.
+
 ### How do I test components with the new provider functions?
 
-**Mock service approach:**
+Type your fake against `ITranslateService` (the abstract class extracted in v18) so
+TypeScript catches API drift. Then provide it under the `TranslateService` token:
+
 ```typescript
-const mockTranslateService: Partial<TranslateService> = {
+import { ITranslateService, TranslateService } from '@ngx-translate/core';
+import { of } from 'rxjs';
+import { signal } from '@angular/core';
+
+const mockTranslateService: Partial<ITranslateService> = {
   get: jasmine.createSpy().and.returnValue(of('translated')),
-  instant: jasmine.createSpy().and.returnValue('translated')
+  instant: jasmine.createSpy().and.returnValue('translated'),
+  currentLang: signal<string | null>('en'),
 };
 
 TestBed.configureTestingModule({
   providers: [
-    { provide: TranslateService, useValue: mockTranslateService }
-  ]
+    { provide: TranslateService, useValue: mockTranslateService },
+  ],
 });
 ```
 
-### Why am I getting deprecation warnings after upgrading to v17?
-
-v17 includes helpful deprecation warnings for methods and properties that have been renamed or changed. These warnings help you identify code that needs updating:
-
-- Update `setDefaultLang()` to `setFallbackLang()`
-- Update `getDefaultLang()` to `getFallbackLang()`
-- Update `onDefaultLangChange` to `onFallbackLangChange`
-- Consider migrating to the new provider functions
-
-The deprecated methods still work but will be removed in a future version.
+For tests that aren't shape-sensitive, instantiate the real `TranslateService` via
+`provideTranslateService({ loader: provideTranslateLoader(FakeLoader) })`.

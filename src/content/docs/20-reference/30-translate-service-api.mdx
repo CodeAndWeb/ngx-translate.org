@@ -640,6 +640,25 @@ translate.use('fr').subscribe(() => {
 });
 ~~~
 
+#### Loader failure: state rollback
+
+If the loader throws or the returned observable errors, `use()` rolls back
+`currentLang` to whatever it was before the call. The service never reports a
+language whose translations it does not actually have loaded.
+
+Subscribe to the error to surface the failure to the user — for example, show a
+toast and let them retry:
+
+~~~ts
+translate.use('fr').subscribe({
+  next: () => { /* loaded */ },
+  error: (err) => {
+    // currentLang is unchanged. Safe to re-render against the previous language.
+    console.error('Failed to load French translations', err);
+  },
+});
+~~~
+
 ### Per-call `lang`
 
 **New in v18.** Lookup methods accept an optional `lang` argument that

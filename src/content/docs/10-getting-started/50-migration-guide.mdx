@@ -13,19 +13,32 @@ v18 rebuilds ngx-translate on Angular Signals. `TranslateModule` is gone, langua
 
 ## Can I stay on v17?
 
-<Aside type="note" title="Staying on v17 is fine for now">
-The v17 line is in maintenance mode: no new features, but security and critical bug fixes still land on the `v17` branch for the support window. Pin both packages to v17 in your `package.json`:
+<Aside type="caution" title="v17 is end-of-life">
+With v18 out, the v17 line is **no longer supported** by the ngx-translate team. No
+further releases, no backports, no security fixes from us. The frozen v17 docs are
+preserved at the [v17 archive](/v17/) for reference, but the only path forward is
+upgrading.
 
-```json title="package.json"
-{
-  "dependencies": {
-    "@ngx-translate/core": "^17",
-    "@ngx-translate/http-loader": "^17"
-  }
-}
+If you cannot upgrade right now and need an actively patched v17, our partner
+**HeroDevs** offers commercial Never-Ending Support — security patches, compatibility
+updates, and long-term maintenance for EOL ngx-translate versions. See
+[Commercial Support](/support/) for details.
+</Aside>
+
+<Aside type="tip" title="Rolling back from v18 to v17">
+If a v18 upgrade is causing problems and you need to revert temporarily, reinstall
+both packages together:
+
+```sh
+npm install @ngx-translate/core@17 @ngx-translate/http-loader@17
 ```
 
-The frozen v17 documentation is available at the [v17 archive](/v17/). When you are ready, come back to this guide.
+Then revert the v18-specific changes you made: put `TranslateModule.forRoot/forChild`
+back, restore `defaultLang` / `defaultLanguage` / `useDefaultLang` if you replaced
+them, and remove `()` from `currentLang` and `fallbackLang` reads. Treat this as a
+short-term workaround — v17 is EOL — and open an issue at
+[ngx-translate/core](https://github.com/ngx-translate/core/issues) describing what
+blocked the v18 upgrade so we can address it in v18.
 </Aside>
 
 ## Search your codebase for these strings
@@ -34,24 +47,24 @@ Most v18 upgrades are mechanical replacements. Open a global search across your 
 
 | Search for | What it means |
 |------------|---------------|
-| `TranslateModule` | Replace module imports with providers. The module is removed in v18. |
-| `TranslateModule.forRoot` | Replace with `provideTranslateService()` in your bootstrap providers. |
-| `TranslateModule.forChild` | Replace with `provideTranslateService()` (isolated) or `provideChildTranslateService()` (connected, parent fallback). |
-| `.currentLang` | Now a Signal. Read sites need `()`: `translate.currentLang()`. |
-| `useDefaultLang` | Removed. Use `fallbackLang` only. |
-| `defaultLanguage` | Renamed to `fallbackLang` in the config object. |
-| `setDefaultLang` | Renamed to `setFallbackLang`. |
-| `getDefaultLang` | Renamed to `getFallbackLang`. |
-| `defaultLang` (property access) | Replaced by the `fallbackLang` signal: `translate.fallbackLang()`. |
-| `onDefaultLangChange` | Renamed to `onFallbackLangChange`. |
-| `DefaultLangChangeEvent` | Renamed to `FallbackLangChangeEvent`. |
-| `setValue(` | Removed. Use `insertValue()`, which returns a new object instead of mutating. |
-| `extend: true` | Removed from the root config. Use `provideChildTranslateService()` for connected children. |
-| `translate.langs` | Replaced by `translate.getLangs()`. |
-| `<el translate>KEY</el>` (content as key) | Deprecated; will be removed in v19. Use `[translate]="'KEY'"` or `*translateBlock`. |
-| `onTranslationChange` (on `TranslateStore`) | Renamed to `translationChange$`. |
-| `store.getTranslation(` | Removed. Use `service.instant(key)` or `store.getTranslationValue(lang, key)`. |
-| `store.getValue(` | Renamed to `store.getTranslationValue()` and now public. |
+| [`TranslateModule`](#translatemodule-removed-impact-high) | Replace module imports with providers. The module is removed in v18. |
+| [`TranslateModule.forRoot`](#translatemodule-removed-impact-high) | Replace with `provideTranslateService()` in your bootstrap providers. |
+| [`TranslateModule.forChild`](#translatemoduleforchild-extend-true---providechildtranslateservice-impact-medium) | Replace with `provideTranslateService()` ([isolated](#translatemoduleforchild-isolate-true---providetranslateservice-impact-medium)) or `provideChildTranslateService()` ([connected, parent fallback](#translatemoduleforchild-extend-true---providechildtranslateservice-impact-medium)). |
+| [`.currentLang`](#currentlang-is-now-a-signal-impact-high) | Now a Signal. Read sites need `()`: `translate.currentLang()`. |
+| [`useDefaultLang`](#usedefaultlang-and-defaultlanguage-removed-impact-medium) | Removed. Use `fallbackLang` only. |
+| [`defaultLanguage`](#usedefaultlang-and-defaultlanguage-removed-impact-medium) | Renamed to `fallbackLang` in the config object. |
+| [`setDefaultLang`](#defaultlang-aliases-removed-impact-medium) | Renamed to `setFallbackLang`. |
+| [`getDefaultLang`](#defaultlang-aliases-removed-impact-medium) | Renamed to `getFallbackLang`. |
+| [`defaultLang` (property access)](#defaultlang-aliases-removed-impact-medium) | Replaced by the `fallbackLang` signal: `translate.fallbackLang()`. |
+| [`onDefaultLangChange`](#defaultlang-aliases-removed-impact-medium) | Renamed to `onFallbackLangChange`. |
+| [`DefaultLangChangeEvent`](#defaultlangchangeevent-renamed-to-fallbacklangchangeevent-impact-low) | Renamed to `FallbackLangChangeEvent`. |
+| [`setValue(`](#setvalue-removed-impact-low) | Removed. Use `insertValue()`, which returns a new object instead of mutating. |
+| [`extend: true`](#translatemoduleforchild-extend-true---providechildtranslateservice-impact-medium) | Removed from the root config. Use `provideChildTranslateService()` for connected children. |
+| [`translate.langs`](#langs-getter-removed-impact-low) | Replaced by `translate.getLangs()`. |
+| [`<el translate>KEY</el>` (content as key)](#element-text-as-translation-key-impact-medium-deprecated-removed-in-v19) | Deprecated; will be removed in v19. Use `[translate]="'KEY'"` or `*translateBlock`. |
+| [`onTranslationChange` (on `TranslateStore`)](#translatestore-api-changes-direct-injection-only-impact-low) | Renamed to `translationChange$`. |
+| [`store.getTranslation(`](#translatestore-api-changes-direct-injection-only-impact-low) | Removed. Use `service.instant(key)` or `store.getTranslationValue(lang, key)`. |
+| [`store.getValue(`](#translatestore-api-changes-direct-injection-only-impact-low) | Renamed to `store.getTranslationValue()` and now public. |
 
 ## Errors you may see after upgrading
 
@@ -498,6 +511,6 @@ Naming and types match the Angular team's `inject()`-first style: provider helpe
 
 ## Next steps
 
-- Skim the [v18 release notes](/#whats-new-in-v18) for new features (signal-driven pipe/directive, `*translateBlock`, per-call `lang`, `translate()` standalone function, hierarchical services).
+- Skim the [v18 release notes](/#whats-new-in-v18) for new features (signal-driven pipe/directive, `*translateBlock`, per-call `lang`, `translate()` standalone function, hierarchical services, `setCompiledTranslation()` for precompiled payloads, `getRoot()`/`getParent()` for chain introspection).
 - For NgModule users, the [NgModules support](/reference/ngmodules/) page covers how to bridge `provideTranslateService()` into a legacy module.
-- File anything missing in the [v18 docs followups](https://github.com/ngx-translate/core/issues) tracker.
+- File anything missing or wrong on the [ngx-translate/core issue tracker](https://github.com/ngx-translate/core/issues).

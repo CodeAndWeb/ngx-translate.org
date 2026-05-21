@@ -5,37 +5,50 @@ head:
   - tag: meta
     attrs:
       property: og:image
-      content: /images/opengraph.jpg
+      content: /images/hero.png
   - tag: meta
     attrs:
       name: twitter:image
-      content: /images/opengraph.jpg
+      content: /images/hero.png
 ---
 
 import {Tabs, TabItem, CardGrid, LinkCard} from "@astrojs/starlight/components";
 import { PackageManagers } from 'starlight-package-managers'
 
-![ngx-translate i18n library for Angular](/images/opengraph.jpg)
+![ngx-translate i18n library for Angular](/images/hero.png)
 
 ## What's new in v18
 
-v18 rebuilds ngx-translate on Angular Signals and ships a smaller, more focused API
-surface. The peer dependency is **Angular 18+**. Highlights:
+v18 rebuilds ngx-translate on Angular Signals. The peer dependency is **Angular 18+**.
+Highlights, in order of impact:
 
-* **`currentLang()` is a Signal**. Read it directly in templates, `computed()`, and
-  `effect()`. No manual subscriptions for language changes.
-* **Standalone [`translate()`](/getting-started/translating-your-components/#standalone-translate-function) function**. Returns a Signal you can read in templates,
-  perfect for component fields outside an injection context.
-* **`*translateBlock` structural directive**. Translates a region with a typed `t()`
-  function and replaces the deprecated content-as-key pattern.
-* **Multi-resource HTTP loader**. A built-in `resources: [...]` array on
-  [`provideTranslateHttpLoader()`](/getting-started/translation-files/#loading-multiple-resources),
-  with later entries overwriting earlier ones.
-* **`failOnError` permissive default**. A 404 now resolves to an empty object so the app
-  keeps working; opt into strict v17 behavior with `failOnError: true`.
-* **NgModule removed**. `TranslateModule.forRoot/forChild` are gone; use
-  [`provideTranslateService()`](/getting-started/installation/) and
-  `provideChildTranslateService()` instead.
+1. **Signals everywhere.** `currentLang` and `fallbackLang` are now
+   `Signal<Language | null>`, and translations themselves are signal-backed.
+   Read them straight in templates, `computed()`, and `effect()` — no
+   subscriptions, no manual change detection.
+
+2. **Standalone [`translate()`](/getting-started/translating-your-components/#standalone-translate-function) function.**
+   Returns a `Signal<Translation>` you can assign to a component field. Each
+   argument (`key`, `params`, `lang`) accepts a plain value, an arrow function,
+   or a signal — fully reactive.
+
+3. **`*translateBlock` structural directive.** Exposes a typed `t(key, params?)`
+   function to a template block. The clean replacement for the deprecated
+   content-as-key pattern, ideal when several keys appear together.
+
+4. **Hierarchical services.** `provideChildTranslateService()` creates a
+   connected child whose translations fall back to the parent chain. Using
+   `provideTranslateService()` again creates an isolated subtree with separate
+   language state. Both work naturally with lazy-loaded routes.
+
+5. **Standalone by default.** `TranslateModule.forRoot/forChild` are gone.
+   Configure via [`provideTranslateService()`](/getting-started/installation/) and
+   import `TranslatePipe` / `TranslateDirective` directly into a component's
+   `imports`.
+
+The HTTP loader also gained built-in
+[multi-resource loading](/getting-started/translation-files/#loading-multiple-resources)
+and a permissive 404 default (`failOnError: true` restores v17 behavior).
 
 Upgrading from v17? See the [Migration Guide](/getting-started/migration-guide/).
 Still on v17? The previous docs remain available at [/v17/](/v17/).

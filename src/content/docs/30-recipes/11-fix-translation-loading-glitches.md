@@ -28,7 +28,7 @@ export const appConfig: ApplicationConfig = {
 ```
 
 ```typescript title="app.component.ts"
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
 // Import your default language translations
@@ -42,7 +42,7 @@ import defaultTranslations from '../assets/i18n/en.json';
   `
 })
 export class AppComponent implements OnInit {
-  constructor(private translate: TranslateService) {}
+  private translate = inject(TranslateService);
 
   ngOnInit() {
     // Set the static translations for immediate availability
@@ -69,23 +69,24 @@ export class AppComponent implements OnInit {
 This approach shows a loading screen or hides the UI until translations are fully loaded, then displays the complete interface.
 
 ```typescript title="app.component.ts"
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-root',
   template: `
-    <div *ngIf="!translationsLoaded" class="loading-screen">
-      <div class="spinner"></div>
-      <p>Loading...</p>
-    </div>
-    
-    <div *ngIf="translationsLoaded" class="main-content">
-      <h1>{{ 'WELCOME' | translate }}</h1>
-      <p>{{ 'DESCRIPTION' | translate }}</p>
-      <!-- Your main application content -->
-    </div>
+    @if (!translationsLoaded) {
+      <div class="loading-screen">
+        <div class="spinner"></div>
+        <p>Loading...</p>
+      </div>
+    } @else {
+      <div class="main-content">
+        <h1>{{ 'WELCOME' | translate }}</h1>
+        <p>{{ 'DESCRIPTION' | translate }}</p>
+        <!-- Your main application content -->
+      </div>
+    }
   `,
   styles: [`
     .loading-screen {
@@ -112,9 +113,8 @@ import { Observable } from 'rxjs';
   `]
 })
 export class AppComponent implements OnInit {
+  private translate = inject(TranslateService);
   translationsLoaded = false;
-
-  constructor(private translate: TranslateService) {}
 
   ngOnInit() {
     // Set fallback language and wait for translations to load
@@ -181,7 +181,7 @@ export const appConfig: ApplicationConfig = {
 ```
 
 ```typescript title="app.component.ts"
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
@@ -193,7 +193,7 @@ import { TranslateService } from '@ngx-translate/core';
   `
 })
 export class AppComponent implements OnInit {
-  constructor(private translate: TranslateService) {}
+  private translate = inject(TranslateService);
 
   ngOnInit() {
     this.translate.setFallbackLang('en');
