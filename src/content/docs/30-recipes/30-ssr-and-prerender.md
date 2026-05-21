@@ -66,13 +66,13 @@ already covers it for most projects.
 
 ## Lifecycle notes
 
-- `onTranslationChange`, `onLangChange`, `onFallbackLangChange`, and the
-  derived `onTranslationRefresh` are exposed as Observables backed by
-  RxJS Subjects on the service and store. v18 wires a `DestroyRef.onDestroy`
-  hook that completes those Subjects when the owning injector tears down,
-  so child services on lazy routes (and the server-side injector after a
-  render) release their subscribers cleanly — no special handling needed
-  in component code.
+- `onTranslationChange`, `onLangChange`, and `onFallbackLangChange` are
+  Subject-backed Observables. v18 wires a `DestroyRef.onDestroy` hook that
+  completes those Subjects when the owning injector tears down, so child
+  services on lazy routes (and the server-side injector after a render)
+  release their subscribers cleanly — no special handling needed in component
+  code. `onTranslationRefresh` is a derived Observable (`merge` of the three
+  above) and completes transitively when its sources complete.
 - Language switching between server and client (e.g. a language cookie
   read on the client after hydration) will produce a visible flash from
   the server-rendered language to the client-rendered language. Use a
