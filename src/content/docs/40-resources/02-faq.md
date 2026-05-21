@@ -87,6 +87,11 @@ Yes.
 The full list lives in the [Migration Guide](/getting-started/migration-guide/). The
 biggest pieces:
 
+- **Angular 18+ required.** v18 raises the minimum Angular peer dependency from
+  16 to 18. Upgrade Angular first (`ng update @angular/core@18`) before installing
+  `@ngx-translate/core@18`. See the
+  [migration guide](/getting-started/migration-guide/#angular-16--18-peer-dependency-bump--impact-high-pre-flight).
+
 1. **`TranslateModule` removed.** Use `provideTranslateService()` /
    `provideChildTranslateService()` and import `TranslatePipe` / `TranslateDirective`
    directly in component `imports`.
