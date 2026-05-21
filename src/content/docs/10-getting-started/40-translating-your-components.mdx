@@ -118,7 +118,7 @@ place, and the recommended replacement for the deprecated content-as-key pattern
 ~~~html
 <ng-container *translateBlock="let t">
   <h1>{{ t('app.title') }}</h1>
-  <p>{{ t('app.hello', { name: userName }) }}</p>
+  <p>{{ t('app.hello', { name: user.name }) }}</p>
 </ng-container>
 ~~~
 
