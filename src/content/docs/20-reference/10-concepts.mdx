@@ -30,8 +30,10 @@ the per-API reference pages can stay focused.
 
 * **`*translateBlock` directive**
   Exposes a typed `t(key, params?)` function to a template region. Cleaner
-  than chaining pipes when several keys appear together. Delegates to
-  `TranslateService.instant()` internally.
+  than chaining pipes when several keys appear together. `t()` delegates to
+  `TranslateService.instant()`, which reads the store's translations signal;
+  that establishes signal tracking during template evaluation, so the block
+  updates reactively when the language or translations change.
 
 ## Configuration
 
@@ -83,7 +85,124 @@ Reading top to bottom:
 To introspect the chain at runtime use
 [`TranslateService.getParent()`](/reference/translate-service-api/#getparent),
 which returns `null` for any service that terminates the chain (top-level root
-or isolated subtree root).
+or isolated subtree root). For the topmost service of the current chain
+(handy from any depth), use
+[`TranslateService.getRoot()`](/reference/translate-service-api/#getroot) —
+it walks `getParent()` until it hits the boundary and stops at an isolated
+subtree root just like `getParent()` does.
+
+### Hierarchy cookbook
+
+**Two siblings with isolated translations.** Two routes that should not share
+keys both call `provideTranslateService()` again, each with their own loader:
+
+```ts title="app.routes.ts"
+export const routes: Routes = [
+  {
+    path: 'admin',
+    providers: [
+      provideTranslateService({
+        loader: provideTranslateHttpLoader({ prefix: '/i18n/admin/' }),
+      }),
+    ],
+    loadChildren: () => import('./admin/routes'),
+  },
+  {
+    path: 'shop',
+    providers: [
+      provideTranslateService({
+        loader: provideTranslateHttpLoader({ prefix: '/i18n/shop/' }),
+      }),
+    ],
+    loadChildren: () => import('./shop/routes'),
+  },
+];
+```
+
+Neither subtree sees the other's translations, and neither falls back to the
+outer root.
+
+**Three-level nesting.** Root → feature → sub-feature, all connected:
+
+```ts
+// app.config.ts
+provideTranslateService({
+  loader: provideTranslateHttpLoader({ prefix: '/i18n/' }),
+  fallbackLang: 'en',
+});
+
+// feature.routes.ts
+provideChildTranslateService({
+  loader: provideTranslateHttpLoader({ prefix: '/i18n/feature/' }),
+});
+
+// feature/sub.routes.ts
+provideChildTranslateService({
+  loader: provideTranslateHttpLoader({ prefix: '/i18n/feature/sub/' }),
+});
+```
+
+Lookup walks `sub → feature → root`. A key defined at the root is visible inside
+sub-feature templates as long as no intermediate level overrides it.
+
+**Sharing a key from the root in a child template.** No special wiring — connected
+children walk the parent chain. Define `COMMON.SAVE` in the root translation file
+and `{{ 'COMMON.SAVE' | translate }}` works inside any child template.
+
+**Pitfall: child write that doesn't reach the root.** Calling `translate.set()`
+or `translate.setTranslation()` inside a child writes to the *child* store; the
+root never sees the value. If you intended to set a translation globally, capture
+the root service from a parent injection context first:
+
+```ts
+// In a child component, write to the root store explicitly.
+// getRoot() walks the parent chain and stops at the nearest isolation
+// boundary — works for any depth, unlike a single getParent() hop.
+const root = inject(TranslateService).getRoot();
+root.set('GLOBAL.MESSAGE', 'Hallo Welt!', 'de');
+```
+
+**Showing a "language switching..." indicator.**
+[`isLoading`](/reference/translate-service-api/#isloading) is a
+`Signal<boolean>` that flips `true` while a `use()` or `setFallbackLang()`
+call is fetching translations. Scope is **downward**: a load at the root
+marks the root and all descendants; a load at a child marks only that
+child's subtree. So inject the service at the scope where the spinner
+should live — root for an app-shell spinner, the nearest child for a
+local spinner inside a lazy-loaded subtree:
+
+```html
+@if (translate.isLoading()) {
+  <app-spinner />
+}
+```
+
+Sibling subtrees that finished loading earlier do not flip back to loading
+when another subtree starts a fresh load. See the recipe
+[Show a loading indicator during language switch](/recipes/show-language-loading-indicator/).
+
+## Which API should I use?
+
+v18 exposes several `translate`-named shapes. Pick the one that matches your
+context:
+
+| Form                                            | Returns                | Use when                                                                  |
+|-------------------------------------------------|------------------------|---------------------------------------------------------------------------|
+| `{{ 'KEY' \| translate }}`                      | rendered string        | one key per element in a template                                         |
+| `<el [translate]="'KEY'">`                      | rendered text content  | binding text content of a specific element (overwrites any child HTML)    |
+| `<el *translateBlock="let t">`                  | typed `t(key, params?)`| multiple keys in one template block                                       |
+| `translate('KEY')` standalone fn                | `Signal<Translation>`  | reading translations in component class code, inside an injection context |
+| `service.translate('KEY')`                      | `Signal<Translation>`  | same as above but outside an injection context                            |
+| `service.instant('KEY')`                        | sync `Translation`     | one-shot read where you do not need reactivity                            |
+| `service.get('KEY')`                            | `Observable<Translation>` | one-shot observable read (completes once)                              |
+| `service.stream('KEY')`                         | `Observable<Translation>` | live observable that re-emits on lang/translation change               |
+
+And a related distinction for writing into the store:
+
+* [`setTranslation(lang, source, shouldMerge?)`](/reference/translate-service-api/#settranslation)
+  runs `source` through the configured [`TranslateCompiler`](/reference/translate-compiler-api/) first.
+* [`setCompiledTranslation(lang, alreadyCompiled, shouldMerge?)`](/reference/translate-service-api/#setcompiledtranslation)
+  stores the data as-is — use it for build-time pre-compilation output.
 
 ## Customizable Plugins
 

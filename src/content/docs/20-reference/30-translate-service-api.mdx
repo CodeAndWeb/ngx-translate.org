@@ -27,6 +27,7 @@ subscriptions needed.
 ##### Reactive language state (Signals)
 - [currentLang](#currentlang): `Signal<Language | null>`, current language as a reactive signal
 - [fallbackLang](#fallbacklang): `Signal<Language | null>`, fallback language as a reactive signal
+- [isLoading](#isloading): `Signal<boolean>`, `true` while a language load is in flight
 
 ##### Setting the current and fallback language
 - [use](#use): set the current language and load it if needed
@@ -58,6 +59,7 @@ subscriptions needed.
 
 ##### Service hierarchy
 - [getParent](#getparent): returns the parent service, or `null` for a root / isolated subtree root
+- [getRoot](#getroot): returns the topmost service in the chain (root of an isolated subtree, or top-level root)
 
 ##### Diagnostics
 - [Bare-class auto-wrap warning](#bare-class-auto-wrap-warning)
@@ -132,6 +134,51 @@ const fallback = translate.fallbackLang();
 ~~~
 
 For a non-reactive snapshot, use [`getFallbackLang()`](#getfallbacklang).
+
+### isLoading
+
+~~~ts
+get isLoading(): Signal<boolean>
+~~~
+
+A reactive `Signal<boolean>` that is `true` while one or more language loads are
+in flight at this service or any of its ancestors in the service hierarchy.
+Designed for spinners and "language switching..." indicators during
+[`use()`](#use) and [`setFallbackLang()`](#setfallbacklang).
+
+Read by calling the signal:
+
+~~~ts
+const busy: boolean = translate.isLoading();
+~~~
+
+In a template:
+
+~~~html
+@if (translate.isLoading()) {
+  <app-spinner />
+}
+~~~
+
+#### Hierarchical scope: downward inheritance
+
+Loading propagates **downward**, not upward:
+
+- A load triggered at the **root** marks the root and **all descendants** as
+  loading. App-shell spinners (injected at root) cover language switches that
+  initiate anywhere in the tree.
+- A load triggered at a **child** (e.g. a lazy-route bootstrap fetching its
+  own translations) marks **only that child's subtree**. Siblings and ancestors
+  are unaffected — sibling subtrees that finished loading earlier do not flip
+  back to loading.
+
+Drive a spinner by reading `isLoading` from the service injected at the scope
+where the spinner should live: root for an app-shell spinner, the nearest
+child for a local spinner inside a lazy-loaded subtree.
+
+See also [Concepts → Hierarchical Services](/reference/concepts/#hierarchical-services)
+and the [Show a loading indicator during language switch](/recipes/show-language-loading-indicator/)
+recipe.
 
 ### get
 
@@ -256,6 +303,31 @@ while (svc) {
 ~~~
 
 See [Concepts → Hierarchical Services](/reference/concepts/#hierarchical-services).
+For the topmost service in the chain (skipping the walk), use
+[`getRoot()`](#getroot).
+
+### getRoot
+
+~~~ts
+getRoot(): TranslateService
+~~~
+
+Returns the topmost service in this service's hierarchy — the terminus of the
+[`getParent()`](#getparent) chain. For an isolated subtree (a nested
+`provideTranslateService()`), returns the subtree's own root, not the outer
+top-level root.
+
+A root service returns itself. Equivalent to walking `getParent()` until it
+returns `null`, but provided as a convenience:
+
+~~~ts
+// Write a translation globally from a child component.
+const root = inject(TranslateService).getRoot();
+root.set('GLOBAL.MESSAGE', 'Hallo Welt!', 'de');
+~~~
+
+For arbitrary-depth chains, prefer `getRoot()` over walking `getParent()`
+manually — it terminates correctly at isolation boundaries.
 
 ### getStreamOnTranslationChange
 
