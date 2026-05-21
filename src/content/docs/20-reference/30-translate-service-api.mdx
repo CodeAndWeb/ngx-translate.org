@@ -585,6 +585,16 @@ that specific language's translations are reloaded.
 
 Does not complete; unsubscribe when no longer needed.
 
+:::note[Re-emission scope]
+`stream(key)` (without an explicit `lang`) re-emits when the **active language**
+changes (`onLangChange`). It does **not** re-emit when `setTranslation()`
+updates the translations object for the active language.
+
+If you also want updates on `setTranslation()` for the active language, use
+[`getStreamOnTranslationChange()`](#getstreamontranslationchange) instead, which
+re-emits on both lang changes and translation updates.
+:::
+
 `lang` is the same per-call language override documented in
 [Per-call `lang` parameter](#per-call-lang).
 
