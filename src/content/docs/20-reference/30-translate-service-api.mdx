@@ -82,7 +82,7 @@ language to appear in `getLangs()` ahead of an actual load.
 ### currentLang
 
 ~~~ts
-get currentLang(): Signal<Language | null>
+readonly currentLang: Signal<Language | null>
 ~~~
 
 The currently active language as a reactive `Signal`. Read it by **calling**
@@ -129,7 +129,7 @@ Add `()` at every read site: `translate.currentLang()`. Same applies to
 ### fallbackLang
 
 ~~~ts
-get fallbackLang(): Signal<Language | null>
+readonly fallbackLang: Signal<Language | null>
 ~~~
 
 The fallback language as a reactive `Signal`, sibling to
