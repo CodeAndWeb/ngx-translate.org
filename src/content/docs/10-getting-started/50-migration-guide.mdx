@@ -47,7 +47,7 @@ Most v18 upgrades are mechanical replacements. Open a global search across your 
 
 | Search for | What it means |
 |------------|---------------|
-| `npm install @ngx-translate/core` (on Angular 16/17) | Pre-flight: Angular peer dep is now `^18.0.0`. See [Angular 16 → 18 peer dependency bump](#angular-16--18-peer-dependency-bump--impact-high-pre-flight). |
+| `"@ngx-translate/core": "^17` | Pre-flight: Angular peer dep is now `^18.0.0`. See [Angular 16 → 18 peer dependency bump](#angular-16--18-peer-dependency-bump--impact-high-pre-flight). |
 | [`TranslateModule`](#translatemodule-removed-impact-high) | Replace module imports with providers. The module is removed in v18. |
 | [`TranslateModule.forRoot`](#translatemodule-removed-impact-high) | Replace with `provideTranslateService()` in your bootstrap providers. |
 | [`TranslateModule.forChild`](#translatemoduleforchild-extend-true---providechildtranslateservice-impact-medium) | Replace with `provideTranslateService()` ([isolated](#translatemoduleforchild-isolate-true---providetranslateservice-impact-medium)) or `provideChildTranslateService()` ([connected, parent fallback](#translatemoduleforchild-extend-true---providechildtranslateservice-impact-medium)). |
