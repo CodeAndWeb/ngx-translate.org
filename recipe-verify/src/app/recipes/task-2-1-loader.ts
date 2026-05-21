@@ -1,5 +1,5 @@
 // Recipe-verify for: 30-recipes/06-write-own-loader.md
-// Verifies that both code blocks in the recipe compile in a real Angular project.
+// Verifies that the `JsonFileLoader` class and the factory-form `appConfig` compile in a real Angular project.
 
 import { ApplicationConfig, inject, Injectable } from "@angular/core";
 import { HttpClient, provideHttpClient } from "@angular/common/http";

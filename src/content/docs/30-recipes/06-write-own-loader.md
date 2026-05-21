@@ -6,7 +6,7 @@ slug: recipes/write-own-loader
 
 
 If you want to write your own loader, you need to create a class that
-implements `TranslateLoader`. The only required method is `getTranslation` that must
+extends `TranslateLoader`. The only required method is `getTranslation` that must
 return an `Observable`. If your loader is synchronous, just use `of()` from RxJS to create
 an observable from your static value.
 
