@@ -27,7 +27,7 @@ export class MyCustomParser extends TranslateParser {
     } else if (typeof expr === 'function') {
       return expr(params);
     }
-    return expr;
+    return undefined;
   }
 }
 ```
@@ -51,6 +51,8 @@ export const appConfig: ApplicationConfig = {
 ```
 
 ### Parsers that need runtime dependencies
+
+Use a factory function when your parser needs Angular services:
 
 ```ts title="app.config.ts"
 import { inject } from "@angular/core";

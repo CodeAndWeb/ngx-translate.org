@@ -38,7 +38,7 @@ export class MyCustomParser extends TranslateParser {
     } else if (typeof expr === 'function') {
       return expr(params);
     }
-    return expr;
+    return undefined;
   }
 }
 
