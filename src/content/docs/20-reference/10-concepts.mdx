@@ -82,6 +82,17 @@ Reading top to bottom:
   subtree root with its own language state and store. It does not fall back to
   the outer root.
 
+:::note[Language state is per-root, not per-service]
+`currentLang()` and `fallbackLang()` on a child service delegate to the
+top-level root. There is no per-feature active language: switching the language
+on a child affects every connected service in the tree.
+
+If you need a feature subtree with independent language state, use
+`provideTranslateService()` (not `provideChildTranslateService()`) at the
+subtree root. That creates an isolated tree with its own `currentLang` /
+`fallbackLang` signals.
+:::
+
 To introspect the chain at runtime use
 [`TranslateService.getParent()`](/reference/translate-service-api/#getparent),
 which returns `null` for any service that terminates the chain (top-level root
