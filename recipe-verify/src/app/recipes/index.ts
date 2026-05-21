@@ -6,3 +6,4 @@ export * from "./task-2-2-missing";
 export * from "./task-2-3-parser";
 export * from "./task-5-1-ssr";
 export * from "./task-5-3-per-call-lang";
+export * from "./task-5-4-itranslate-testing";
