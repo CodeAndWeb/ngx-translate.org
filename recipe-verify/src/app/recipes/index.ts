@@ -9,3 +9,4 @@ export * from "./task-5-3-per-call-lang";
 export * from "./task-5-4-itranslate-testing";
 export * from "./task-5-5-7-compiler";
 export * from "./task-5-5-9-get-root";
+export * from "./task-5-5-10-fail-on-error";
