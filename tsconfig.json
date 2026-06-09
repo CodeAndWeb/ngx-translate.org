@@ -8,8 +8,9 @@
             "@cloudflare/workers-types/2023-07-01"
         ]
     },
-    "exclude": 
+    "exclude":
     [
-            "dist"
+            "dist",
+            "recipe-verify"
     ]
 }

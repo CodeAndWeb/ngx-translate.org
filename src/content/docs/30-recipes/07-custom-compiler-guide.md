@@ -14,8 +14,8 @@ A [`TranslateCompiler`](/reference/translate-compiler-api/) processes your trans
 
 Every compiler needs to implement two methods:
 
-* `compile(value: string, lang: string): string | Function` - Transforms a single translation text
-* `compileTranslations(translations: any, lang: string): any` - Transforms all translations in a file
+* `compile(value: string, lang: Language): string | InterpolateFunction` - Transforms a single translation text
+* `compileTranslations(translations: TranslationObject, lang: Language): InterpolatableTranslationObject` - Transforms all translations in a file
 
 ## Creating a Markdown Compiler
 
@@ -23,15 +23,21 @@ Let's build a compiler that converts common markdown formatting into HTML. This 
 
 ```typescript
 import { Injectable } from '@angular/core';
-import { TranslateCompiler } from '@ngx-translate/core';
+import {
+    TranslateCompiler,
+    Language,
+    TranslationObject,
+    InterpolatableTranslationObject,
+    InterpolateFunction,
+} from '@ngx-translate/core';
 
 @Injectable()
 export class MarkdownCompiler extends TranslateCompiler {
-  compile(value: string, lang: string): string {
+  compile(value: string, _lang: Language): string | InterpolateFunction {
     if (typeof value !== 'string') {
       return value;
     }
-    
+
     // Convert markdown syntax to HTML
     return value
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')  // **bold** → <strong>bold</strong>
@@ -39,27 +45,37 @@ export class MarkdownCompiler extends TranslateCompiler {
       .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>'); // [text](url) → <a href="url">text</a>
   }
 
-  compileTranslations(translations: any, lang: string): any {
-    const compiled: any = {};
-    
-    for (const key in translations) {
-      if (translations.hasOwnProperty(key)) {
-        const value = translations[key];
-        if (typeof value === 'object' && value !== null) {
-          // Handle nested translation objects
-          compiled[key] = this.compileTranslations(value, lang);
-        } else {
-          compiled[key] = this.compile(value, lang);
-        }
+  compileTranslations(
+    translations: TranslationObject,
+    lang: Language,
+  ): InterpolatableTranslationObject {
+    const compiled: InterpolatableTranslationObject = {};
+
+    for (const [key, value] of Object.entries(translations)) {
+      if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+        // Handle nested translation objects
+        compiled[key] = this.compileTranslations(value as TranslationObject, lang);
+      } else if (typeof value === 'string') {
+        compiled[key] = this.compile(value, lang);
+      } else {
+        compiled[key] = value;
       }
     }
-    
+
     return compiled;
   }
 }
 ```
 
 The `compile` method handles individual translation strings. It uses regular expressions to find markdown patterns and replace them with HTML tags. The `compileTranslations` method processes entire translation files, including nested objects, by calling `compile` on each string value.
+
+:::tip[Already compiled at build time?]
+If your translations are pre-compiled at build time (e.g. an interpolation function
+factory ran during a build step), use
+[`setCompiledTranslation()`](/reference/translate-service-api/#setcompiledtranslation)
+to skip the runtime compiler entirely. See the
+[Pre-compile translations recipe](/recipes/precompile-translations/) for a worked example.
+:::
 
 ## Setting Up Your Compiler
 

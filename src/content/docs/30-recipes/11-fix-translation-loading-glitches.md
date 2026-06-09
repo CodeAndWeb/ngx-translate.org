@@ -55,6 +55,10 @@ export class AppComponent implements OnInit {
 }
 ```
 
+> **Note:** In v18, `setTranslation()` **replaces** the language's translations by default.
+> Pass `shouldMerge: true` as the third argument to merge instead. This recipe calls
+> `setTranslation()` only once per language, so the default replace behavior is fine.
+
 **Benefits:**
 - Immediate display of UI in your preferred language
 - No loading delays for the default language
@@ -67,6 +71,10 @@ export class AppComponent implements OnInit {
 ## Solution 2: Display Loading Screen and Wait for Translations
 
 This approach shows a loading screen or hides the UI until translations are fully loaded, then displays the complete interface.
+
+> **See also:** For runtime loading indicators (after bootstrap, during language switches),
+> see [Show a language loading indicator](/recipes/show-language-loading-indicator/) — it uses the v18 `isLoading` signal,
+> which is the recommended pattern for post-bootstrap loading UI.
 
 ```typescript title="app.component.ts"
 import { Component, inject, OnInit } from '@angular/core';

@@ -51,7 +51,7 @@ We use the **GitHub bug tracker** to manage all issues, bugs, and feature reques
 If you encounter any problems while using `@ngx-translate/core` or have ideas for
 new features, feel free to submit them there.
 
-1. Go to the [GitHub repository](https://github.com/codeandweb/ngx-translate).
+1. Go to the [GitHub repository](https://github.com/ngx-translate/core).
 2. Open an issue if you've found a bug or suggest an enhancement.
 3. Provide as much detail as possible, including steps to reproduce the issue or a clear
    explanation of the feature you would like to see.
@@ -86,6 +86,11 @@ Yes.
 
 The full list lives in the [Migration Guide](/getting-started/migration-guide/). The
 biggest pieces:
+
+- **Angular 18+ required.** v18 raises the minimum Angular peer dependency from
+  16 to 18. Upgrade Angular first (`ng update @angular/core@18`) before installing
+  `@ngx-translate/core@18`. See the
+  [migration guide](/getting-started/migration-guide/#angular-16--18-peer-dependency-bump--impact-high-pre-flight).
 
 1. **`TranslateModule` removed.** Use `provideTranslateService()` /
    `provideChildTranslateService()` and import `TranslatePipe` / `TranslateDirective`

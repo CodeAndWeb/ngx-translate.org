@@ -1,0 +1,9 @@
+minimumReleaseAgeExclude:
+  - '@angular-devkit/architect@0.2102.12'
+  - '@angular-devkit/core@21.2.12'
+  - '@angular-devkit/schematics@21.2.12'
+  - '@angular/build@21.2.12'
+  - '@angular/cli@21.2.12'
+  - '@schematics/angular@21.2.12'
+  - '@ngx-translate/core@18.0.0-rc.3'
+  - '@ngx-translate/http-loader@18.0.0-rc.3'

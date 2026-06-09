@@ -47,6 +47,7 @@ Most v18 upgrades are mechanical replacements. Open a global search across your 
 
 | Search for | What it means |
 |------------|---------------|
+| `"@ngx-translate/core": "^17` | Pre-flight: Angular peer dep is now `^18.0.0`. See [Angular 16 → 18 peer dependency bump](#angular-16--18-peer-dependency-bump--impact-high-pre-flight). |
 | [`TranslateModule`](#translatemodule-removed-impact-high) | Replace module imports with providers. The module is removed in v18. |
 | [`TranslateModule.forRoot`](#translatemodule-removed-impact-high) | Replace with `provideTranslateService()` in your bootstrap providers. |
 | [`TranslateModule.forChild`](#translatemoduleforchild-extend-true---providechildtranslateservice-impact-medium) | Replace with `provideTranslateService()` ([isolated](#translatemoduleforchild-isolate-true---providetranslateservice-impact-medium)) or `provideChildTranslateService()` ([connected, parent fallback](#translatemoduleforchild-extend-true---providechildtranslateservice-impact-medium)). |
@@ -72,6 +73,7 @@ If your build or runtime breaks, find the message below.
 
 | Error or warning | Fix |
 |------------------|-----|
+| `npm ERR! ERESOLVE could not resolve` … `peer @angular/core@"^18.0.0"` | Upgrade Angular first. See [Angular 16 → 18 peer dependency bump](#angular-16--18-peer-dependency-bump--impact-high-pre-flight). |
 | `Cannot read currentLang of undefined` / unexpected `null` from `currentLang` | `currentLang` is now a `Signal<Language \| null>`. Call it: `translate.currentLang()`. |
 | TS: `Property 'defaultLang' does not exist on type 'TranslateService'` | Replace with `translate.fallbackLang()` (Signal) or `translate.getFallbackLang()`. |
 | TS: `Property 'setDefaultLang' does not exist on type 'TranslateService'` | Replace with `translate.setFallbackLang(lang)`. |
@@ -90,6 +92,15 @@ If your build or runtime breaks, find the message below.
 | Console warn: deprecation warning on `<el translate>KEY</el>` | Element-text-as-key is deprecated. Use `[translate]="'KEY'"` or `*translateBlock`. |
 
 ## Breaking changes (Old / Error / Fix)
+
+### Angular 16 → 18 peer dependency bump — Impact: High (pre-flight)
+
+v18 raises the minimum Angular peer dependency from `^16.0.0` to `^18.0.0`.
+Projects on Angular 16 or 17 must upgrade Angular first (`ng update @angular/core@18`)
+before installing `@ngx-translate/core@18`. The library uses signal-based reactivity
+and Angular DI features that landed in Angular 18.
+
+If you're on Angular 18 already, no action needed.
 
 ### `TranslateModule` removed (Impact: High)
 
@@ -224,16 +235,16 @@ export const routes: Routes = [
 
 Both config keys have been removed. Use `fallbackLang` only.
 
-**Old code (v17):**
+**Old code (v17 module config, or v17 provider after the deprecation alias):**
 
 ```ts
-provideTranslateService({
+TranslateModule.forRoot({
     defaultLanguage: "en",
     useDefaultLang: true,
 });
 ```
 
-**TypeScript error:** `Object literal may only specify known properties, and 'defaultLanguage' does not exist in type 'RootTranslateServiceConfig'`.
+**TypeScript error after upgrading:** `Object literal may only specify known properties, and 'defaultLanguage' does not exist in type 'RootTranslateServiceConfig'` — appears when v17 config keys are passed to v18's `provideTranslateService`.
 
 **Fix (v18):**
 
@@ -372,6 +383,12 @@ In v17, an `extend: true` child shared the parent's `TranslateStore`. In v18, `p
 - Code that read `store.translations` after a write must re-read, because state updates are now immutable.
 
 If your child needs to be fully independent (no parent fallback at all), use `provideTranslateService()` at the child level instead.
+
+**Loading state inherits downward.** v18 introduces `isLoading: Signal<boolean>` on
+every service in the hierarchy. A load triggered at the root marks the root and all
+descendants as loading; a load triggered at a child marks only that child's subtree.
+See [`isLoading`](/reference/translate-service-api/#isloading) and the
+[loading-indicator recipe](/recipes/show-language-loading-indicator/) for details.
 
 ### `setTranslation()` no longer auto-merges with `extend` (Impact: Low)
 

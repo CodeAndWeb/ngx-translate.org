@@ -61,6 +61,12 @@ subscriptions needed.
 - [getParent](#getparent): returns the parent service, or `null` for a root / isolated subtree root
 - [getRoot](#getroot): returns the topmost service in the chain (root of an isolated subtree, or top-level root)
 
+##### Events
+- [onLangChange](#onlangchange): emits when the current language changes
+- [onFallbackLangChange](#onfallbacklangchange): emits when the fallback language changes
+- [onTranslationChange](#ontranslationchange): emits when a translation object changes
+- [onTranslationRefresh](#ontranslationrefresh): merged stream of the three events relevant to displayed text
+
 ##### Diagnostics
 - [Bare-class auto-wrap warning](#bare-class-auto-wrap-warning)
 
@@ -76,7 +82,7 @@ language to appear in `getLangs()` ahead of an actual load.
 ### currentLang
 
 ~~~ts
-get currentLang(): Signal<Language | null>
+readonly currentLang: Signal<Language | null>
 ~~~
 
 The currently active language as a reactive `Signal`. Read it by **calling**
@@ -123,7 +129,7 @@ Add `()` at every read site: `translate.currentLang()`. Same applies to
 ### fallbackLang
 
 ~~~ts
-get fallbackLang(): Signal<Language | null>
+readonly fallbackLang: Signal<Language | null>
 ~~~
 
 The fallback language as a reactive `Signal`, sibling to
@@ -187,8 +193,10 @@ get(
   key: string | string[],
   interpolateParams?: InterpolationParameters,
   lang?: Language,
-): Observable<Translation | TranslationObject>
+): Observable<Translation>
 ~~~
+
+> `Translation` is a union covering both output shapes: a single key yields a `string`; an array of keys yields a `TranslationObject` (keyed by each input key).
 
 Retrieves the translation(s) for the specified key(s). The `Observable` emits
 once translations have finished loading, then completes.
@@ -283,7 +291,7 @@ The `langs` getter has been removed. Use `getLangs()`.
 ### getParent
 
 ~~~ts
-getParent(): TranslateService | null
+getParent(): ITranslateService | null
 ~~~
 
 Returns the parent service this one inherits translations from. Returns `null`
@@ -309,7 +317,7 @@ For the topmost service in the chain (skipping the walk), use
 ### getRoot
 
 ~~~ts
-getRoot(): TranslateService
+getRoot(): ITranslateService
 ~~~
 
 Returns the topmost service in this service's hierarchy — the terminus of the
@@ -336,7 +344,7 @@ getStreamOnTranslationChange(
   key: string | string[],
   interpolateParams?: InterpolationParameters,
   lang?: Language,
-): Observable<Translation | TranslationObject>
+): Observable<Translation>
 ~~~
 
 Like [`get()`](#get) but emits a new value whenever translations change
@@ -387,7 +395,7 @@ instant(
   key: string | string[],
   interpolateParams?: InterpolationParameters,
   lang?: Language,
-): Translation | TranslationObject
+): Translation
 ~~~
 
 Synchronous lookup. Returns the key itself if translations aren't loaded yet.
@@ -574,7 +582,7 @@ stream(
   key: string | string[],
   interpolateParams?: InterpolationParameters,
   lang?: Language,
-): Observable<Translation | TranslationObject>
+): Observable<Translation>
 ~~~
 
 Returns an `Observable` that emits a translation, then re-emits whenever the
@@ -582,6 +590,16 @@ language changes (`onLangChange`). With `lang` provided, it also re-emits when
 that specific language's translations are reloaded.
 
 Does not complete; unsubscribe when no longer needed.
+
+:::note[Re-emission scope]
+`stream(key)` (without an explicit `lang`) re-emits when the **active language**
+changes (`onLangChange`). It does **not** re-emit when `setTranslation()`
+updates the translations object for the active language.
+
+If you also want updates on `setTranslation()` for the active language, use
+[`getStreamOnTranslationChange()`](#getstreamontranslationchange) instead, which
+re-emits on both lang changes and translation updates.
+:::
 
 `lang` is the same per-call language override documented in
 [Per-call `lang` parameter](#per-call-lang).

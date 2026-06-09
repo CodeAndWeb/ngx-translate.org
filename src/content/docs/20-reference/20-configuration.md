@@ -217,6 +217,19 @@ provideTranslateHttpLoader({
 | `useHttpBackend` | `boolean`                                     | `false`        | Bypass interceptors via `HttpBackend`.                                                   |
 | `failOnError`    | `boolean`                                     | `false`        | See [failOnError](#failonerror) below.                                                   |
 
+:::note
+Arrays in translation values are **replaced wholesale** by later resources,
+not concatenated. If multiple resources contribute an array under the same
+key, the last-loaded resource's array wins.
+:::
+
+:::caution[Bare-string resources ignore the `suffix` option]
+When a `resources` entry is a plain string (e.g. `"/assets/i18n/common/"`),
+the loader assembles the URL as `<resource><lang>.json` — it does **not**
+apply your custom `suffix`. If you need a non-default suffix per resource,
+use the object form: `{ prefix: "/assets/i18n/common/", suffix: ".yaml" }`.
+:::
+
 `provideTranslateMultiHttpLoader()` is also exported as an explicit alias of
 the multi-resource form.
 

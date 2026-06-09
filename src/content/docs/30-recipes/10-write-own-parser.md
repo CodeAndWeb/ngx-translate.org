@@ -14,11 +14,11 @@ Here's an example of a custom parser that uses `${}` syntax instead of `{{}}`:
 
 ```typescript
 import { Injectable } from '@angular/core';
-import { TranslateParser } from '@ngx-translate/core';
+import { TranslateParser, InterpolateFunction, InterpolationParameters } from '@ngx-translate/core';
 
 @Injectable()
 export class MyCustomParser extends TranslateParser {
-  interpolate(expr: string | Function, params?: any): string {
+  interpolate(expr: InterpolateFunction | string, params?: InterpolationParameters): string | undefined {
     if (typeof expr === 'string') {
       // Custom interpolation logic using ${} syntax
       return expr.replace(/\$\{([^}]+)\}/g, (match, key) => {
@@ -27,7 +27,7 @@ export class MyCustomParser extends TranslateParser {
     } else if (typeof expr === 'function') {
       return expr(params);
     }
-    return expr;
+    return undefined;
   }
 }
 ```
@@ -50,24 +50,28 @@ export const appConfig: ApplicationConfig = {
 };
 ```
 
-For parsers that need dependencies, use the traditional provider approach:
+### Parsers that need runtime dependencies
 
-```ts {2-3,9-13} title="app.config.ts"
-import {ApplicationConfig} from "@angular/core";
-import {provideTranslateService, TranslateParser} from "@ngx-translate/core";
-import {MyCustomParser} from './my-custom-parser';
+Use a factory function when your parser needs Angular services:
+
+```ts title="app.config.ts"
+import { inject } from "@angular/core";
+import {
+    provideTranslateService,
+    provideTranslateParser,
+} from "@ngx-translate/core";
+import { ParserConfigService } from "./parser-config.service";
+import { MyCustomParser } from "./my-custom-parser";
 
 export const appConfig: ApplicationConfig = {
-  providers: [
-    ...
-    provideTranslateService({
-      parser: {
-        provide: TranslateParser,
-        useFactory: () => new MyCustomParser(),
-        deps: [],
-      }
-    })
-  ],
+    providers: [
+        provideTranslateService({
+            parser: provideTranslateParser(
+                () => new MyCustomParser(inject(ParserConfigService)),
+            ),
+            fallbackLang: "en",
+        }),
+    ],
 };
 ```
 
