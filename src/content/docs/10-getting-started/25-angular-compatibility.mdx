@@ -19,7 +19,13 @@ To benefit from the latest features, performance improvements, and security upda
 
 | Angular       | @ngx-translate/core | @ngx-translate/http-loader | Tutorial |
 | ------------- | ------------------- | -------------------------- |--- |
-| 18 - 21+ | 18.x | 18.x | [Tutorial](https://www.codeandweb.com/babeledit/tutorials/how-to-translate-your-angular-app-with-ngx-translate/) |
+| 18 - 22 | 18.x | 18.x | [Tutorial](https://www.codeandweb.com/babeledit/tutorials/how-to-translate-your-angular-app-with-ngx-translate/) |
+
+_Tested against Angular 18, 19, 20, 21, and 22. Angular 18 users can stay on `@ngx-translate/core` v18.x — there is no separate compatibility branch._
+
+:::note[Angular 22: default change detection is now OnPush]
+Angular 22 makes `OnPush` the default change-detection strategy for components that don't declare one. This is an Angular framework change, not an ngx-translate change. ngx-translate's `translate` pipe and directive are OnPush-safe and update on language change. If one of _your_ components mutates the active language or translations **outside** Angular's change detection and its view stops updating, call `ChangeDetectorRef.markForCheck()` (or set `ChangeDetectionStrategy.Default` on that component). No ngx-translate API changed.
+:::
 
 ## Older versions
 

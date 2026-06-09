@@ -47,7 +47,7 @@ Most v18 upgrades are mechanical replacements. Open a global search across your 
 
 | Search for | What it means |
 |------------|---------------|
-| `"@ngx-translate/core": "^17` | Pre-flight: Angular peer dep is now `^18.0.0`. See [Angular 16 → 18 peer dependency bump](#angular-16--18-peer-dependency-bump--impact-high-pre-flight). |
+| `"@ngx-translate/core": "^17` | Pre-flight: Angular peer dep is now `>=18`. See [Angular 16 → 18 peer dependency bump](#angular-16--18-peer-dependency-bump--impact-high-pre-flight). |
 | [`TranslateModule`](#translatemodule-removed-impact-high) | Replace module imports with providers. The module is removed in v18. |
 | [`TranslateModule.forRoot`](#translatemodule-removed-impact-high) | Replace with `provideTranslateService()` in your bootstrap providers. |
 | [`TranslateModule.forChild`](#translatemoduleforchild-extend-true---providechildtranslateservice-impact-medium) | Replace with `provideTranslateService()` ([isolated](#translatemoduleforchild-isolate-true---providetranslateservice-impact-medium)) or `provideChildTranslateService()` ([connected, parent fallback](#translatemoduleforchild-extend-true---providechildtranslateservice-impact-medium)). |
@@ -73,7 +73,7 @@ If your build or runtime breaks, find the message below.
 
 | Error or warning | Fix |
 |------------------|-----|
-| `npm ERR! ERESOLVE could not resolve` … `peer @angular/core@"^18.0.0"` | Upgrade Angular first. See [Angular 16 → 18 peer dependency bump](#angular-16--18-peer-dependency-bump--impact-high-pre-flight). |
+| `npm ERR! ERESOLVE could not resolve` … `peer @angular/core@">=18"` | Upgrade Angular first. See [Angular 16 → 18 peer dependency bump](#angular-16--18-peer-dependency-bump--impact-high-pre-flight). |
 | `Cannot read currentLang of undefined` / unexpected `null` from `currentLang` | `currentLang` is now a `Signal<Language \| null>`. Call it: `translate.currentLang()`. |
 | TS: `Property 'defaultLang' does not exist on type 'TranslateService'` | Replace with `translate.fallbackLang()` (Signal) or `translate.getFallbackLang()`. |
 | TS: `Property 'setDefaultLang' does not exist on type 'TranslateService'` | Replace with `translate.setFallbackLang(lang)`. |
@@ -87,7 +87,7 @@ If your build or runtime breaks, find the message below.
 | TS: `Cannot find name 'DefaultLangChangeEvent'` | Use `FallbackLangChangeEvent`. |
 | TS: `Cannot find name 'setValue'` | Use `insertValue()` and assign the return value back. |
 | Console warn: `@ngx-translate/core: "<field>" received a bare class (<ClassName>); auto-wrapping with <helperName>(). For clarity, prefer <field>: <helperName>(<ClassName>).` | Wrap your class with the matching provider helper, e.g. `loader: provideTranslateLoader(MyLoader)`. |
-| Console warn: `@ngx-translate/core: error loading translations for <lang>` | Your loader threw. v18 logs failures instead of swallowing them. Inspect the loader. |
+| Console warn: `@ngx-translate/core: failed to load "<lang>". currentLang was NOT changed…` or `child failed to load "<lang>". Cause:` | Your loader threw. v18 logs failures instead of swallowing them. Inspect the loader. |
 | Console warn: `@ngx-translate/http-loader: error loading translation for <lang>` | HTTP request failed. The language load now returns `{}` for that resource by default; opt back into v17 fail-fast with `failOnError: true`. |
 | Console warn: deprecation warning on `<el translate>KEY</el>` | Element-text-as-key is deprecated. Use `[translate]="'KEY'"` or `*translateBlock`. |
 
@@ -95,12 +95,13 @@ If your build or runtime breaks, find the message below.
 
 ### Angular 16 → 18 peer dependency bump — Impact: High (pre-flight)
 
-v18 raises the minimum Angular peer dependency from `^16.0.0` to `^18.0.0`.
-Projects on Angular 16 or 17 must upgrade Angular first (`ng update @angular/core@18`)
-before installing `@ngx-translate/core@18`. The library uses signal-based reactivity
-and Angular DI features that landed in Angular 18.
+v18 raises the minimum Angular peer dependency from `^16.0.0` to `>=18`
+(Angular 18 through 22 are all supported). Projects on Angular 16 or 17 must
+upgrade Angular first (`ng update @angular/core@18`) before installing
+`@ngx-translate/core@18`. The library uses signal-based reactivity and Angular DI
+features that landed in Angular 18.
 
-If you're on Angular 18 already, no action needed.
+If you're on Angular 18 or newer already, no action needed.
 
 ### `TranslateModule` removed (Impact: High)
 
