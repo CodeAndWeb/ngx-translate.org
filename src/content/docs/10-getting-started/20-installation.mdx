@@ -110,10 +110,46 @@ they might not be used by the TranslateService.
 
 ### Initialize the `TranslateService` for your application
 
-In your components, you'll need to import `TranslatePipe` and `TranslateDirective` to your `imports`
-(v18 also ships [`TranslateBlockDirective`](/getting-started/translating-your-components/#translateblock-structural-directive)
-for the `*translateBlock` structural directive — import it when you need it). You can access the
-TranslateService using the modern `inject()` function:
+For standalone applications, the recommended way to initialize the `TranslateService` is with
+[`provideAppInitializer`](https://angular.dev/api/core/provideAppInitializer) in your `appConfig`.
+This runs once during application bootstrap, before your components are rendered, keeping side
+effects out of your components and avoiding any flicker of untranslated content:
+
+```ts {1-3, 10-15} title="app.config.ts"
+import {ApplicationConfig, provideAppInitializer, provideZoneChangeDetection, inject} from "@angular/core";
+import {provideTranslateService, TranslateService} from "@ngx-translate/core";
+import {provideTranslateHttpLoader} from "@ngx-translate/http-loader";
+import {provideHttpClient} from "@angular/common/http";
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideZoneChangeDetection({ eventCoalescing: true }),
+    provideHttpClient(),
+    provideTranslateService({
+      loader: provideTranslateHttpLoader({
+        prefix: '/assets/i18n/',
+        suffix: '.json'
+      }),
+      fallbackLang: 'en',
+      lang: 'en'
+    }),
+    provideAppInitializer(() => {
+      const translate = inject(TranslateService);
+      // `lang` and `fallbackLang` from provideTranslateService() are already applied;
+      // call addLangs() to register additional languages the user can switch to.
+      translate.addLangs(['de', 'en']);
+      translate.setDefaultLang('en');
+      translate.use('en');
+    })
+  ],
+};
+```
+
+Alternatively, you can access the `TranslateService` in a component using the modern `inject()`
+function and initialize it in the `AppComponent` constructor. You'll need to import `TranslatePipe`
+and `TranslateDirective` into your component's `imports` (v18 also ships
+[`TranslateBlockDirective`](/getting-started/translating-your-components/#translateblock-structural-directive)
+for the `*translateBlock` structural directive — import it when you need it):
 
 ```ts {2-7,12,16-20} title="app.component.ts"
 import { Component, inject } from '@angular/core';
