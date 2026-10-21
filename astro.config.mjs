@@ -14,6 +14,18 @@ import tailwindcss from "@tailwindcss/vite";
 
 //import markdown from "astro/dist/vite-plugin-markdown/index.js";
 
+// starlight-versions warns about any Banner override configured up front. CawBanner already
+// shows its own notice on old versions, so it replaces the plugin's banner after the plugin ran.
+/** @type {import('@astrojs/starlight/types').StarlightPlugin} */
+const overrideBannerAfterVersions = {
+    name: 'caw-banner-override',
+    hooks: {
+        'config:setup'({ config, updateConfig }) {
+            updateConfig({ components: { ...config.components, Banner: './src/components/CawBanner.astro' } });
+        },
+    },
+};
+
 // https://astro.build/config
 export default defineConfig({
   site: 'https://ngx-translate.org',
@@ -50,6 +62,8 @@ export default defineConfig({
       }),
       starlight({
           title: 'ngx-translate',
+          // src/content/docs/404.md renders the 404 page; the injected route would collide with it.
+          disable404Route: true,
           social: [ { icon: 'github', label: 'GitHub', href: 'https://github.com/ngx-translate/core' } ],
             sidebar: [{
               label: 'Start here',
@@ -154,6 +168,7 @@ export default defineConfig({
                       },
                   ],
               }),
+              overrideBannerAfterVersions,
           ],
           logo: {
               src: "./src/assets/ngx-translate.svg"
@@ -172,7 +187,6 @@ export default defineConfig({
           ],
           components: {
               PageFrame: "./src/components/PageFrameWithFooter.astro",
-              Banner: "./src/components/CawBanner.astro",
               PageSidebar: "./src/components/PageSidebar.astro",
           },
           editLink: {
@@ -185,6 +199,13 @@ export default defineConfig({
 
   vite: {
     plugins: [tailwindcss()],
+    build: {
+      rolldownOptions: {
+        // Astro injects its internal "use astro:head-inject" directive into every MDX page;
+        // rolldown dropping it while bundling is expected, so its warning is noise.
+        checks: { moduleLevelDirective: false },
+      },
+    },
   },
 })
 ;
