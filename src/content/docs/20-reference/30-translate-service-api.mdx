@@ -417,9 +417,40 @@ Synchronous lookup. Returns the key itself if translations aren't loaded yet.
 
 :::caution
 `instant()` is synchronous. With the default HTTP loader, translations load
-asynchronously. Call `instant()` only after a load has finished, or use
-[`get()`](#get) which waits.
+asynchronously. If you need a translated value on the first read, finish loading
+the translations first, or use [`get()`](#get) which waits.
 :::
+
+##### Reactive usage in v18
+
+In v18, `instant()` reads the library's language and translation signals. When
+called inside `computed()`, `effect()`, or an Angular template, Angular tracks
+those signal reads and updates the consumer when the tracked state changes.
+This is intentional: `TranslateService.translate()` itself wraps an `instant()`
+call in `computed()`.
+
+| Usage | Behavior |
+| --- | --- |
+| `const label = translate.instant('HELLO')` | Stores the value returned at that moment. |
+| `const label = computed(() => translate.instant('HELLO'))` | Returns a signal that updates when the tracked translation state changes. |
+| `const label = translate.translate('HELLO')` | Returns a translation signal directly, with support for reactive arguments. |
+
+Use `instant()` inside an existing `computed()` when a translation is part of a
+larger derived value. For example, with a `TranslateService` instance named
+`translate`:
+
+~~~ts
+import { computed } from '@angular/core';
+
+const tableConfig = computed(() => [{
+  header: translate.instant('table.headers.title'),
+  field: 'title',
+}]);
+~~~
+
+The header updates when the language changes or its loaded translation changes.
+The lookup still does not start or wait for loading: if no translation is
+available, it initially returns the key and updates when translations are loaded.
 
 ##### Examples
 
