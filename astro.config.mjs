@@ -3,7 +3,7 @@ import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import starlightLinksValidator from 'starlight-links-validator';
 import starlightVersions from 'starlight-versions'
-import {rehypeHeadingIds} from '@astrojs/markdown-remark';
+import {rehypeHeadingIds, unified} from '@astrojs/markdown-remark';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import sitemap from '@astrojs/sitemap';
 import matomo from 'astro-matomo';
@@ -20,12 +20,14 @@ export default defineConfig({
   trailingSlash: 'ignore',
 
   markdown: {
-      rehypePlugins: [
-          rehypeHeadingIds,
-          [rehypeAutolinkHeadings, {
-          // Wrap the heading text in a link.
-          behavior: 'wrap'
-      }]]
+      processor: unified({
+          rehypePlugins: [
+              rehypeHeadingIds,
+              [rehypeAutolinkHeadings, {
+              // Wrap the heading text in a link.
+              behavior: 'wrap'
+          }]]
+      })
   },
 
   redirects: {
@@ -115,14 +117,18 @@ export default defineConfig({
               ]
           }, {
               label: 'Recipes',
-              autogenerate: {
-                  directory: '30-recipes'
-              }
+              items: [{
+                  autogenerate: {
+                      directory: '30-recipes'
+                  }
+              }]
           }, {
               label: 'Resources',
-              autogenerate: {
-                  directory: '40-resources'
-              }
+              items: [{
+                  autogenerate: {
+                      directory: '40-resources'
+                  }
+              }]
           }],
           plugins: [
               starlightLinksValidator({exclude: ["/"] }),
