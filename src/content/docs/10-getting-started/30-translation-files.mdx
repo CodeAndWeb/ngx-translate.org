@@ -130,6 +130,10 @@ use the object form: `{ prefix: "/assets/i18n/common/", suffix: ".yaml" }`.
 This replaces the standalone `@codeandweb/ngx-translate-multi-http-loader` package: the same
 behavior is now built into `@ngx-translate/http-loader`.
 
+If shared files and application overrides mix nested objects with flat, dotted keys,
+enable [`flatten: true`](/reference/configuration/#flatten) to normalize each resource
+before merging. The default preserves the existing nested structure.
+
 ### Error handling: permissive vs strict
 
 By default the v18 HTTP loader is **permissive**: a failed request (e.g. a 404 for a
@@ -154,6 +158,11 @@ using `import`.
 The modular design of ngx-translate also makes it easy to switch to other file formats
 by implementing your own [loader](/reference/translate-loader-api/) or using one of the
 [plugins](/resources/plugins/).
+
+To report failures through your own logger, configure
+[`onLoadError`](/reference/configuration/#onloaderror). It receives the language,
+resource, request URL and original error. `failOnError` continues to control whether
+the failed resource becomes an empty object or the load fails.
 
 ## Where to store the Translation Files
 
