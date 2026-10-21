@@ -1,16 +1,10 @@
 {
     "extends": "astro/tsconfigs/strict",
-    "compilerOptions": 
-    {
-        "strictNullChecks": true,
-        "types": 
-        [
-            "@cloudflare/workers-types"
-        ]
+    "compilerOptions": {
+        "strictNullChecks": true
     },
-    "exclude":
-    [
-            "dist",
-            "recipe-verify"
+    "exclude": [
+        "dist",
+        "recipe-verify"
     ]
 }

@@ -18,12 +18,15 @@ For more detailed information, check out the [ngx-translate website](https://ngx
 
 Below are the essential commands you'll need for working with this project. All commands are run from the root of the project in a terminal:
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts a local dev server at `localhost:4321`    |
-| `npm run build`           | Builds your production site to `./dist/`         |
-| `npm run preview`         | Previews your build locally before deploying     |
-| `npm run astro ...`       | Runs CLI commands like `astro add`, `astro check`|
-| `npm run astro -- --help` | Displays help for using the Astro CLI            |
+| Command               | Action                                            |
+| :-------------------- | :------------------------------------------------ |
+| `pnpm install`        | Installs dependencies                             |
+| `pnpm dev`            | Starts a local dev server at `localhost:4321`     |
+| `pnpm build`          | Builds your production site to `./dist/`          |
+| `pnpm preview`        | Serves the built `./dist/` locally                |
+| `pnpm astro ...`      | Runs CLI commands like `astro add`, `astro check` |
+| `pnpm astro --help`   | Displays help for using the Astro CLI             |
+
+Deployment happens on Cloudflare: Workers Builds builds every push to `main` and
+deploys `./dist/` as static assets (see `wrangler.jsonc`).
 
