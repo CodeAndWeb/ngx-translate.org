@@ -135,7 +135,8 @@ behavior is now built into `@ngx-translate/http-loader`.
 By default the v18 HTTP loader is **permissive**: a failed request (e.g. a 404 for a
 missing language file or one resource in a multi-resource setup) is caught, logged
 as a `console.warn`, and replaced with an empty object. Other resources still contribute
-their keys, so your app keeps working with partial translations.
+their keys, so your app keeps working with partial translations. An `onLoadError`
+callback replaces the loader's default warning, as shown below.
 
 To restore the v17 fail-fast behavior (useful when a missing translation file should fail
 a deploy rather than serve partial translations), opt in with `failOnError: true`:
@@ -146,6 +147,22 @@ provideTranslateHttpLoader({
   failOnError: true,
 })
 ~~~
+
+To customize reporting, add `onLoadError` to either loader form:
+
+~~~ts
+provideTranslateHttpLoader({
+  prefix: "/assets/i18n/",
+  onLoadError: ({ lang, resource, url, error }) => {
+    console.warn("Translation resource failed", { lang, resource, url, error });
+  },
+})
+~~~
+
+The callback runs for each failed resource attempt in both modes, including
+failed retries. It does not change whether errors are recovered or propagated;
+`failOnError` still controls that. See [onLoadError](/reference/configuration/#onloaderror)
+for the callback fields, URL construction failures, and reporting behavior.
 
 ngx-translate uses JSON translation files by default when using the `TranslateHttpLoader`.
 These files have the added benefit of being easily embedded directly into your application

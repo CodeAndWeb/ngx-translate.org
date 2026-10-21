@@ -10,6 +10,18 @@ For the canonical machine-readable release record, see the
 
 This page summarizes user-facing changes in each major release.
 
+## Unreleased
+
+### HTTP loader error reporting
+
+Both HTTP loader configurations accept an `onLoadError` callback. It receives the
+language, resource, constructed URL (when available), and original error through
+the exported `TranslateHttpLoaderError` type. The callback replaces the loader's
+default warning and runs for each failed resource attempt, including retries.
+`failOnError` still controls whether the loader returns an empty object for the
+failed resource or propagates the original error. See
+[onLoadError](/reference/configuration/#onloaderror) for examples and failure behavior.
+
 ## v18.0
 
 v18 rebuilds ngx-translate on Angular Signals. The library is now fully standalone — `TranslateModule` is gone — and gains hierarchical service isolation, a block directive for templates, and per-call language selection. Existing template syntax (`| translate`, `[translate]`) works as before.
