@@ -13,8 +13,8 @@ For Angular version compatibility, see
 
 ## `provideTranslateService` / `provideChildTranslateService` config
 
-Both provider functions accept the same plugin slots (`loader`, `compiler`,
-`parser`, `missingTranslationHandler`); the root variant adds language fields
+Both provider functions accept `retry` and the same plugin slots (`loader`,
+`compiler`, `parser`, `missingTranslationHandler`); the root variant adds language fields
 (`fallbackLang`, `lang`). The plugin slots accept the **`TranslateProvider`**
 shape: a regular Angular `Provider` object, the matching `provideTranslate*`
 helper, a bare class, or a bare factory function. Bare classes and factories
@@ -59,6 +59,7 @@ implementations when omitted.
 |-----------------------------|-----------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `fallbackLang`              | `string`              | Fallback language used when a translation is missing in the current language.                                                                                     |
 | `lang`                      | `string`              | Initial active language on startup.                                                                                                                               |
+| `retry`                     | `number`              | Retries after a failed language load. Defaults to `0` (disabled). See [Retrying failed language loads](#retrying-failed-language-loads). |
 | `loader`                    | `TranslateProvider`   | Provides a [`TranslateLoader`](/reference/translate-loader-api/). Defaults to a no-op loader; provide `setTranslation()`-loaded data if you don't use one.        |
 | `compiler`                  | `TranslateProvider`   | Provides a [`TranslateCompiler`](/reference/translate-compiler-api/) that pre-processes translations after loading. Defaults to a no-op.                          |
 | `parser`                    | `TranslateProvider`   | Provides a [`TranslateParser`](/reference/translate-parser-api/) that interpolates `{{ placeholder }}` values. Defaults to the bundled `TranslateDefaultParser`.  |
@@ -109,6 +110,7 @@ export const routes: Routes = [
 
 | Name                        | Type                | Description                                                                                                       |
 |-----------------------------|---------------------|-------------------------------------------------------------------------------------------------------------------|
+| `retry`                     | `number`            | Retries for this child's own language loads. Defaults to `0`, independently of the root. See [Retrying failed language loads](#retrying-failed-language-loads). |
 | `loader`                    | `TranslateProvider` | Override the loader for this child only.                                                                          |
 | `compiler`                  | `TranslateProvider` | Override the compiler for this child only.                                                                        |
 | `parser`                    | `TranslateProvider` | Override the parser for this child only.                                                                          |
@@ -118,6 +120,49 @@ Unspecified slots use the parent service's plugins. Most child services only
 override `loader` to point at a feature-specific translation file. See
 [Concepts → Hierarchical Services](/reference/concepts/#hierarchical-services)
 for the chain semantics.
+
+### Retrying failed language loads
+
+Set `retry` to the number of retries allowed after the initial load attempt.
+The default is `0`, so failed loads are not retried automatically. For example,
+`retry: 2` allows up to three attempts, with a fixed 100 ms delay before each
+retry. This can help recover from transient network or response-parsing errors;
+it does not repair invalid JSON or missing files.
+
+With `@ngx-translate/http-loader`, you must also set `failOnError: true`.
+The default HTTP loader catches request errors and returns an empty object for
+each failed resource, leaving the service with no error to retry.
+
+~~~ts title="app.config.ts"
+import { ApplicationConfig } from '@angular/core';
+import { provideHttpClient } from '@angular/common/http';
+import { provideTranslateService } from '@ngx-translate/core';
+import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideHttpClient(),
+    provideTranslateService({
+      lang: 'en',
+      retry: 2,
+      loader: provideTranslateHttpLoader({
+        prefix: '/assets/i18n/',
+        failOnError: true,
+      }),
+    }),
+  ],
+};
+~~~
+
+The option applies to initial loads, language switches, fallback-language loads,
+and `reloadLang()`. `isLoading()` stays `true` during retry delays. If every
+attempt fails, the load Observable emits the error through the existing error
+handling. A later call can start a fresh load.
+
+Configure `retry` separately in `provideChildTranslateService()` for a child's
+own loader; the root's retry count is not inherited. The same `failOnError: true`
+requirement applies. With a multi-resource HTTP loader, a retry repeats the
+whole language load, including resources that succeeded on the previous attempt.
 
 ## Provider helpers
 
@@ -256,3 +301,6 @@ provideTranslateHttpLoader({
   failOnError: true,
 })
 ~~~
+
+`failOnError: true` is also required when using the service's
+[`retry` option](#retrying-failed-language-loads) to retry HTTP failures.

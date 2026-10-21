@@ -65,6 +65,15 @@ The v17 line accepts critical fixes against the `v17` branch.
 
 ### New Features
 
+#### Automatic retries for failed language loads
+
+Both `provideTranslateService()` and `provideChildTranslateService()` accept a
+`retry` count. The default is `0`, preserving existing behavior. For example,
+`retry: 2` allows two retries after the initial attempt, with 100 ms between
+attempts. HTTP loaders also require `failOnError: true` so request errors reach
+the service. See [Retrying failed language loads](/reference/configuration/#retrying-failed-language-loads)
+for a complete configuration example and child-service behavior.
+
 #### Hierarchical services with isolation
 
 `provideChildTranslateService()` creates a child service with its own `TranslateStore` and loader, scoped to a lazy-loaded module or component subtree. Child services delegate language selection (current/fallback lang) to the root, but load and store translations independently — child translations never write to the parent store.
