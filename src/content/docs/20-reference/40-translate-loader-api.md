@@ -36,6 +36,16 @@ multi-resource support. See
 
 Third-party loaders are listed in the [plugins section](/resources/plugins/).
 
+## Retrying failed loads
+
+The service's [`retry` option](/reference/configuration/#retrying-failed-language-loads)
+resubscribes to the Observable returned by `getTranslation()` after an error.
+It does not call `getTranslation()` again for each retry. Custom loaders must
+start a fresh load on each subscription; for Promise-based loaders, use
+`defer(() => fetchTranslations(lang))` instead of wrapping an already-created
+Promise with `from()`. Both helpers are exported by RxJS. Errors must propagate
+to the service for retries to run.
+
 ## Registering a Custom Loader
 
 Pass the loader class (or a factory) to `provideTranslateLoader()`, then nest
