@@ -4,7 +4,7 @@ description: Learn how to create a simple custom compiler for markdown processin
 slug: recipes/custom-compiler-guide
 ---
 
-Translation compilers in ngx-translate let you transform your translation text before it's displayed to users. This guide shows you how to create a simple compiler that converts markdown formatting (like **bold** text) into HTML.
+Translation compilers in ngx-translate transform your translation values when a language is loaded, before any component renders them. This guide shows where the compiler sits in the loading pipeline, how to write a minimal one, and a full example that converts markdown formatting (like **bold** text) into HTML.
 
 ## What Are Translation Compilers?
 
@@ -16,6 +16,85 @@ Every compiler needs to implement two methods:
 
 * `compile(value: string, lang: Language): string | InterpolateFunction` - Transforms a single translation text
 * `compileTranslations(translations: TranslationObject, lang: Language): InterpolatableTranslationObject` - Transforms all translations in a file
+
+The compiler runs at runtime, after the loader has read the file, so your JSON files stay untouched. If you want to transform the files themselves before the app ships, that's a build step, not a compiler.
+
+## Where the Compiler Runs
+
+The compiler is one step between the loader and your templates:
+
+1. The [`TranslateLoader`](/reference/translate-loader-api/) fetches the raw translations for a language (for example `en.json` over HTTP).
+2. `compileTranslations()` runs over the whole object, once, and the result is stored.
+3. Your components read the compiled values through `get()`, `instant()` or the `translate` pipe.
+4. At render time, the [`TranslateParser`](/reference/translate-parser-api/) substitutes `{{ placeholder }}` values, or calls the interpolation function your compiler returned.
+
+`set()` and `setTranslation()` run the compiler too, over the values you pass them. If your translations are already in their final form, use [`setCompiledTranslation()`](/reference/translate-service-api/#setcompiledtranslation) to skip the compile pass entirely. See the [Pre-compile translations recipe](/recipes/precompile-translations/) for a worked example.
+
+## A Minimal Compiler
+
+Here is the smallest useful compiler: it upper-cases every translation string.
+
+```typescript
+import { Injectable } from '@angular/core';
+import {
+    TranslateCompiler,
+    Language,
+    TranslationObject,
+    InterpolatableTranslationObject,
+    InterpolateFunction,
+} from '@ngx-translate/core';
+
+@Injectable()
+export class UpperCaseCompiler extends TranslateCompiler {
+  compile(value: string, _lang: Language): string | InterpolateFunction {
+    return value.toUpperCase();
+  }
+
+  compileTranslations(
+    translations: TranslationObject,
+    lang: Language,
+  ): InterpolatableTranslationObject {
+    const compiled: InterpolatableTranslationObject = {};
+
+    for (const [key, value] of Object.entries(translations)) {
+      if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+        // Handle nested translation objects
+        compiled[key] = this.compileTranslations(value as TranslationObject, lang);
+      } else if (typeof value === 'string') {
+        compiled[key] = this.compile(value, lang);
+      } else {
+        compiled[key] = value;
+      }
+    }
+
+    return compiled;
+  }
+}
+```
+
+`compile()` receives one string and returns the transformed string. `compileTranslations()` walks the whole translation object, nested objects included, and calls `compile()` on every string value. The walk stays the same across most compilers; the interesting part is what you do in `compile()`.
+
+## Returning an Interpolation Function
+
+`compile()` can also return a function. Do that when your translation syntax has placeholders of its own that you want to substitute at render time, instead of relying on the default `{{ param }}` syntax.
+
+Say you prefer `%placeholder%` in your translation files:
+
+```json title="en.json"
+{
+  "greeting": "Hello %name%!"
+}
+```
+
+Your compiler's `compile()` turns each value into a function that receives the interpolation parameters. Only `compile()` changes compared to the minimal compiler above; `compileTranslations()` is the same walk:
+
+```typescript
+compile(value: string, _lang: Language): string | InterpolateFunction {
+  return (params) => value.replace(/%(\w+)%/g, (_, key) => String(params?.[key] ?? ''));
+}
+```
+
+At render time, ngx-translate calls that function with the params you pass to the pipe or to `get()`, so `'greeting' | translate: {name: 'World'}` renders `Hello World!`. The same pattern covers expensive parsing: do the heavy work once inside `compile()`, and let the returned function do only the cheap part on every render.
 
 ## Creating a Markdown Compiler
 
@@ -68,14 +147,6 @@ export class MarkdownCompiler extends TranslateCompiler {
 ```
 
 The `compile` method handles individual translation strings. It uses regular expressions to find markdown patterns and replace them with HTML tags. The `compileTranslations` method processes entire translation files, including nested objects, by calling `compile` on each string value.
-
-:::tip[Already compiled at build time?]
-If your translations are pre-compiled at build time (e.g. an interpolation function
-factory ran during a build step), use
-[`setCompiledTranslation()`](/reference/translate-service-api/#setcompiledtranslation)
-to skip the runtime compiler entirely. See the
-[Pre-compile translations recipe](/recipes/precompile-translations/) for a worked example.
-:::
 
 ## Setting Up Your Compiler
 
@@ -133,6 +204,39 @@ Your compiler automatically transforms the markdown into HTML:
 - `**Welcome**` becomes `<strong>Welcome</strong>` (bold text)
 - `*amazing*` becomes `<em>amazing</em>` (italic text)  
 - `[Contact us](mailto:support@example.com)` becomes `<a href="mailto:support@example.com">Contact us</a>` (clickable link)
+
+## Ready-Made Compiler: ICU MessageFormat
+
+If you need pluralization or gender rules rather than custom markup, you don't have to write a compiler yourself. [`ngx-translate-messageformat-compiler`](https://github.com/lephyrus/ngx-translate-messageformat-compiler) compiles ICU MessageFormat syntax when a language loads, and it supports the current ngx-translate versions:
+
+```sh
+npm install ngx-translate-messageformat-compiler @messageformat/core
+```
+
+```typescript title="app.config.ts"
+import { bootstrapApplication } from '@angular/platform-browser';
+import { provideTranslateService, provideTranslateCompiler } from '@ngx-translate/core';
+import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
+import { TranslateMessageFormatCompiler } from 'ngx-translate-messageformat-compiler';
+import { AppComponent } from './app/app.component';
+
+bootstrapApplication(AppComponent, {
+  providers: [
+    provideTranslateService({
+      loader: provideTranslateHttpLoader(),
+      compiler: provideTranslateCompiler(() => new TranslateMessageFormatCompiler()),
+    })
+  ]
+});
+```
+
+```json title="en.json"
+{
+  "messages": "You have {count, plural, =0 {no messages} one {one message} other {# messages}}"
+}
+```
+
+Here `compile()` parses the MessageFormat pattern once per loaded language and returns an interpolation function, and the function resolves `{count}` on every render.
 
 ## When Should You Use a Custom Compiler?
 
