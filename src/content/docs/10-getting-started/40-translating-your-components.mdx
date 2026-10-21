@@ -1,6 +1,6 @@
 ---
 title: How to Translate Angular Components with ngx-translate
-description: Complete guide on using ngx-translate in Angular components. Learn TranslatePipe, TranslateDirective, and programmatic translation methods with code examples.
+description: Complete guide on using ngx-translate in Angular components. Learn TranslatePipe, TranslateDirective, Angular template slots, and programmatic translation methods with code examples.
 slug: getting-started/translating-your-components
 ---
 
@@ -188,6 +188,75 @@ With `*translateBlock`:
 Both produce identical output and identical reactivity. Pick `*translateBlock`
 when you have more than ~2 keys in one place, or when most translation calls
 in the block share parameters.
+
+### Angular templates inside translations
+
+`TranslateSlotsComponent` inserts your Angular templates into a translated message.
+Use it for links, buttons, components, or semantic elements such as `<time>` that need
+Angular bindings or event handlers. The translation controls where each template appears,
+and the host element gets no extra wrapper.
+
+Import `TranslateSlotsComponent` and `TranslateSlotDirective`, plus anything your slot
+content uses. This example uses `RouterLink` and `TranslatePipe`:
+
+~~~ts title=upload-hint.component.ts
+import { Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import {
+  _,
+  TranslatePipe,
+  TranslateSlotDirective,
+  TranslateSlotsComponent,
+} from '@ngx-translate/core';
+
+@Component({
+  selector: 'app-upload-hint',
+  standalone: true,
+  imports: [TranslateSlotsComponent, TranslateSlotDirective, TranslatePipe, RouterLink],
+  templateUrl: './upload-hint.component.html',
+})
+export class UploadHintComponent {
+  readonly uploadHintKey = _('UPLOAD_HINT');
+}
+~~~
+
+~~~html title=upload-hint.component.html
+<p [translateSlots]="uploadHintKey" [translateParams]="{ max: 5 }">
+  <ng-template translateSlot="link">
+    <a routerLink="/upload">{{ 'UPLOAD_LINK' | translate }}</a>
+  </ng-template>
+</p>
+~~~
+
+~~~json title=public/i18n/en.json
+{
+  "UPLOAD_HINT": "Drop up to {{max}} files here or {{link}}.",
+  "UPLOAD_LINK": "select them"
+}
+~~~
+
+This renders “Drop up to 5 files here or select them.”, with “select them” as an
+Angular router link. The text and the link label update when the language changes.
+
+#### Slot behavior
+
+- Use `translateSlots="UPLOAD_HINT"` for a literal key or bind `[translateSlots]` for
+  a dynamic key. Don't combine it with `translate` or `ngx-translate` on the same element.
+- Define slots as `ng-template` children of the host, including inside `@if` blocks.
+  Other children aren't rendered, but Angular still creates them.
+- Give each slot a unique name. A duplicate name or a slot name also supplied in
+  `translateParams` causes an error, including a collision with a nested parameter.
+- Every occurrence of a slot placeholder gets its own view. Views keep their state
+  when the language or slot order changes. Removing an occurrence destroys its view.
+- Translation text and ordinary parameter values are rendered as text, never as HTML.
+  A parameter value containing `{{link}}` doesn't insert the slot.
+- Slots pass through the configured parser as interpolation parameters, so custom
+  parsers and compiled translations work as well.
+
+Key extraction tools don't recognize `translateSlots` yet. Mark the key with `_()`
+in TypeScript and bind it with `[translateSlots]`, as in the example above.
+
+See also: [Angular template fragments](https://angular.dev/guide/templates/ng-template).
 
 ### Using HTML Tags in Translations
 
