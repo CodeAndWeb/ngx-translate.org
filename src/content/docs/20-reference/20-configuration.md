@@ -238,7 +238,7 @@ provideTranslateService({
 | `useHttpBackend` | `boolean` | `false`          | If `true`, bypasses HTTP interceptors by using `HttpBackend` directly.                                       |
 | `failOnError`    | `boolean` | `false`          | See [failOnError](#failonerror) below.                                                                       |
 | `flatten`       | `boolean` | `false`          | Normalize nested objects to dotted keys before merging. See [flatten](#flatten). |
-| `onLoadError`   | `(failure: TranslateHttpLoaderError) => void` | none | Replace loader warnings with a custom reporter. See [onLoadError](#onloaderror). |
+| `onLoadError`    | `(failure: TranslateHttpLoaderError) => void` | `undefined` | Reports each failed resource attempt. See [onLoadError](#onloaderror) below. |
 
 #### Multi-resource HTTP loader
 
@@ -264,7 +264,7 @@ provideTranslateHttpLoader({
 | `useHttpBackend` | `boolean`                                     | `false`        | Bypass interceptors via `HttpBackend`.                                                   |
 | `failOnError`    | `boolean`                                     | `false`        | See [failOnError](#failonerror) below.                                                   |
 | `flatten`       | `boolean`                                     | `false`        | Normalize each resource before merging. See [flatten](#flatten). |
-| `onLoadError`   | `(failure: TranslateHttpLoaderError) => void`   | none           | Report each failed resource attempt. See [onLoadError](#onloaderror). |
+| `onLoadError`    | `(failure: TranslateHttpLoaderError) => void` | `undefined` | Reports each failed resource attempt. See [onLoadError](#onloaderror) below. |
 
 :::note
 Arrays in translation values are **replaced wholesale** by later resources,
@@ -312,47 +312,13 @@ objects inside them, are kept intact. Null values, empty strings and empty objec
 are preserved. If one resource contains equivalent flat and nested keys, the last
 one encountered in JavaScript property enumeration order wins.
 
-#### onLoadError
-
-Set `onLoadError` to report failures through your application's logger. The callback
-replaces the HTTP loader's default warning and runs once per failed resource attempt,
-including each failed retry. It receives a `TranslateHttpLoaderError` exported by
-`@ngx-translate/http-loader`:
-
-| Field | Type | Meaning |
-|-------|------|---------|
-| `lang` | `string` | The requested language. |
-| `resource` | `string \| TranslateHttpLoaderResource` | The configured resource. Single-source configuration is represented as a prefix/suffix object. |
-| `url` | `string \| undefined` | The constructed request URL, including any cache buster. Undefined if language encoding failed before URL construction. |
-| `error` | `unknown` | The original failure. |
-
-~~~ts
-/*
- * AI GENERATED CODE: This snippet was produced or modified by AI. Review it carefully before relying on it.
- * Model: GPT-6
- * Prompt: Demonstrate a custom reporter for translation resource failures.
- */
-provideTranslateHttpLoader({
-  resources: ['/assets/i18n/common/', '/assets/i18n/application/'],
-  onLoadError: ({ lang, resource, url, error }) => {
-    console.error('Translation resource failed', { lang, resource, url, error });
-  },
-})
-~~~
-
-The callback reports failures in both permissive and strict mode. Its return value
-does not affect loading: `failOnError` still controls error propagation. If the
-callback throws, the loader warns about that exception and keeps the original
-loading outcome. Without a callback, the loader's warnings remain unchanged.
-The callback does not suppress separate warnings from `TranslateService` when a
-language load ultimately fails.
-
 #### failOnError
 
 By default the HTTP loader is **permissive** (`failOnError: false`): a failed
 request (for example a 404 on a missing language file) is caught
 per-resource, replaced with an empty object, and logged via
-`console.warn(@ngx-translate/http-loader: error loading translation for <lang>: ...)`.
+`console.warn(@ngx-translate/http-loader: error loading translation for <lang>: ...)`
+unless an [`onLoadError`](#onloaderror) callback is configured.
 Other resources still contribute their keys, and the app keeps rendering with
 partial translations.
 
@@ -370,3 +336,62 @@ provideTranslateHttpLoader({
 
 `failOnError: true` is also required when using the service's
 [`retry` option](#retrying-failed-language-loads) to retry HTTP failures.
+
+#### onLoadError
+
+Use `onLoadError` to report resource failures through your own logger or monitoring
+service. The option is available on both `TranslateHttpLoaderConfig` and
+`TranslateMultiHttpLoaderConfig`: it works with either form of
+`provideTranslateHttpLoader()` and with `provideTranslateMultiHttpLoader()`.
+
+~~~ts
+import { provideTranslateService } from '@ngx-translate/core';
+import {
+  provideTranslateHttpLoader,
+  type TranslateHttpLoaderError,
+} from '@ngx-translate/http-loader';
+
+provideTranslateService({
+  loader: provideTranslateHttpLoader({
+    resources: ['/assets/i18n/common/', '/assets/i18n/feature/'],
+    onLoadError: ({ lang, resource, url, error }: TranslateHttpLoaderError) => {
+      console.warn('Translation resource failed', { lang, resource, url, error });
+    },
+  }),
+});
+~~~
+
+Replace the example's `console.warn` with your application's reporting call.
+The callback receives a `TranslateHttpLoaderError`, exported from
+`@ngx-translate/http-loader`:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `lang` | `string` | The requested language, before URL encoding. |
+| `resource` | `string \| TranslateHttpLoaderResource` | The failing entry from `resources`. For the single-source form, this is a `{ prefix, suffix }` object with defaults applied. |
+| `url` | `string \| undefined` | The constructed URL, including the encoded language and any `enforceLoading` query string. `undefined` if language encoding failed before URL construction. |
+| `error` | `unknown` | The original error. Narrow its type before accessing properties such as an HTTP status. |
+
+The callback runs once for each failed resource attempt, including failures during
+service retries. Successful requests do not call it. It also reports failures
+before an HTTP request, such as malformed Unicode that cannot be encoded or
+rejected `.` and `..` language values. A constructed `url` does not guarantee
+that a request was sent.
+
+Reporting does not change the failure policy:
+
+| `failOnError` | With `onLoadError` | Without `onLoadError` |
+|--------------|-------------------|----------------------|
+| `false` (default) | Call the callback, then substitute `{}` for the failed resource. Other resources still contribute their keys. | Log the default loader warning, then substitute `{}`. |
+| `true` | Call the callback, then propagate the original error and fail the whole language load. | Propagate the original error without a loader warning. |
+
+Setting `onLoadError` alone does not enable retries. Configure both the service's
+[`retry` option](#retrying-failed-language-loads) and `failOnError: true` to retry
+HTTP failures. With multiple resources, each retry repeats the whole language
+load; the callback reports any resource that fails again.
+
+The callback replaces only the loader's default warning. Separate
+`TranslateService` warnings after a terminal loading failure still apply.
+If the callback throws synchronously, the loader warns that `onLoadError` failed
+and continues with the original loading outcome: `{}` in permissive mode or the
+original loading error in strict mode.

@@ -18,11 +18,11 @@ v18 rebuilds ngx-translate on Angular Signals. The library is now fully standalo
 
 v18 uses `effect()`, `takeUntilDestroyed()`, and stable signal APIs that landed in Angular 18. The peer dependency is `>=18`.
 
-| ngx-translate | Angular peer dep | Status |
-|---------------|------------------|--------|
-| 18.x          | `>=18`           | current — active development |
+| ngx-translate | Angular peer dep | Status                                      |
+| ------------- | ---------------- | ------------------------------------------- |
+| 18.x          | `>=18`           | current — active development                |
 | 17.x          | `>=16`           | critical fixes only; track the `v17` branch |
-| ≤16.x         | `>=15`           | end-of-life |
+| ≤16.x         | `>=15`           | end-of-life                                 |
 
 If you are on Angular 16 or 17, stay on `@ngx-translate/core@17` until you can upgrade Angular. Mixed-version installs are not supported.
 
@@ -30,19 +30,19 @@ If you are on Angular 16 or 17, stay on `@ngx-translate/core@17` until you can u
 
 See [Migrating from v17 to v18](/getting-started/migration-guide/) for the full step-by-step guide. The headline changes:
 
-| Change | Impact | Migration |
-|--------|--------|-----------|
-| `TranslateModule.forRoot/forChild` removed → use `provideTranslateService` / `provideChildTranslateService` | **High** | Per-app refactor of module imports |
-| `currentLang` is now `Signal<Language \| null>` (was a string getter) | **High** | Add `()` to every read site |
-| `defaultLang` / `setDefaultLang` / `onDefaultLangChange` removed | **Medium** | Replace with `fallbackLang*` equivalents |
-| `extend: true` config removed | **Medium** | Use `provideChildTranslateService` instead |
-| Mixed child content in `[translate]` elements no longer preserved | **Medium** | Restructure templates |
-| Element text as translation key (`<el translate>KEY</el>`) deprecated, removed in v19 | **Medium** | Switch to `[translate]="'KEY'"` or `*translateBlock` |
-| HTTP loader 404 → empty object (was: fail whole load) | **Medium** | Opt back into v17 behaviour with `failOnError: true` |
-| `setValue` removed | **Low** | Use `insertValue` |
-| `langs` getter removed | **Low** | Use `getLangs()` |
-| Empty keys return `""` instead of throwing | **Low** | Drop the try/catch |
-| ~10 store and pipe/directive internals removed | **Low** | Use public API |
+| Change                                                                                                      | Impact     | Migration                                            |
+| ----------------------------------------------------------------------------------------------------------- | ---------- | ---------------------------------------------------- |
+| `TranslateModule.forRoot/forChild` removed → use `provideTranslateService` / `provideChildTranslateService` | **High**   | Per-app refactor of module imports                   |
+| `currentLang` is now `Signal<Language \| null>` (was a string getter)                                       | **High**   | Add `()` to every read site                          |
+| `defaultLang` / `setDefaultLang` / `onDefaultLangChange` removed                                            | **Medium** | Replace with `fallbackLang*` equivalents             |
+| `extend: true` config removed                                                                               | **Medium** | Use `provideChildTranslateService` instead           |
+| Mixed child content in `[translate]` elements no longer preserved                                           | **Medium** | Restructure templates                                |
+| Element text as translation key (`<el translate>KEY</el>`) deprecated, removed in v19                       | **Medium** | Switch to `[translate]="'KEY'"` or `*translateBlock` |
+| HTTP loader 404 → empty object (was: fail whole load)                                                       | **Medium** | Opt back into v17 behaviour with `failOnError: true` |
+| `setValue` removed                                                                                          | **Low**    | Use `insertValue`                                    |
+| `langs` getter removed                                                                                      | **Low**    | Use `getLangs()`                                     |
+| Empty keys return `""` instead of throwing                                                                  | **Low**    | Drop the try/catch                                   |
+| ~10 store and pipe/directive internals removed                                                              | **Low**    | Use public API                                       |
 
 2 High · 5 Medium · 4 Low. Full list under [Breaking Changes](#breaking-changes).
 
@@ -83,17 +83,17 @@ A child can read translations from its parent (and up the chain), but siblings c
 ```ts
 // Root — in bootstrapApplication() or app config
 providers: [
-    provideTranslateService({
-        loader: provideTranslateHttpLoader(),
-    }),
-]
+  provideTranslateService({
+    loader: provideTranslateHttpLoader(),
+  }),
+];
 
 // Lazy route or component — child service with its own translations
 providers: [
-    provideChildTranslateService({
-        loader: provideTranslateHttpLoader({ prefix: "/assets/i18n/feature/" }),
-    }),
-]
+  provideChildTranslateService({
+    loader: provideTranslateHttpLoader({ prefix: "/assets/i18n/feature/" }),
+  }),
+];
 ```
 
 Translation lookup resolves child-first, then walks up to the parent. Local keys take precedence; shared keys from the root remain accessible.
@@ -105,8 +105,8 @@ To create a fully independent service with no parent fallback, use `provideTrans
 ```ts
 let svc: TranslateService | null = inject(TranslateService);
 while (svc) {
-    console.log(svc);
-    svc = svc.getParent();
+  console.log(svc);
+  svc = svc.getParent();
 }
 ```
 
@@ -166,10 +166,10 @@ The `ITranslateService` abstract class has been moved from `translate.service.ts
 `provideTranslateLoader()`, `provideTranslateCompiler()`, `provideTranslateParser()`, and `provideMissingTranslationHandler()` now accept factory functions in addition to classes:
 
 ```ts
-provideTranslateLoader(() => new MyLoader(someConfig))
-provideTranslateCompiler(() => new MyCompiler())
-provideTranslateParser(() => new MyParser())
-provideMissingTranslationHandler(() => new MyHandler(someConfig))
+provideTranslateLoader(() => new MyLoader(someConfig));
+provideTranslateCompiler(() => new MyCompiler());
+provideTranslateParser(() => new MyParser());
+provideMissingTranslationHandler(() => new MyHandler(someConfig));
 ```
 
 The existing class-based usage continues to work unchanged.
@@ -231,11 +231,11 @@ The HTTP loader gains built-in multi-resource support and better error handling,
 
 ```ts
 provideTranslateHttpLoader({
-    resources: [
-        "/assets/i18n/common/",
-        { prefix: "/assets/i18n/feature/", suffix: ".json" },
-    ],
-})
+  resources: [
+    "/assets/i18n/common/",
+    { prefix: "/assets/i18n/feature/", suffix: ".json" },
+  ],
+});
 ```
 
 Or use `provideTranslateMultiHttpLoader()` explicitly. Results are loaded in parallel and deep-merged.
@@ -248,10 +248,20 @@ To opt out and restore v17 fail-fast behaviour (useful when missing translation 
 
 ```ts
 provideTranslateHttpLoader({
-    prefix: "/assets/i18n/",
-    failOnError: true,
+  prefix: "/assets/i18n/",
+  failOnError: true,
 });
 ```
+
+#### HTTP loader error reporting
+
+Both HTTP loader configurations accept an `onLoadError` callback. It receives the
+language, resource, constructed URL (when available), and original error through
+the exported `TranslateHttpLoaderError` type. The callback replaces the loader's
+default warning and runs for each failed resource attempt, including retries.
+`failOnError` still controls whether the loader returns an empty object for the
+failed resource or propagates the original error. See
+[onLoadError](/reference/configuration/#onloaderror) for examples and failure behavior.
 
 #### `prefix` and `suffix` now optional
 
@@ -338,14 +348,14 @@ The `extend: true` config option has been removed. Use `provideChildTranslateSer
 ```ts
 // v17
 TranslateModule.forChild({
-    loader: { provide: TranslateLoader, useClass: FeatureLoader },
-    extend: true,
-})
+  loader: { provide: TranslateLoader, useClass: FeatureLoader },
+  extend: true,
+});
 
 // v18
 provideChildTranslateService({
-    loader: provideTranslateLoader(FeatureLoader),
-})
+  loader: provideTranslateLoader(FeatureLoader),
+});
 ```
 
 #### Child services now have their own store — Impact: Medium
