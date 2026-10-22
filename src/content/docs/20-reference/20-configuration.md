@@ -59,7 +59,7 @@ implementations when omitted.
 |-----------------------------|-----------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `fallbackLang`              | `string`              | Fallback language used when a translation is missing in the current language.                                                                                     |
 | `lang`                      | `string`              | Initial active language on startup.                                                                                                                               |
-| `retry`                     | `number`              | Retries after a failed language load. Defaults to `0` (disabled). See [Retrying failed language loads](#retrying-failed-language-loads). |
+| `retry`                     | `number \| TranslateRetryConfig` | Retries after a failed language load. Defaults to `0` (disabled). The [policy object](#custom-retry-policies-unreleased) is unreleased. See [Retrying failed language loads](#retrying-failed-language-loads). |
 | `loader`                    | `TranslateProvider`   | Provides a [`TranslateLoader`](/reference/translate-loader-api/). Defaults to a no-op loader; provide `setTranslation()`-loaded data if you don't use one.        |
 | `compiler`                  | `TranslateProvider`   | Provides a [`TranslateCompiler`](/reference/translate-compiler-api/) that pre-processes translations after loading. Defaults to a no-op.                          |
 | `parser`                    | `TranslateProvider`   | Provides a [`TranslateParser`](/reference/translate-parser-api/) that interpolates `{{ placeholder }}` values. Defaults to the bundled `TranslateDefaultParser`.  |
@@ -110,7 +110,7 @@ export const routes: Routes = [
 
 | Name                        | Type                | Description                                                                                                       |
 |-----------------------------|---------------------|-------------------------------------------------------------------------------------------------------------------|
-| `retry`                     | `number`            | Retries for this child's own language loads. Defaults to `0`, independently of the root. See [Retrying failed language loads](#retrying-failed-language-loads). |
+| `retry`                     | `number \| TranslateRetryConfig` | Retries for this child's own language loads. Defaults to `0`, independently of the root. The [policy object](#custom-retry-policies-unreleased) is unreleased. See [Retrying failed language loads](#retrying-failed-language-loads). |
 | `loader`                    | `TranslateProvider` | Override the loader for this child only.                                                                          |
 | `compiler`                  | `TranslateProvider` | Override the compiler for this child only.                                                                        |
 | `parser`                    | `TranslateProvider` | Override the parser for this child only.                                                                          |
@@ -163,6 +163,75 @@ Configure `retry` separately in `provideChildTranslateService()` for a child's
 own loader; the root's retry count is not inherited. The same `failOnError: true`
 requirement applies. With a multi-resource HTTP loader, a retry repeats the
 whole language load, including resources that succeeded on the previous attempt.
+
+#### Custom retry policies (unreleased)
+
+Pass a `TranslateRetryConfig` object to choose the retry delay and which errors
+to retry. Both provider functions accept this type, exported from
+`@ngx-translate/core`.
+
+| Property | Type | Behavior |
+| --- | --- | --- |
+| `count` | `number` | Required maximum number of retries after the initial attempt. Zero or negative values disable retries and both callbacks. |
+| `delay` | `number \| ((error: unknown, retryAttempt: number) => number)` | Delay in milliseconds. Defaults to `100`. The first retry has `retryAttempt = 1`; numbering restarts for each language load. |
+| `shouldRetry` | `(error: unknown) => boolean` | Runs when retries remain, before calculating the delay. Defaults to retrying every error. Returning `false` immediately propagates the original error without calling `delay`. |
+
+Use `retry: { count: 2, delay: 500 }` for a fixed delay. To wait longer after each
+failure and retry only selected HTTP errors:
+
+~~~ts title="app.config.ts"
+import { ApplicationConfig } from '@angular/core';
+import { HttpErrorResponse, provideHttpClient } from '@angular/common/http';
+import { provideTranslateService } from '@ngx-translate/core';
+import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideHttpClient(),
+    provideTranslateService({
+      lang: 'en',
+      retry: {
+        count: 2,
+        delay: (_error, retryAttempt) => 250 * 2 ** (retryAttempt - 1),
+        shouldRetry: (error) =>
+          error instanceof HttpErrorResponse &&
+          (error.status === 0 || error.status === 429 || error.status >= 500),
+      },
+      loader: provideTranslateHttpLoader({ failOnError: true }),
+    }),
+  ],
+};
+~~~
+
+This example waits 250 ms before the first retry and 500 ms before the second.
+A 404 fails immediately. Both callbacks receive the original loader error as
+`unknown`; check its type before reading properties. HTTP loaders still require
+`failOnError: true`, because permissive failures return an empty object without
+invoking either callback.
+
+A fixed or calculated delay must be a finite number from `0` to `2,147,483,647`
+milliseconds. TypeScript rejects string delays and callbacks that return strings.
+The service checks the value before scheduling each retry; an invalid value
+terminates the load with a `RangeError`. If `delay` or `shouldRetry` throws, the
+load fails with that exception. Exhausting `count` propagates the last loader error.
+
+Concurrent callers for the same language on one service share the load and retry
+sequence. `isLoading()` stays `true` during retry delays. With a policy object,
+the failed load Observable keeps its final error: subscribing again, including
+through RxJS `retry()`, does not start another request. Call `use()`,
+`setFallbackLang()`, or `reloadLang()` again to start a fresh load. This also works
+inside an error handler. Numeric retry settings retain their existing behavior,
+including the fixed 100 ms delay and resubscription after an error.
+
+The service copies the policy at construction. Later changes to its properties
+do not affect active or future loads. Configure each child or isolated service
+separately; a child does not inherit its parent's retry count or callbacks.
+
+Retries in a custom loader or HTTP interceptor combine with service retries.
+Two retries at each level can make up to nine requests for one resource: three
+service attempts, each allowing three loader attempts. See
+[Retrying failed loads](/reference/translate-loader-api/#retrying-failed-loads)
+for custom-loader requirements.
 
 ## Provider helpers
 
