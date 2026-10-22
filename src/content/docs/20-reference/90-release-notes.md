@@ -10,6 +10,15 @@ For the canonical machine-readable release record, see the
 
 This page summarizes user-facing changes in each major release.
 
+## Unreleased
+
+The `retry` option accepts a `TranslateRetryConfig` object with a retry count,
+a fixed or calculated delay, and an optional error filter. Numeric retries keep
+their 100 ms delay. Policy objects retain a failed load's error for later
+subscribers; call a loading method again to start a fresh attempt. See
+[Custom retry policies](/reference/configuration/#custom-retry-policies-unreleased)
+for configuration, error handling, and HTTP loader requirements.
+
 ## v18.0
 
 v18 rebuilds ngx-translate on Angular Signals. The library is now fully standalone — `TranslateModule` is gone — and gains hierarchical service isolation, a block directive for templates, and per-call language selection. Existing template syntax (`| translate`, `[translate]`) works as before.
