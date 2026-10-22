@@ -326,6 +326,12 @@ the translation instantly but only works if the translation file is already
 loaded or if translations have been manually set using
 [`setTranslation()`](/reference/translate-service-api/#settranslation).
 
+In v18, `instant()` also participates in Angular's signal tracking. Calling it
+inside `computed()` updates the derived value when the tracked translation state
+changes; calling it once outside a reactive context gives a snapshot. See
+[reactive usage of `instant()`](/reference/translate-service-api/#reactive-usage-in-v18)
+for an example and a comparison with `TranslateService.translate()`.
+
 ### Reacting to the current language with `currentLang()`
 
 In v18 `TranslateService.currentLang` is a `Signal<Language | null>`. Call it as a function
