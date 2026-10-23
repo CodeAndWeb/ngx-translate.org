@@ -10,6 +10,16 @@ For the canonical machine-readable release record, see the
 
 This page summarizes user-facing changes in each major release.
 
+## Unreleased
+
+### `ngxTranslate` directive alias
+
+`TranslateDirective` accepts `ngxTranslate` as a selector and input, with the
+existing `translateParams` input. Use `[ngxTranslate]="'app.hello'"` to get an
+Angular template error when the directive import is missing. Static attributes
+remain unchecked. Existing selectors continue to work. See the
+[`ngxTranslate` examples](/getting-started/translating-your-components/#ngxtranslate-alias-unreleased).
+
 ## v18.0
 
 v18 rebuilds ngx-translate on Angular Signals. The library is now fully standalone — `TranslateModule` is gone — and gains hierarchical service isolation, a block directive for templates, and per-call language selection. Existing template syntax (`| translate`, `[translate]`) works as before.

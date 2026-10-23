@@ -13,3 +13,4 @@ export * from "./task-5-5-10-fail-on-error";
 export * from "./task-5-5-11-precompile";
 export * from "./task-5-5-12-on-refresh";
 export * from "./task-5-5-13-compiler-guide";
+export * from "./task-1129-ngx-translate-alias";
