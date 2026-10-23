@@ -91,10 +91,31 @@ This is how you use the **directive**:
 <div [translate]="'app.hello'" [translateParams]="{name: 'John'}"></div>
 ~~~
 
+#### `ngxTranslate` alias (unreleased)
+
+Bind a key to `[ngxTranslate]` to let Angular report a missing directive import:
+
+~~~html
+<div [ngxTranslate]="'app.hello'" [translateParams]="{name: 'John'}"></div>
+~~~
+
+This alias is unreleased. It uses the same `TranslateDirective` import and
+`translateParams` input as `translate`. The translation updates when the bound key,
+parameters, or language changes. Existing `translate` and `ngx-translate` selectors
+remain supported.
+
+With Angular's normal template validation, `[ngxTranslate]` raises `NG8002` if
+`TranslateDirective` is missing from the component's `imports`. The name avoids
+HTML's native `translate` property. Static attributes such as
+`ngxTranslate="app.hello"` and `translate="app.hello"` do not trigger this check.
+The static `ngxTranslate="app.hello"` form also translates when the directive is
+imported.
+
 <Aside type="caution" title="Element text as the translation key is deprecated">
   Using the element's text content as the key (`<div translate>HELLO</div>`)
   is deprecated in v18 and **will be removed in v19**. v18 logs a console
-  warning at runtime for each offending element.
+  warning at runtime for each offending element. This also applies to the
+  unreleased alias without an explicit key: `<div ngxTranslate>HELLO</div>`.
 
   Two equivalent upgrade paths:
 
