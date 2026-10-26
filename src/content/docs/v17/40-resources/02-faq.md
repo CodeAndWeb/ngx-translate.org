@@ -178,9 +178,16 @@ triggers [`onTranslationChange`](/v17/reference/translate-service-api/#ontransla
 **Mock service approach:**
 
 ```typescript
+import { TestBed } from '@angular/core/testing';
+import { TranslateService } from '@ngx-translate/core';
+import { EMPTY, of } from 'rxjs';
+
 const mockTranslateService: Partial<TranslateService> = {
   get: jasmine.createSpy().and.returnValue(of('translated')),
-  instant: jasmine.createSpy().and.returnValue('translated')
+  instant: jasmine.createSpy().and.returnValue('translated'),
+  onTranslationChange: EMPTY,
+  onLangChange: EMPTY,
+  onFallbackLangChange: EMPTY,
 };
 
 TestBed.configureTestingModule({
@@ -189,6 +196,13 @@ TestBed.configureTestingModule({
   ]
 });
 ```
+
+`TranslatePipe` subscribes to all three change observables. Include them even
+when the test does not change languages; otherwise rendering the pipe throws
+`TypeError: Cannot read properties of undefined (reading 'subscribe')`.
+`EMPTY` completes without emitting, so this mock only covers a fixed translation.
+For language changes or translation updates, use the real service with
+`provideTranslateService()` and seed translations with `setTranslation()`.
 
 ### Why am I getting deprecation warnings after upgrading to v17?
 

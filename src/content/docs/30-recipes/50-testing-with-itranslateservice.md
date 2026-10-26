@@ -12,8 +12,8 @@ full service implementation.
 
 ## Mock with a partial implementation
 
-For most component tests you only need a few methods. Use `Partial<ITranslateService>`
-and cast through `as unknown as ITranslateService` when wiring up the provider:
+Use `Partial<ITranslateService>` to check the members your test provides. Include
+`translate()` when the template uses `TranslatePipe`, which reads its returned signal.
 
 ```ts
 import { signal } from "@angular/core";
@@ -30,6 +30,7 @@ const fakeTranslateService: Partial<ITranslateService> = {
     fallbackLang: signal<Language | null>("en"),
     instant: (key: string | string[]) => `[${key as string}]`,
     get: (key: string | string[]) => of(`[${key as string}]`),
+    translate: () => signal("translated"),
 };
 
 TestBed.configureTestingModule({
@@ -39,10 +40,10 @@ TestBed.configureTestingModule({
 });
 ```
 
-The cast through `unknown` is needed because `Partial<ITranslateService>` is
-not assignable to `ITranslateService` directly — but at the provider boundary
-Angular only calls the methods your component actually uses, so a partial
-fake is safe at runtime.
+The `useValue` provider accepts the partial fake without a cast. `Partial` does
+not check that every member used at runtime is present: add any other methods or
+signals your component reads. This mock's `translate()` returns a fixed value;
+use the real service below to test translation lookup or updates.
 
 ## Use the real service with `setTranslation()`
 
