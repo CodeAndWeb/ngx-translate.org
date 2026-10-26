@@ -25,12 +25,29 @@ const fakeTranslateService_task_5_4: Partial<ITranslateService> = {
     fallbackLang: signal<Language | null>("en"),
     instant: (key: string | string[]) => `[${key as string}]`,
     get: (key: string | string[]) => of(`[${key as string}]`),
+    translate: () => signal("translated"),
 };
 
 export function configureFakeTranslate_task_5_4(): void {
     TestBed.configureTestingModule({
         providers: [
             { provide: TranslateService, useValue: fakeTranslateService_task_5_4 },
+        ],
+    });
+}
+
+// FAQ mock; plain functions stand in for Jasmine spies in this compile check.
+const faqMockTranslateService: Partial<ITranslateService> = {
+    get: () => of("translated"),
+    instant: () => "translated",
+    translate: () => signal("translated"),
+    currentLang: signal<string | null>("en"),
+};
+
+export function configureFaqMockTranslate(): void {
+    TestBed.configureTestingModule({
+        providers: [
+            { provide: TranslateService, useValue: faqMockTranslateService },
         ],
     });
 }

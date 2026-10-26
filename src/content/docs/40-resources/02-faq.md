@@ -181,17 +181,21 @@ default. To merge new keys on top of the existing dictionary (the v17 default), 
 
 ### How do I test components with the new provider functions?
 
-Type your fake against `ITranslateService` (the abstract class extracted in v18) so
-TypeScript catches API drift. Then provide it under the `TranslateService` token:
+Type your fake against `Partial<ITranslateService>` to check the members you
+provide, and register it under the `TranslateService` token. Include `translate()`
+when the component template uses `TranslatePipe`; in v18, the pipe reads the
+signal returned by this method.
 
 ```typescript
 import { ITranslateService, TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { signal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 
 const mockTranslateService: Partial<ITranslateService> = {
   get: jasmine.createSpy().and.returnValue(of('translated')),
   instant: jasmine.createSpy().and.returnValue('translated'),
+  translate: jasmine.createSpy().and.returnValue(signal('translated')),
   currentLang: signal<string | null>('en'),
 };
 
@@ -202,5 +206,6 @@ TestBed.configureTestingModule({
 });
 ```
 
-For tests that aren't shape-sensitive, instantiate the real `TranslateService` via
-`provideTranslateService({ loader: provideTranslateLoader(FakeLoader) })`.
+This mock returns a fixed translation. For interpolation, language changes, or
+translation updates, use the
+[real service with `setTranslation()`](/recipes/testing-with-itranslateservice/#use-the-real-service-with-settranslation).
