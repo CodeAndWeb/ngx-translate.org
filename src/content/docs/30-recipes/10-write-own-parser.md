@@ -95,6 +95,105 @@ this.translate.get('HELLO', {name: 'John'}).subscribe((res: string) => {
 });
 ```
 
+## Nested translations (unreleased)
+
+Use the outer translation's resolved language when a parameter names another
+translation. This requires [core PR #1646](https://github.com/ngx-translate/core/pull/1646).
+The default parser does not add a `| translate` syntax inside placeholders;
+this example uses a `TranslatedParam` object to identify nested keys.
+
+1. Extend `TranslateDefaultParser` and override `formatValue()`:
+
+```ts title="nested-translate-parser.ts"
+import { inject, Injectable, Injector } from '@angular/core';
+import {
+  TranslateDefaultParser,
+  TranslateService,
+  type InterpolationContext,
+} from '@ngx-translate/core';
+
+export class TranslatedParam {
+  constructor(public readonly key: string) {}
+}
+
+@Injectable()
+export class NestedTranslateParser extends TranslateDefaultParser {
+  private readonly injector = inject(Injector);
+
+  protected override formatValue(
+    value: unknown,
+    context?: InterpolationContext,
+  ): string | undefined {
+    if (value instanceof TranslatedParam) {
+      if (context?.lang === undefined) {
+        return value.key;
+      }
+      const translate = this.injector.get(TranslateService);
+      return super.formatValue(
+        translate.instant(value.key, undefined, context.lang),
+        context,
+      );
+    }
+    return super.formatValue(value, context);
+  }
+}
+```
+
+Resolving `TranslateService` inside `formatValue()` avoids a constructor-time
+dependency cycle between the service and its parser. When the source language is
+unknown, this example displays the nested key. You can choose a different policy
+for that case.
+
+2. Register the parser with `provideTranslateService()`:
+
+```ts title="app.config.ts"
+import type { ApplicationConfig } from '@angular/core';
+import { provideTranslateParser, provideTranslateService } from '@ngx-translate/core';
+import { NestedTranslateParser } from './nested-translate-parser';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideTranslateService({
+      parser: provideTranslateParser(NestedTranslateParser),
+    }),
+  ],
+};
+```
+
+3. Supply a nested key as an interpolation parameter. In an Angular injection
+   context, using the service configured above:
+
+```ts
+import { inject } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
+import { TranslatedParam } from './nested-translate-parser';
+
+const translate = inject(TranslateService);
+translate.setTranslation('de', { INNER: 'deutscher innerer Wert' });
+translate.setTranslation('en', {
+  OUTER: 'Outer {{ nested }}',
+  INNER: 'English inner value',
+});
+translate.setFallbackLang('en');
+translate.use('de');
+
+translate.instant('OUTER', { nested: new TranslatedParam('INNER') });
+// 'Outer English inner value'
+```
+
+`OUTER` falls back to English, so its parser context supplies `lang: 'en'`.
+The nested lookup explicitly requests English, even though German is active.
+Load translations before using `instant()`; it does not wait for pending loads.
+An explicit language lookup checks that language in the service and its parents,
+without trying other fallback languages. A missing nested key goes through the
+configured missing-translation handler, whose default returns the key.
+
+If you implement `interpolate()` directly, accept an optional
+`context?: InterpolationContext` argument and forward it to function expressions
+as `expr(params, context)`. Existing two-argument parsers keep working but do not
+forward context automatically. See the
+[parser context reference](/reference/translate-parser-api/#interpolation-context-unreleased).
+
 ## When to Use a Custom Parser
 
 Consider creating a custom parser when:
