@@ -75,3 +75,31 @@ provideTranslateService({
 ## How to Build a Custom Compiler
 
 For a step-by-step guide see [Custom Translation Compilers](/recipes/custom-compiler-guide/).
+
+## Interpolation context (unreleased)
+
+With [core PR #1646](https://github.com/ngx-translate/core/pull/1646), the default
+parser passes an optional second argument to compiled functions:
+
+```ts
+import type {
+  InterpolationContext,
+  InterpolationParameters,
+} from '@ngx-translate/core';
+
+export type InterpolateFunction = (
+  params?: InterpolationParameters,
+  context?: InterpolationContext,
+) => string;
+```
+
+`context.key` is the requested translation key. `context.lang` is the language
+that supplied the message, including fallback and parent-service lookups. See
+[Interpolation context](/reference/translate-parser-api/#interpolation-context-unreleased)
+for cases where context is unavailable and for object or array translations.
+
+Existing functions that accept only `params` continue to work. The compiler's
+`lang` argument is unchanged and is still available at compile time. Context is
+supplied when a function is interpolated, including functions stored through
+`setCompiledTranslation()`. A custom parser must forward context to the function
+to support this behavior.
