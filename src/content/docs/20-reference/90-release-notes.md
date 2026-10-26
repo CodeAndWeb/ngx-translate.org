@@ -12,12 +12,22 @@ This page summarizes user-facing changes in each major release.
 
 ## Unreleased
 
+### Custom retry policies
+
 The `retry` option accepts a `TranslateRetryConfig` object with a retry count,
 a fixed or calculated delay, and an optional error filter. Numeric retries keep
 their 100 ms delay. Policy objects retain a failed load's error for later
 subscribers; call a loading method again to start a fresh attempt. See
 [Custom retry policies](/reference/configuration/#custom-retry-policies-unreleased)
 for configuration, error handling, and HTTP loader requirements.
+
+### `ngxTranslate` directive alias
+
+`TranslateDirective` accepts `ngxTranslate` as a selector and input, with the
+existing `translateParams` input. Use `[ngxTranslate]="'app.hello'"` to get an
+Angular template error when the directive import is missing. Static attributes
+remain unchecked. Existing selectors continue to work. See the
+[`ngxTranslate` examples](/getting-started/translating-your-components/#ngxtranslate-alias-unreleased).
 
 ## v18.0
 
