@@ -21,6 +21,16 @@ subscribers; call a loading method again to start a fresh attempt. See
 [Custom retry policies](/reference/configuration/#custom-retry-policies-unreleased)
 for configuration, error handling, and HTTP loader requirements.
 
+### Parser interpolation context
+
+Custom parsers and compiled translation functions can receive the requested key
+and the language that supplied a translation, including fallback and parent
+lookups. The context argument is optional, so existing implementations keep
+working. Service subclasses must forward the lookup callback to preserve the
+resolved language. See [Interpolation context](/reference/translate-parser-api/#interpolation-context-unreleased)
+and the [nested translation recipe](/recipes/write-own-parser/#nested-translations-unreleased).
+This feature is tracked in [core PR #1646](https://github.com/ngx-translate/core/pull/1646).
+
 ### `ngxTranslate` directive alias
 
 `TranslateDirective` accepts `ngxTranslate` as a selector and input, with the
