@@ -12,6 +12,15 @@ This page summarizes user-facing changes in each major release.
 
 ## Unreleased
 
+### Custom retry policies
+
+The `retry` option accepts a `TranslateRetryConfig` object with a retry count,
+a fixed or calculated delay, and an optional error filter. Numeric retries keep
+their 100 ms delay. Policy objects retain a failed load's error for later
+subscribers; call a loading method again to start a fresh attempt. See
+[Custom retry policies](/reference/configuration/#custom-retry-policies-unreleased)
+for configuration, error handling, and HTTP loader requirements.
+
 ### Parser interpolation context
 
 Custom parsers and compiled translation functions can receive the requested key
