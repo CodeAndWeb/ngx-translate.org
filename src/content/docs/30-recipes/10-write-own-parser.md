@@ -95,10 +95,12 @@ this.translate.get('HELLO', {name: 'John'}).subscribe((res: string) => {
 });
 ```
 
-## Nested translations (unreleased)
+<span id="nested-translations-unreleased"></span>
+
+## Nested translations
 
 Use the outer translation's resolved language when a parameter names another
-translation. This requires [core PR #1646](https://github.com/ngx-translate/core/pull/1646).
+translation. This requires v18.1 or later.
 The default parser does not add a `| translate` syntax inside placeholders;
 this example uses a `TranslatedParam` object to identify nested keys.
 
@@ -192,7 +194,7 @@ If you implement `interpolate()` directly, accept an optional
 `context?: InterpolationContext` argument and forward it to function expressions
 as `expr(params, context)`. Existing two-argument parsers keep working but do not
 forward context automatically. See the
-[parser context reference](/reference/translate-parser-api/#interpolation-context-unreleased).
+[parser context reference](/reference/translate-parser-api/#interpolation-context).
 
 ## When to Use a Custom Parser
 

@@ -59,7 +59,7 @@ implementations when omitted.
 |-----------------------------|-----------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `fallbackLang`              | `string`              | Fallback language used when a translation is missing in the current language.                                                                                     |
 | `lang`                      | `string`              | Initial active language on startup.                                                                                                                               |
-| `retry`                     | `number \| TranslateRetryConfig` | Retries after a failed language load. Defaults to `0` (disabled). The [policy object](#custom-retry-policies-unreleased) is unreleased. See [Retrying failed language loads](#retrying-failed-language-loads). |
+| `retry`                     | `number \| TranslateRetryConfig` | Retries after a failed language load. Defaults to `0` (disabled). The [policy object](#custom-retry-policies) is available since v18.1. See [Retrying failed language loads](#retrying-failed-language-loads). |
 | `loader`                    | `TranslateProvider`   | Provides a [`TranslateLoader`](/reference/translate-loader-api/). Defaults to a no-op loader; provide `setTranslation()`-loaded data if you don't use one.        |
 | `compiler`                  | `TranslateProvider`   | Provides a [`TranslateCompiler`](/reference/translate-compiler-api/) that pre-processes translations after loading. Defaults to a no-op.                          |
 | `parser`                    | `TranslateProvider`   | Provides a [`TranslateParser`](/reference/translate-parser-api/) that interpolates `{{ placeholder }}` values. Defaults to the bundled `TranslateDefaultParser`.  |
@@ -110,7 +110,7 @@ export const routes: Routes = [
 
 | Name                        | Type                | Description                                                                                                       |
 |-----------------------------|---------------------|-------------------------------------------------------------------------------------------------------------------|
-| `retry`                     | `number \| TranslateRetryConfig` | Retries for this child's own language loads. Defaults to `0`, independently of the root. The [policy object](#custom-retry-policies-unreleased) is unreleased. See [Retrying failed language loads](#retrying-failed-language-loads). |
+| `retry`                     | `number \| TranslateRetryConfig` | Retries for this child's own language loads. Defaults to `0`, independently of the root. The [policy object](#custom-retry-policies) is available since v18.1. See [Retrying failed language loads](#retrying-failed-language-loads). |
 | `loader`                    | `TranslateProvider` | Override the loader for this child only.                                                                          |
 | `compiler`                  | `TranslateProvider` | Override the compiler for this child only.                                                                        |
 | `parser`                    | `TranslateProvider` | Override the parser for this child only.                                                                          |
@@ -164,7 +164,9 @@ own loader; the root's retry count is not inherited. The same `failOnError: true
 requirement applies. With a multi-resource HTTP loader, a retry repeats the
 whole language load, including resources that succeeded on the previous attempt.
 
-#### Custom retry policies (unreleased)
+<span id="custom-retry-policies-unreleased"></span>
+
+#### Custom retry policies
 
 Pass a `TranslateRetryConfig` object to choose the retry delay and which errors
 to retry. Both provider functions accept this type, exported from

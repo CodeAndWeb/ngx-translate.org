@@ -1,6 +1,6 @@
 ---
 title: Release Notes
-description: What changed in each major ngx-translate release.
+description: What changed in each ngx-translate release.
 ---
 
 # Release Notes
@@ -8,9 +8,52 @@ description: What changed in each major ngx-translate release.
 For the canonical machine-readable release record, see the
 [GitHub Releases page](https://github.com/ngx-translate/core/releases).
 
-This page summarizes user-facing changes in each major release.
+This page summarizes user-facing changes in each release.
 
-## Unreleased
+<span id="unreleased"></span>
+
+## v18.1.0
+
+Upgrade both packages together:
+
+```sh
+npm install @ngx-translate/core@18.1.0 @ngx-translate/http-loader@18.1.0
+```
+
+Angular 18 or later is still required. This release includes the features and
+fixes from the 18.1 release candidates. Existing single-language fallback,
+numeric retry, parser, and directive APIs remain supported.
+
+### Translation APIs and templates
+
+- Configure an ordered fallback chain with `fallbackLangs`, change it with
+  `setFallbackLangs()`, and read it with `getFallbackLangs()` or the
+  `fallbackLangs` signal. When both options are set, `fallbackLangs` takes
+  precedence over `fallbackLang`; an empty array disables fallback.
+- Use `getAsync()` to await translations and `hasTranslationKey()` to check
+  whether a key exists. Register available languages with the `langs` provider option.
+- Use `TranslateSlotsComponent` and `TranslateSlotDirective` to insert Angular
+  templates into translated content.
+- Remove stored translations with `deleteLanguage()`. Earlier pending loads and
+  retries cannot restore the deleted language. Cancelled subscribers complete
+  without another value or error; a later explicit request can load it again.
+
+### HTTP loader
+
+- Use [`onLoadError`](/reference/configuration/#onloaderror) to report the language,
+  resource, request URL, and original error for each failed resource attempt.
+  It replaces the loader's default warning and works with both tolerant loading
+  and `failOnError: true`.
+- Enable [`flatten`](/reference/configuration/#flatten) to merge nested and dotted
+  keys consistently across resources. Later resources override equivalent keys.
+  Arrays, null values, and empty objects are preserved. Flattening is off by default.
+- Language identifiers are encoded in request URLs. Empty HTTP responses are supported.
+
+### Fixes
+
+Flat sibling keys remain accessible alongside nested keys. Date interpolation
+parameters are compared by value, language mutators no longer retrigger caller
+effects, and minified nameless plugin classes are recognized as classes.
 
 ### Custom retry policies
 
@@ -18,7 +61,7 @@ The `retry` option accepts a `TranslateRetryConfig` object with a retry count,
 a fixed or calculated delay, and an optional error filter. Numeric retries keep
 their 100 ms delay. Policy objects retain a failed load's error for later
 subscribers; call a loading method again to start a fresh attempt. See
-[Custom retry policies](/reference/configuration/#custom-retry-policies-unreleased)
+[Custom retry policies](/reference/configuration/#custom-retry-policies)
 for configuration, error handling, and HTTP loader requirements.
 
 ### Parser interpolation context
@@ -27,9 +70,10 @@ Custom parsers and compiled translation functions can receive the requested key
 and the language that supplied a translation, including fallback and parent
 lookups. The context argument is optional, so existing implementations keep
 working. Service subclasses must forward the lookup callback to preserve the
-resolved language. See [Interpolation context](/reference/translate-parser-api/#interpolation-context-unreleased)
-and the [nested translation recipe](/recipes/write-own-parser/#nested-translations-unreleased).
-This feature is tracked in [core PR #1646](https://github.com/ngx-translate/core/pull/1646).
+resolved language. See [Interpolation context](/reference/translate-parser-api/#interpolation-context)
+and the [nested translation recipe](/recipes/write-own-parser/#nested-translations).
+If a custom lookup does not report context, `context.lang` is undefined; the
+requested key is still supplied.
 
 ### `ngxTranslate` directive alias
 
@@ -37,7 +81,9 @@ This feature is tracked in [core PR #1646](https://github.com/ngx-translate/core
 existing `translateParams` input. Use `[ngxTranslate]="'app.hello'"` to get an
 Angular template error when the directive import is missing. Static attributes
 remain unchecked. Existing selectors continue to work. See the
-[`ngxTranslate` examples](/getting-started/translating-your-components/#ngxtranslate-alias-unreleased).
+[`ngxTranslate` examples](/getting-started/translating-your-components/#ngxtranslate-alias).
+
+[All changes since v18.0.0](https://github.com/ngx-translate/core/compare/v18.0.0...v18.1.0).
 
 ## v18.0
 

@@ -76,10 +76,11 @@ provideTranslateService({
 
 For a step-by-step guide see [Custom Translation Compilers](/recipes/custom-compiler-guide/).
 
-## Interpolation context (unreleased)
+<span id="interpolation-context-unreleased"></span>
 
-With [core PR #1646](https://github.com/ngx-translate/core/pull/1646), the default
-parser passes an optional second argument to compiled functions:
+## Interpolation context
+
+Since v18.1, the default parser passes an optional second argument to compiled functions:
 
 ```ts
 import type {
@@ -95,7 +96,7 @@ export type InterpolateFunction = (
 
 `context.key` is the requested translation key. `context.lang` is the language
 that supplied the message, including fallback and parent-service lookups. See
-[Interpolation context](/reference/translate-parser-api/#interpolation-context-unreleased)
+[Interpolation context](/reference/translate-parser-api/#interpolation-context)
 for cases where context is unavailable and for object or array translations.
 
 Existing functions that accept only `params` continue to work. The compiler's

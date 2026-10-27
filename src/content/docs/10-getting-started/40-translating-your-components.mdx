@@ -91,7 +91,9 @@ This is how you use the **directive**:
 <div [translate]="'app.hello'" [translateParams]="{name: 'John'}"></div>
 ~~~
 
-#### `ngxTranslate` alias (unreleased)
+<span id="ngxtranslate-alias-unreleased"></span>
+
+#### `ngxTranslate` alias
 
 Bind a key to `[ngxTranslate]` to let Angular report a missing directive import:
 
@@ -99,7 +101,7 @@ Bind a key to `[ngxTranslate]` to let Angular report a missing directive import:
 <div [ngxTranslate]="'app.hello'" [translateParams]="{name: 'John'}"></div>
 ~~~
 
-This alias is unreleased. It uses the same `TranslateDirective` import and
+Available since v18.1. It uses the same `TranslateDirective` import and
 `translateParams` input as `translate`. The translation updates when the bound key,
 parameters, or language changes. Existing `translate` and `ngx-translate` selectors
 remain supported.
@@ -115,7 +117,7 @@ imported.
   Using the element's text content as the key (`<div translate>HELLO</div>`)
   is deprecated in v18 and **will be removed in v19**. v18 logs a console
   warning at runtime for each offending element. This also applies to the
-  unreleased alias without an explicit key: `<div ngxTranslate>HELLO</div>`.
+  alias without an explicit key: `<div ngxTranslate>HELLO</div>`.
 
   Two equivalent upgrade paths:
 
