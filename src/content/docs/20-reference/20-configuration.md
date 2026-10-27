@@ -306,6 +306,7 @@ provideTranslateService({
 | `enforceLoading` | `boolean` | `false`          | If `true`, appends a cache-busting `?enforceLoading=<timestamp>` query string to bypass HTTP caches.         |
 | `useHttpBackend` | `boolean` | `false`          | If `true`, bypasses HTTP interceptors by using `HttpBackend` directly.                                       |
 | `failOnError`    | `boolean` | `false`          | See [failOnError](#failonerror) below.                                                                       |
+| `flatten`       | `boolean` | `false`          | Normalize nested objects to dotted keys before merging. See [flatten](#flatten). |
 | `onLoadError`    | `(failure: TranslateHttpLoaderError) => void` | `undefined` | Reports each failed resource attempt. See [onLoadError](#onloaderror) below. |
 
 #### Multi-resource HTTP loader
@@ -331,6 +332,7 @@ provideTranslateHttpLoader({
 | `enforceLoading` | `boolean`                                     | `false`        | Cache-busting query string, as above.                                                    |
 | `useHttpBackend` | `boolean`                                     | `false`        | Bypass interceptors via `HttpBackend`.                                                   |
 | `failOnError`    | `boolean`                                     | `false`        | See [failOnError](#failonerror) below.                                                   |
+| `flatten`       | `boolean`                                     | `false`        | Normalize each resource before merging. See [flatten](#flatten). |
 | `onLoadError`    | `(failure: TranslateHttpLoaderError) => void` | `undefined` | Reports each failed resource attempt. See [onLoadError](#onloaderror) below. |
 
 :::note
@@ -351,6 +353,33 @@ the multi-resource form.
 
 This built-in support replaces the standalone
 `@codeandweb/ngx-translate-multi-http-loader` package.
+
+#### flatten
+
+Set `flatten: true` when shared translations and application overrides use different
+combinations of nested objects and flat, dotted keys. The loader flattens each
+resource before merging, so resource order determines which equivalent key wins.
+For example, a later `{"menu.title": "Application"}` overrides an earlier
+`{"menu": {"title": "Library"}}`.
+
+~~~ts
+/*
+ * AI GENERATED CODE: This snippet was produced or modified by AI. Review it carefully before relying on it.
+ * Model: GPT-6
+ * Prompt: Demonstrate opt-in flattening for shared and application translation files.
+ */
+provideTranslateHttpLoader({
+  resources: ['/assets/i18n/common/', '/assets/i18n/application/'],
+  flatten: true,
+})
+~~~
+
+The default is `false`, preserving existing nested objects and lookup precedence.
+With flattening enabled, request individual dotted keys such as `menu.title`;
+the parent key `menu` no longer returns the original subtree. Arrays, including
+objects inside them, are kept intact. Null values, empty strings and empty objects
+are preserved. If one resource contains equivalent flat and nested keys, the last
+one encountered in JavaScript property enumeration order wins.
 
 #### failOnError
 
