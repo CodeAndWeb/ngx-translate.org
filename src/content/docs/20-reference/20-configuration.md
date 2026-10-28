@@ -164,8 +164,6 @@ own loader; the root's retry count is not inherited. The same `failOnError: true
 requirement applies. With a multi-resource HTTP loader, a retry repeats the
 whole language load, including resources that succeeded on the previous attempt.
 
-<span id="custom-retry-policies-unreleased"></span>
-
 #### Custom retry policies
 
 Pass a `TranslateRetryConfig` object to choose the retry delay and which errors

@@ -95,8 +95,6 @@ this.translate.get('HELLO', {name: 'John'}).subscribe((res: string) => {
 });
 ```
 
-<span id="nested-translations-unreleased"></span>
-
 ## Nested translations
 
 Use the outer translation's resolved language when a parameter names another

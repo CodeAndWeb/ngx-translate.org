@@ -10,8 +10,6 @@ For the canonical machine-readable release record, see the
 
 This page summarizes user-facing changes in each release.
 
-<span id="unreleased"></span>
-
 ## v18.1.0
 
 Upgrade both packages together:

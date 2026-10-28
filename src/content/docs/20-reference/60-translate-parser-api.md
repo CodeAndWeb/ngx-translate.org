@@ -74,8 +74,6 @@ provideTranslateService({
 
 For a complete example see [Write Your Own Parser](/recipes/write-own-parser/).
 
-<span id="interpolation-context-unreleased"></span>
-
 ## Interpolation context
 
 The optional context argument is available since v18.1. Existing two-argument calls continue to work.

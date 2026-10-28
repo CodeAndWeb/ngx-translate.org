@@ -76,8 +76,6 @@ provideTranslateService({
 
 For a step-by-step guide see [Custom Translation Compilers](/recipes/custom-compiler-guide/).
 
-<span id="interpolation-context-unreleased"></span>
-
 ## Interpolation context
 
 Since v18.1, the default parser passes an optional second argument to compiled functions:
