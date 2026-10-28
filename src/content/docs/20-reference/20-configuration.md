@@ -59,7 +59,7 @@ implementations when omitted.
 |-----------------------------|-----------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `fallbackLang`              | `string`              | Fallback language used when a translation is missing in the current language.                                                                                     |
 | `lang`                      | `string`              | Initial active language on startup.                                                                                                                               |
-| `retry`                     | `number \| TranslateRetryConfig` | Retries after a failed language load. Defaults to `0` (disabled). The [policy object](#custom-retry-policies-unreleased) is unreleased. See [Retrying failed language loads](#retrying-failed-language-loads). |
+| `retry`                     | `number \| TranslateRetryConfig` | Retries after a failed language load. Defaults to `0` (disabled). The [policy object](#custom-retry-policies) is available since v18.1. See [Retrying failed language loads](#retrying-failed-language-loads). |
 | `loader`                    | `TranslateProvider`   | Provides a [`TranslateLoader`](/reference/translate-loader-api/). Defaults to a no-op loader; provide `setTranslation()`-loaded data if you don't use one.        |
 | `compiler`                  | `TranslateProvider`   | Provides a [`TranslateCompiler`](/reference/translate-compiler-api/) that pre-processes translations after loading. Defaults to a no-op.                          |
 | `parser`                    | `TranslateProvider`   | Provides a [`TranslateParser`](/reference/translate-parser-api/) that interpolates `{{ placeholder }}` values. Defaults to the bundled `TranslateDefaultParser`.  |
@@ -110,7 +110,7 @@ export const routes: Routes = [
 
 | Name                        | Type                | Description                                                                                                       |
 |-----------------------------|---------------------|-------------------------------------------------------------------------------------------------------------------|
-| `retry`                     | `number \| TranslateRetryConfig` | Retries for this child's own language loads. Defaults to `0`, independently of the root. The [policy object](#custom-retry-policies-unreleased) is unreleased. See [Retrying failed language loads](#retrying-failed-language-loads). |
+| `retry`                     | `number \| TranslateRetryConfig` | Retries for this child's own language loads. Defaults to `0`, independently of the root. The [policy object](#custom-retry-policies) is available since v18.1. See [Retrying failed language loads](#retrying-failed-language-loads). |
 | `loader`                    | `TranslateProvider` | Override the loader for this child only.                                                                          |
 | `compiler`                  | `TranslateProvider` | Override the compiler for this child only.                                                                        |
 | `parser`                    | `TranslateProvider` | Override the parser for this child only.                                                                          |
@@ -164,7 +164,7 @@ own loader; the root's retry count is not inherited. The same `failOnError: true
 requirement applies. With a multi-resource HTTP loader, a retry repeats the
 whole language load, including resources that succeeded on the previous attempt.
 
-#### Custom retry policies (unreleased)
+#### Custom retry policies
 
 Pass a `TranslateRetryConfig` object to choose the retry delay and which errors
 to retry. Both provider functions accept this type, exported from
@@ -306,6 +306,7 @@ provideTranslateService({
 | `enforceLoading` | `boolean` | `false`          | If `true`, appends a cache-busting `?enforceLoading=<timestamp>` query string to bypass HTTP caches.         |
 | `useHttpBackend` | `boolean` | `false`          | If `true`, bypasses HTTP interceptors by using `HttpBackend` directly.                                       |
 | `failOnError`    | `boolean` | `false`          | See [failOnError](#failonerror) below.                                                                       |
+| `flatten`       | `boolean` | `false`          | Normalize nested objects to dotted keys before merging. See [flatten](#flatten). |
 | `onLoadError`    | `(failure: TranslateHttpLoaderError) => void` | `undefined` | Reports each failed resource attempt. See [onLoadError](#onloaderror) below. |
 
 #### Multi-resource HTTP loader
@@ -331,6 +332,7 @@ provideTranslateHttpLoader({
 | `enforceLoading` | `boolean`                                     | `false`        | Cache-busting query string, as above.                                                    |
 | `useHttpBackend` | `boolean`                                     | `false`        | Bypass interceptors via `HttpBackend`.                                                   |
 | `failOnError`    | `boolean`                                     | `false`        | See [failOnError](#failonerror) below.                                                   |
+| `flatten`       | `boolean`                                     | `false`        | Normalize each resource before merging. See [flatten](#flatten). |
 | `onLoadError`    | `(failure: TranslateHttpLoaderError) => void` | `undefined` | Reports each failed resource attempt. See [onLoadError](#onloaderror) below. |
 
 :::note
@@ -351,6 +353,33 @@ the multi-resource form.
 
 This built-in support replaces the standalone
 `@codeandweb/ngx-translate-multi-http-loader` package.
+
+#### flatten
+
+Set `flatten: true` when shared translations and application overrides use different
+combinations of nested objects and flat, dotted keys. The loader flattens each
+resource before merging, so resource order determines which equivalent key wins.
+For example, a later `{"menu.title": "Application"}` overrides an earlier
+`{"menu": {"title": "Library"}}`.
+
+~~~ts
+/*
+ * AI GENERATED CODE: This snippet was produced or modified by AI. Review it carefully before relying on it.
+ * Model: GPT-6
+ * Prompt: Demonstrate opt-in flattening for shared and application translation files.
+ */
+provideTranslateHttpLoader({
+  resources: ['/assets/i18n/common/', '/assets/i18n/application/'],
+  flatten: true,
+})
+~~~
+
+The default is `false`, preserving existing nested objects and lookup precedence.
+With flattening enabled, request individual dotted keys such as `menu.title`;
+the parent key `menu` no longer returns the original subtree. Arrays, including
+objects inside them, are kept intact. Null values, empty strings and empty objects
+are preserved. If one resource contains equivalent flat and nested keys, the last
+one encountered in JavaScript property enumeration order wins.
 
 #### failOnError
 

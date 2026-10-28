@@ -74,11 +74,9 @@ provideTranslateService({
 
 For a complete example see [Write Your Own Parser](/recipes/write-own-parser/).
 
-## Interpolation context (unreleased)
+## Interpolation context
 
-The optional context argument is part of
-[core PR #1646](https://github.com/ngx-translate/core/pull/1646) and requires a
-build containing that change. Existing two-argument calls continue to work.
+The optional context argument is available since v18.1. Existing two-argument calls continue to work.
 
 ```ts
 import type {
@@ -113,7 +111,7 @@ export interface InterpolationContext {
 For example, when German is active but an English fallback supplies `WELCOME`,
 the parser receives `{ key: 'WELCOME', lang: 'en' }`. This lets a custom parser
 resolve nested translations in the same language as the outer message.
-See [Nested translations](/recipes/write-own-parser/#nested-translations-unreleased).
+See [Nested translations](/recipes/write-own-parser/#nested-translations).
 
 Context is optional for direct parser calls. A custom service lookup that does
 not report its context leaves `lang` undefined. Treat that as an unknown source
@@ -134,7 +132,7 @@ formatValue(value: unknown, context?: InterpolationContext): string | undefined;
 The `key` argument of `getInterpolationReplacement()` names the interpolation
 parameter, such as `name` in `{{ name }}`. `context.key` names the translation.
 Default string formatting stays the same. Function expressions receive context
-as their second argument; see [Compiled functions](/reference/translate-compiler-api/#interpolation-context-unreleased).
+as their second argument; see [Compiled functions](/reference/translate-compiler-api/#interpolation-context).
 
 Existing hook overrides keep working. To use context in an override, accept the
 optional argument and forward it when calling `super`. Custom implementations of
