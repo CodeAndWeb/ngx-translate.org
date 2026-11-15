@@ -8,24 +8,18 @@ Install the `ngx-translate` skill to give a coding agent guidance for setup, mig
 translation audits. Its bundled checker compares JSON catalogues for missing keys, extra keys,
 value types, and interpolation parameters.
 
-:::note[Preview]
-The skill is proposed in [ngx-translate/core#1705](https://github.com/ngx-translate/core/pull/1705).
-Use the [preview source](https://github.com/ngx-translate/core/tree/0fdaa5065fadc32b6ab0e66c8ac5d62ea097b186/skills/ngx-translate)
-while that PR is unmerged. The checker runs directly from the skill folder; it does not need npm
-installation or a build step.
-:::
+The skill is available in the [core repository](https://github.com/ngx-translate/core/tree/develop/skills/ngx-translate).
+The checker runs directly from the skill folder; it does not need npm installation or a build step.
 
 ## Install the skill
 
 You need an agent that supports skills and can run local commands. The checker requires Node.js 22
 or later.
 
-1. Get a separate checkout of [core#1705](https://github.com/ngx-translate/core/pull/1705):
+1. Get a separate checkout of the core repository's `develop` branch:
 
    ```bash
-   git clone https://github.com/ngx-translate/core.git ngx-translate-skills
-   git -C ngx-translate-skills fetch origin pull/1705/head
-   git -C ngx-translate-skills checkout --detach FETCH_HEAD
+   git clone --branch develop --single-branch https://github.com/ngx-translate/core.git ngx-translate-skills
    ```
 
 2. Copy `ngx-translate-skills/skills/ngx-translate` into your agent's configured skills directory.
